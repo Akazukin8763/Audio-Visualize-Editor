@@ -11,6 +11,9 @@ module com.visualize.main {
     requires org.bytedeco.ffmpeg;
     requires org.bytedeco.javacv;
 
+    requires com.sun.jna;
+    requires com.sun.jna.platform;
+
     opens com.visualize.main to javafx.fxml;
     exports com.visualize.main;
 }
