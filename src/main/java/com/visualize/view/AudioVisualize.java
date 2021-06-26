@@ -1,18 +1,24 @@
 package com.visualize.view;
 
-import com.visualize.Jar;
+//import com.visualize.Jar;
 
 import javafx.scene.layout.Pane;
+import javafx.animation.Timeline;
 import java.awt.image.BufferedImage;
 
 public abstract class AudioVisualize implements Drawable{
 
-    protected final Pane pane;
+    protected Pane pane;
+    protected Timeline timeline;
+
+    protected final int width;
+    protected final int height;
+
     protected static double sensitivity;
     protected static double offset;
 
-    protected String jpgDirPath = new java.io.File(Jar.getJarPath() + "/image").getAbsolutePath();
-    //protected String jpgDirPath = new java.io.File("src/main/resources/image").getAbsolutePath();
+    //protected String jpgDirPath = new java.io.File(Jar.getJarPath() + "/image").getAbsolutePath();
+    protected String jpgDirPath = new java.io.File("src/main/resources/image").getAbsolutePath();
 
     // Lambda Function Array
     protected static final AudioVisualize.MagnitudeMode magnitudeSingle = (s1, s2) -> s1; // s1 = s2
@@ -26,8 +32,12 @@ public abstract class AudioVisualize implements Drawable{
     }
 
     // Constructor
-    public AudioVisualize(Pane pane) {
-        this.pane = pane;
+    public AudioVisualize(int width, int height) {
+        this.pane = new Pane();
+        this.timeline = new Timeline();
+
+        this.width = width;
+        this.height = height;
 
         setSensitivity(1);
         setOffset(64);

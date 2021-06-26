@@ -38,13 +38,13 @@ public class AnalogyVisualize extends AudioVisualize{
     }
 
     // Constructor
-    public AnalogyVisualize(Pane pane) {
-        super(pane);
+    public AnalogyVisualize(int width, int height) {
+        super(width, height);
     }
 
     // Methods
     @Override
-    public void preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
+    public Pane preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
         pane.getChildren().clear(); // 清空所有矩形物件
 
         int barNum = visualizeFormat.getBarNum();
@@ -101,11 +101,14 @@ public class AnalogyVisualize extends AudioVisualize{
         polyline.setEffect(dropShadow);
 
         pane.getChildren().add(polyline);
+
+        return pane;
     }
 
     @Override
-    public Timeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
-        Timeline timeline = new Timeline();
+    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
+        pane = preview(visualizeFormat, side); // 重設所有矩形
+        timeline = new Timeline(); // 重設所有動畫
 
         int lengths = magnitude[0][0].length; // 時間區塊
         int channels = (stereo == VisualizeMode.Stereo.SINGLE) ? 0 : 1; // 單雙聲道，用來確保參數個數一樣
@@ -198,12 +201,13 @@ public class AnalogyVisualize extends AudioVisualize{
             */
         }
 
-        return timeline;
+        return new VisualizeParameter.PaneTimeline(pane, timeline);
     }
 
     @Override
     public int saveImage(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) throws java.io.IOException{
-       WritableImage writableImage = new WritableImage((int)pane.getWidth(), (int)pane.getHeight()); // 設定圖片大小
+        Pane pane = new Pane();
+        WritableImage writableImage = new WritableImage((int)pane.getWidth(), (int)pane.getHeight()); // 設定圖片大小
         SnapshotParameters snapshotParameters = new SnapshotParameters(); // 設定截圖範圍
         snapshotParameters.setViewport(new Rectangle2D(0, 0, pane.getWidth(), pane.getHeight()));
 

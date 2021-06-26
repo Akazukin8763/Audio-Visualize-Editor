@@ -181,8 +181,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        //System.out.println(Main.class.getResource("/music/__default__.wav"));
-        //System.out.println(getJarPath());
         launch(args);
     }
 
@@ -256,7 +254,6 @@ public class Main extends Application {
             stop();
         clear();
         updateData();
-        visualizePane.preview();
 
         visualizePane.animate();
     }

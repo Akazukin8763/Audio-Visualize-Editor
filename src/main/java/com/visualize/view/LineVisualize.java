@@ -42,13 +42,13 @@ public class LineVisualize extends AudioVisualize{
     }
 
     // Constructor
-    public LineVisualize(Pane pane) {
-        super(pane);
+    public LineVisualize(int width, int height) {
+        super(width, height);
     }
 
     // Methods
     @Override
-    public void preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
+    public Pane preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
         pane.getChildren().clear(); // 清空所有矩形物件
 
         int barNum = visualizeFormat.getBarNum();
@@ -81,11 +81,14 @@ public class LineVisualize extends AudioVisualize{
 
             pane.getChildren().add(rectangle);
         }
+
+        return pane;
     }
 
     @Override
-    public Timeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
-        Timeline timeline = new Timeline();
+    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
+        pane = preview(visualizeFormat, side); // 重設所有矩形
+        timeline = new Timeline(); // 重設所有動畫
 
         Rectangle rect; // 要動畫化的 Rectangle
         int bar = 0; // 第幾個 Bar (邊號)
@@ -123,7 +126,7 @@ public class LineVisualize extends AudioVisualize{
             bar++;
         }
 
-        return timeline;
+        return new VisualizeParameter.PaneTimeline(pane, timeline);
     }
 
     @Override

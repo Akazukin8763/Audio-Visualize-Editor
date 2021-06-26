@@ -27,6 +27,10 @@ public class VisualizePane extends Pane {
 
     public static final int BUFFER = 2048;
 
+    private final int width = 1920;
+    private final int height = 1080;
+    private AudioVisualize audioVisualize;
+
     private Timeline timeline;
     public BooleanProperty timeChangeProperty;
     public double currentTime;
@@ -82,7 +86,7 @@ public class VisualizePane extends Pane {
 
         // Discord Color: #36393F
         this.setBackgroundStyle("null", "#FFFFFF", "no-repeat", "center");
-        this.setPrefSize(1920, 1080);
+        this.setPrefSize(width, height);
     }
 
     // Methods
@@ -203,36 +207,37 @@ public class VisualizePane extends Pane {
     public void preview() {
         switch (view) {
             case LINE:
-                new LineVisualize(this).preview(visualizeFormat, side);
+                audioVisualize = new LineVisualize(width, height);
                 break;
             case CIRCLE:
-                new CircleVisualize(this).preview(visualizeFormat, side);
+                audioVisualize = new CircleVisualize(width, height);
                 break;
             case ANALOGY:
-                new AnalogyVisualize(this).preview(visualizeFormat, side);
+                audioVisualize = new AnalogyVisualize(width, height);
                 break;
             default:
                 throw new IllegalArgumentException("Doesn't support this view mode.");
         }
+
+        // preview()
+        Pane pane = audioVisualize.preview(visualizeFormat, side);
+
+        // Set
+        this.getChildren().clear();
+        this.getChildren().addAll(pane.getChildren());
     }
 
     public void animate() {
         updateData();
 
-        // Animation
-        switch (view) {
-            case LINE:
-                timeline = new LineVisualize(this).animate(visualizeFormat, side, stereo, magnitude, spf);
-                break;
-            case CIRCLE:
-                timeline = new CircleVisualize(this).animate(visualizeFormat, side, stereo, magnitude, spf);
-                break;
-            case ANALOGY:
-                timeline = new AnalogyVisualize(this).animate(visualizeFormat, side, stereo, magnitude, spf);
-                break;
-            default:
-                throw new IllegalArgumentException("Doesn't support this view mode.");
-        }
+        // animate()
+        VisualizeParameter.PaneTimeline paneTimeline = audioVisualize.animate(visualizeFormat, side, stereo, magnitude, spf);
+
+        // Set Pane, Animation
+        this.getChildren().clear();
+        this.getChildren().addAll(paneTimeline.getPane().getChildren());
+        this.timeline = new Timeline();
+        this.timeline.getKeyFrames().addAll(paneTimeline.getTimeline().getKeyFrames());
 
         // Audio
         timeline.getKeyFrames().add(new KeyFrame(Duration.ZERO, audioFile.getStartEvent()));
@@ -251,7 +256,7 @@ public class VisualizePane extends Pane {
     }
 
     public void saveVideo(String filepath) throws java.io.IOException {
-        updateData();
+        //updateData();
 
         /*VisualizePane visualizePane = new VisualizePane(audioFile, visualizeFormat, side, view, stereo);
         visualizePane.setBackgroundStyle(backgroundImage, backgroundColor, backgroundRepeat, backgroundPosition);
@@ -321,7 +326,7 @@ public class VisualizePane extends Pane {
         };
         service.start();*/
 
-        java.io.File imgPath = new java.io.File(Jar.getJarPath() + "/image");
+        /*java.io.File imgPath = new java.io.File(Jar.getJarPath() + "/image");
         //java.io.File imgPath = new java.io.File("src/main/resources/image");
         imgPath.delete();
         imgPath.mkdirs();
@@ -355,7 +360,7 @@ public class VisualizePane extends Pane {
 
         BackgroundExportMp4 backgroundExportMp4 = new BackgroundExportMp4(jpgDirPath, audioPath, (float)(fps), (int)this.getPrefWidth(), (int)this.getPrefHeight(), filepath, nums);
         backgroundExportMp4.execute();
-
+        */
     }
 
     public void play() {

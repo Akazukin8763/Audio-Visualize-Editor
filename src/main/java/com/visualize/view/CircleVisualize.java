@@ -42,13 +42,13 @@ public class CircleVisualize extends AudioVisualize{
     }
 
     // Constructor
-    public CircleVisualize(Pane pane) {
-        super(pane);
+    public CircleVisualize(int width, int height) {
+        super(width, height);
     }
 
     // Methods
     @Override
-    public void preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
+    public Pane preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
         pane.getChildren().clear(); // 清空所有矩形物件
 
         int barNum = visualizeFormat.getBarNum();
@@ -86,11 +86,14 @@ public class CircleVisualize extends AudioVisualize{
 
             pane.getChildren().add(rectangle);
         }
+
+        return pane;
     }
 
     @Override
-    public Timeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
-        Timeline timeline = new Timeline();
+    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
+        pane = preview(visualizeFormat, side); // 重設所有矩形
+        timeline = new Timeline(); // 重設所有動畫
 
         double posY = visualizeFormat.getPosY();
         int radius = visualizeFormat.getRadius();
@@ -133,11 +136,12 @@ public class CircleVisualize extends AudioVisualize{
             bar++;
         }
 
-        return timeline;
+        return new VisualizeParameter.PaneTimeline(pane, timeline);
     }
 
     @Override
     public int saveImage(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) throws java.io.IOException {
+        Pane pane = new Pane();
         WritableImage writableImage = new WritableImage((int)pane.getWidth(), (int)pane.getHeight()); // 設定圖片大小
         SnapshotParameters snapshotParameters = new SnapshotParameters(); // 設定截圖範圍
         snapshotParameters.setViewport(new Rectangle2D(0, 0, pane.getWidth(), pane.getHeight()));
