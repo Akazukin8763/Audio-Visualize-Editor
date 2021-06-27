@@ -1,5 +1,6 @@
 package com.visualize.view;
 
+import com.visualize.file.DefaultPath;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -19,6 +20,13 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import java.awt.image.BufferedImage;
+import java.io.File;
+
+import org.bytedeco.ffmpeg.global.avcodec;
+import org.bytedeco.ffmpeg.global.avutil;
+import org.bytedeco.javacv.*;
+
+import javax.imageio.ImageIO;
 
 public class LineVisualize extends AudioVisualize{
 
@@ -130,10 +138,19 @@ public class LineVisualize extends AudioVisualize{
     }
 
     @Override
-    public int saveImage(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) throws java.io.IOException {
-        WritableImage writableImage = new WritableImage((int)pane.getWidth(), (int)pane.getHeight()); // 設定圖片大小
+    public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
+        pane = preview(visualizeFormat, side); // 重設所有矩形
+
+        FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(exportPath, width, height);
+        recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+        recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+        recorder.setVideoQuality(0);
+        recorder.setFrameRate(fps);
+        recorder.setFormat("mp4");
+
+        WritableImage writableImage = new WritableImage(width, height); // 設定圖片大小
         SnapshotParameters snapshotParameters = new SnapshotParameters(); // 設定截圖範圍
-        snapshotParameters.setViewport(new Rectangle2D(0, 0, pane.getWidth(), pane.getHeight()));
+        snapshotParameters.setViewport(new Rectangle2D(0, 0, width, height));
 
         int barNum = magnitude[0].length;
         int lengths = magnitude[0][0].length; // 時間區塊
@@ -149,25 +166,34 @@ public class LineVisualize extends AudioVisualize{
                 rectangles[bar++] = (Rectangle) node;
         }
 
-        for (int length = 0; length < lengths; length++) {
-            for (bar = 0; bar < barNum; bar++) {
-                rectangles[bar].setHeight(heightModes[side.value()].height(
-                        magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length])));
-                rectangles[bar].setY(yModes[side.value()].y(
-                        visualizeFormat.getPosY(),
-                        magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length])));
-            }
+        try {
+            recorder.start();
+            Java2DFrameConverter converter = new Java2DFrameConverter();
 
-            snapshot(SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage((int)pane.getWidth(), (int)pane.getHeight(), BufferedImage.TYPE_INT_RGB)), length + 1);
+            for (int length = 0; length < lengths; length++) {
+                for (bar = 0; bar < barNum; bar++) {
+                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length]);
+                    double y = visualizeFormat.getPosY();
+
+                    rectangles[bar].setHeight(heightModes[side.value()].height(m));
+                    rectangles[bar].setY(yModes[side.value()].y(y, m));
+                }
+
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
+                recorder.record(converter.getFrame(bufferedImage), avutil.AV_PIX_FMT_ARGB);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            recorder.stop();
+            recorder.release();
         }
 
-        for (bar = 0; bar < barNum; bar++) { // 將視覺化矩形高度重製
+        /*for (bar = 0; bar < barNum; bar++) { // 將視覺化矩形高度重製
             rectangles[bar].setHeight(1);
             rectangles[bar].setY(yModes[side.value()].y(visualizeFormat.getPosY(), 1));
         }
-        snapshot(SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage((int)pane.getWidth(), (int)pane.getHeight(), BufferedImage.TYPE_INT_RGB)), lengths + 1);
-
-        return lengths + 1;
+        snapshot(SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB)), lengths + 1);*/
     }
 
 }

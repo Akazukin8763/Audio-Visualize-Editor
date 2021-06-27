@@ -4,7 +4,6 @@ package com.visualize.view;
 
 import javafx.scene.layout.Pane;
 import javafx.animation.Timeline;
-import java.awt.image.BufferedImage;
 
 public abstract class AudioVisualize implements Drawable{
 
@@ -16,9 +15,6 @@ public abstract class AudioVisualize implements Drawable{
 
     protected static double sensitivity;
     protected static double offset;
-
-    //protected String jpgDirPath = new java.io.File(Jar.getJarPath() + "/image").getAbsolutePath();
-    protected String jpgDirPath = new java.io.File("src/main/resources/image").getAbsolutePath();
 
     // Lambda Function Array
     protected static final AudioVisualize.MagnitudeMode magnitudeSingle = (s1, s2) -> s1; // s1 = s2
@@ -54,11 +50,6 @@ public abstract class AudioVisualize implements Drawable{
 
     protected void setOffset(int barNum) {
         this.offset = barNum / 64.0;
-    }
-
-    public void snapshot(BufferedImage bufferedImage, int num) throws java.io.IOException{
-        String path = String.format("%s%s%06d.jpg", jpgDirPath, java.io.File.separator, num);
-        javax.imageio.ImageIO.write(bufferedImage, "jpg", new java.io.File(path));
     }
 
 }

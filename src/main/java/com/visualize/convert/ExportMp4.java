@@ -41,7 +41,7 @@ public class ExportMp4 {
 
     }
 
-    private static void mergeAudio(String videoPath, String audioPath, String outPut) throws Exception {
+    public static void mergeAudio(String videoPath, String audioPath, String outPut) throws Exception {
         FrameRecorder recorder = null;
         FrameGrabber grabber1 = null;
         FrameGrabber grabber2 = null;

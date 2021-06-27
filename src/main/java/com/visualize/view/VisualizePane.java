@@ -13,6 +13,7 @@ import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 import javafx.animation.Animation;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import javafx.concurrent.Task;
 import javafx.concurrent.Service;
@@ -256,8 +257,15 @@ public class VisualizePane extends Pane {
     }
 
     public void saveVideo(String filepath) throws java.io.IOException {
-        //updateData();
+        updateData();
 
+        try {
+            audioVisualize.saveVideo(visualizeFormat, side, stereo, magnitude, spf, fps, DefaultPath.TEMP_VIDEO_PATH);
+            ExportMp4.mergeAudio(DefaultPath.TEMP_VIDEO_PATH, audioFile.getAbsolutePath(), filepath);
+            new File(DefaultPath.TEMP_VIDEO_PATH).delete();
+        } catch (Exception e) {
+            System.out.println("error");
+        }
         /*VisualizePane visualizePane = new VisualizePane(audioFile, visualizeFormat, side, view, stereo);
         visualizePane.setBackgroundStyle(backgroundImage, backgroundColor, backgroundRepeat, backgroundPosition);
         visualizePane.updateData();
