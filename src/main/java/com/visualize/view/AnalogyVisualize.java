@@ -49,7 +49,7 @@ public class AnalogyVisualize extends AudioVisualize{
 
     // Methods
     @Override
-    public Pane preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
+    public Pane preview(VisualizeFormat visualizeFormat) {
         pane.getChildren().clear(); // 清空所有矩形物件
 
         int barNum = visualizeFormat.getBarNum();
@@ -82,7 +82,7 @@ public class AnalogyVisualize extends AudioVisualize{
         Polyline polyline = new Polyline();
         polyline.getPoints().addAll(posX - (barSize + barGap), posY); // 起端
         for (int i = 0; i < barNum; i++) {
-            double rand = random(i);
+            double rand = random(directModes[direct.value()].direct(i, barNum));
 
             double y = yModes[side.value()].y(posY, rand);
 
@@ -111,10 +111,11 @@ public class AnalogyVisualize extends AudioVisualize{
     }
 
     @Override
-    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
-        pane = preview(visualizeFormat, side); // 重設所有矩形
+    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, double[][][] magnitude, double spf) {
+        pane = preview(visualizeFormat); // 重設所有矩形
         timeline = new Timeline(); // 重設所有動畫
 
+        int barNum = magnitude[0].length;
         int lengths = magnitude[0][0].length; // 時間區塊
         int channels = (stereo == VisualizeMode.Stereo.SINGLE) ? 0 : 1; // 單雙聲道，用來確保參數個數一樣
 
@@ -138,12 +139,13 @@ public class AnalogyVisualize extends AudioVisualize{
 
                 KeyFrame[] keyFrames = new KeyFrame[lengths + 1]; // 關鍵影格
 
+                int realBar = directModes[direct.value()].direct(bar, barNum);
                 for (int length = 0; length < lengths; length++) {
                     keyFrames[length] = new KeyFrame(
                             new Duration(spf * (length + 1) * 1000), // 第幾秒
                             new KeyValue(yProperty, yModes[side.value()].y(
                                     visualizeFormat.getPosY(),
-                                    magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length])))
+                                    magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length])))
                     );
                 }
                 keyFrames[lengths] = new KeyFrame( // 將視覺化矩形高度重製
@@ -210,8 +212,8 @@ public class AnalogyVisualize extends AudioVisualize{
     }
 
     @Override
-    public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception{
-        pane = preview(visualizeFormat, side); // 重設所有矩形
+    public void saveVideo(VisualizeFormat visualizeFormat, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception{
+        pane = preview(visualizeFormat); // 重設所有矩形
         new Scene(pane);
         pane.setPrefSize(width, height);
 
@@ -226,6 +228,7 @@ public class AnalogyVisualize extends AudioVisualize{
         SnapshotParameters snapshotParameters = new SnapshotParameters(); // 設定截圖範圍
         snapshotParameters.setViewport(new Rectangle2D(0, 0, width, height));
 
+        int barNum = magnitude[0].length;
         int lengths = magnitude[0][0].length; // 時間區塊
         int channels = (stereo == VisualizeMode.Stereo.SINGLE) ? 0 : 1; // 單雙聲道，用來確保參數個數一樣
         Polyline polyline = new Polyline();
@@ -245,7 +248,9 @@ public class AnalogyVisualize extends AudioVisualize{
             for (int length = 0; length < lengths; length++) {
                 for (int i = 2; i < polyline.getPoints().size() - 2; i += 2) { // 排除起端與末端
                     int bar = i / 2 - 1; // 第幾個 Bar (邊號)
-                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length]);
+                    int realBar = directModes[direct.value()].direct(bar, barNum);
+
+                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length]);
                     double y = visualizeFormat.getPosY();
 
                     polyline.getPoints().set(i + 1, yModes[side.value()].y(y, m));

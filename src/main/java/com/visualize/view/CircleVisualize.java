@@ -28,15 +28,15 @@ import org.bytedeco.javacv.*;
 public class CircleVisualize extends AudioVisualize{
 
     // Lambda Function Array
-    private static final CircleVisualize.HeightMode heightOut = (m) -> sensitivity * m * offset;
-    private static final CircleVisualize.HeightMode heightIn = (m) -> sensitivity * m * offset;
-    private static final CircleVisualize.HeightMode heightBoth = (m) -> sensitivity * m * 2 * offset;
-    private static final CircleVisualize.HeightMode[] heightModes = new CircleVisualize.HeightMode[] {heightOut, heightIn, heightBoth};
+    private static final HeightMode heightOut = (m) -> sensitivity * m * offset;
+    private static final HeightMode heightIn = (m) -> sensitivity * m * offset;
+    private static final HeightMode heightBoth = (m) -> sensitivity * m * 2 * offset;
+    private static final HeightMode[] heightModes = new HeightMode[] {heightOut, heightIn, heightBoth};
 
-    private static final CircleVisualize.yMode yOut = (y, m) -> y;
-    private static final CircleVisualize.yMode yIn = (y, m) -> y - sensitivity * m * offset;
-    private static final CircleVisualize.yMode yBoth = (y, m) -> y - sensitivity * m * offset;
-    private static final CircleVisualize.yMode[] yModes = new CircleVisualize.yMode[] {yOut, yIn, yBoth};
+    private static final yMode yOut = (y, m) -> y;
+    private static final yMode yIn = (y, m) -> y - sensitivity * m * offset;
+    private static final yMode yBoth = (y, m) -> y - sensitivity * m * offset;
+    private static final yMode[] yModes = new yMode[] {yOut, yIn, yBoth};
 
     private interface HeightMode {
         double height(double magnitude);
@@ -53,7 +53,7 @@ public class CircleVisualize extends AudioVisualize{
 
     // Methods
     @Override
-    public Pane preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
+    public Pane preview(VisualizeFormat visualizeFormat) {
         pane.getChildren().clear(); // 清空所有矩形物件
 
         int barNum = visualizeFormat.getBarNum();
@@ -78,7 +78,7 @@ public class CircleVisualize extends AudioVisualize{
         dropShadow.setRadius(15);
 
         for (int i = 0; i < barNum; i++) {
-            double rand = random(i);
+            double rand = random(directModes[direct.value()].direct(i, barNum));
 
             double x = posX + radius * Math.cos(radian * i + rotateRadian); // 每個 bar 實際上的 x 座標
             double y = posY + radius * Math.sin(radian * i + rotateRadian); // 每個 bar 實際上的 y 座標
@@ -96,8 +96,8 @@ public class CircleVisualize extends AudioVisualize{
     }
 
     @Override
-    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
-        pane = preview(visualizeFormat, side); // 重設所有矩形
+    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, double[][][] magnitude, double spf) {
+        pane = preview(visualizeFormat); // 重設所有矩形
         timeline = new Timeline(); // 重設所有動畫
 
         double posY = visualizeFormat.getPosY();
@@ -107,6 +107,7 @@ public class CircleVisualize extends AudioVisualize{
 
         Rectangle rect; // 要動畫化的 Rectangle
         int bar = 0; // 第幾個 Bar (邊號)
+        int barNum = magnitude[0].length;
         int lengths = magnitude[0][0].length; // 時間區塊
         int channels = (stereo == VisualizeMode.Stereo.SINGLE) ? 0 : 1; // 單雙聲道，用來確保參數個數一樣
 
@@ -122,13 +123,14 @@ public class CircleVisualize extends AudioVisualize{
             KeyFrame[] keyFrames = new KeyFrame[lengths + 1]; // 關鍵影格
 
             double y = posY + radius * Math.sin(radian * bar + rotateRadian); // 每個 bar 實際上的 y 座標
+            int realBar = directModes[direct.value()].direct(bar, barNum);
             for (int length = 0; length < lengths; length++) {
                 keyFrames[length] = new KeyFrame(
                         new Duration(spf * (length + 1) * 1000), // 第幾秒
                         new KeyValue(rect.heightProperty(), heightModes[side.value()].height(
-                                magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length]))),
+                                magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length]))),
                         new KeyValue(rect.yProperty(), yModes[side.value()].y(y,
-                                magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length])))
+                                magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length])))
                 );
             }
             keyFrames[lengths] = new KeyFrame( // 將視覺化矩形高度重製
@@ -145,8 +147,8 @@ public class CircleVisualize extends AudioVisualize{
     }
 
     @Override
-    public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
-        pane = preview(visualizeFormat, side); // 重設所有矩形
+    public void saveVideo(VisualizeFormat visualizeFormat, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
+        pane = preview(visualizeFormat); // 重設所有矩形
         new Scene(pane);
         pane.setPrefSize(width, height);
 
@@ -190,7 +192,9 @@ public class CircleVisualize extends AudioVisualize{
 
             for (int length = 0; length < lengths; length++) {
                 for (bar = 0; bar < barNum; bar++) {
-                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length]);
+                    int realBar = directModes[direct.value()].direct(bar, barNum);
+
+                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length]);
 
                     rectangles[bar].setHeight(heightModes[side.value()].height(m));
                     rectangles[bar].setY(yModes[side.value()].y(y[bar], m));

@@ -11,10 +11,7 @@ import java.io.File;
 public class BackgroundSaveVideo implements Runnable {
 
     private final AudioVisualize audioVisualize;
-
     private final VisualizeFormat visualizeFormat;
-    private final VisualizeMode.Side side;
-    private final VisualizeMode.Stereo stereo;
 
     private final double[][][] magnitude;
     private final double spf;
@@ -23,15 +20,12 @@ public class BackgroundSaveVideo implements Runnable {
     private final String audioPath;
     private final String exportPath;
 
-    public BackgroundSaveVideo(AudioVisualize audioVisualize,
-                               VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo,
+    public BackgroundSaveVideo(AudioVisualize audioVisualize, VisualizeFormat visualizeFormat,
                                double[][][] magnitude, double spf, double fps,
                                String audioPath, String exportPath) {
         this.audioVisualize = audioVisualize;
 
         this.visualizeFormat = visualizeFormat;
-        this.side = side;
-        this.stereo = stereo;
 
         this.magnitude = magnitude;
         this.spf = spf;
@@ -45,7 +39,7 @@ public class BackgroundSaveVideo implements Runnable {
     public void run() {  // useless, but not crash
         Platform.runLater(() -> {
             try {
-                audioVisualize.saveVideo(visualizeFormat, side, stereo, magnitude, spf, fps, DefaultPath.TEMP_VIDEO_PATH);
+                audioVisualize.saveVideo(visualizeFormat, magnitude, spf, fps, DefaultPath.TEMP_VIDEO_PATH);
                 ExportMp4.mergeAudio(DefaultPath.TEMP_VIDEO_PATH, audioPath, exportPath);
             } catch (Exception e) {
                 System.out.println("error");

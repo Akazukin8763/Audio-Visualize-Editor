@@ -33,8 +33,9 @@ public class VisualizePane extends Pane {
     private AudioFile audioFile;
     private VisualizeFormat visualizeFormat;
 
-    private VisualizeMode.Side side;
     private VisualizeMode.View view;
+    private VisualizeMode.Side side;
+    private VisualizeMode.Direct direct;
     private VisualizeMode.Stereo stereo;
 
     private String backgroundImage;
@@ -58,18 +59,16 @@ public class VisualizePane extends Pane {
 
     // Constructor
     public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat) {
-        this(audioFile, visualizeFormat, VisualizeMode.Side.OUT, VisualizeMode.View.LINE, VisualizeMode.Stereo.BOTH);
-    }
-
-    public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.View view, VisualizeMode.Stereo stereo) {
         timeChangeProperty = new SimpleBooleanProperty(false);
 
         this.audioFile = audioFile;
         this.visualizeFormat = visualizeFormat;
 
-        this.side = side;
-        this.view = view;
-        setStereo(stereo); // 防止輸入可用聲道數
+        this.audioVisualize = new LineVisualize(width, height);
+        this.view = VisualizeMode.View.LINE;
+        this.side = VisualizeMode.Side.OUT;
+        this.direct = VisualizeMode.Direct.NORMAL;
+        this.stereo = VisualizeMode.Stereo.BOTH; // 防止輸入可用聲道數
 
         this.minFreq = this.audioFile.getFrameRate() / BUFFER;
         this.maxFreq = this.audioFile.getFrameRate() / 2;
@@ -215,7 +214,10 @@ public class VisualizePane extends Pane {
         }
 
         // preview()
-        Pane pane = audioVisualize.preview(visualizeFormat, side);
+        audioVisualize.setSide(side);
+        audioVisualize.setDirect(direct);
+        audioVisualize.setStereo(stereo);
+        Pane pane = audioVisualize.preview(visualizeFormat);
 
         // Set
         this.getChildren().clear();
@@ -226,7 +228,7 @@ public class VisualizePane extends Pane {
         updateData();
 
         // animate()
-        VisualizeParameter.PaneTimeline paneTimeline = audioVisualize.animate(visualizeFormat, side, stereo, magnitude, spf);
+        VisualizeParameter.PaneTimeline paneTimeline = audioVisualize.animate(visualizeFormat, magnitude, spf);
 
         // Set Pane, Animation
         this.getChildren().clear();
@@ -254,7 +256,7 @@ public class VisualizePane extends Pane {
         updateData();
 
         audioVisualize.setBackgroundStyle(getBackgroundStyle());
-        BackgroundSaveVideo task = new BackgroundSaveVideo(audioVisualize, visualizeFormat, side, stereo, magnitude, spf, fps, audioFile.getAbsolutePath(), filepath);
+        BackgroundSaveVideo task = new BackgroundSaveVideo(audioVisualize, visualizeFormat, magnitude, spf, fps, audioFile.getAbsolutePath(), filepath);
         //Progress.progress.progressProperty().bind(task.progressProperty());
         new Thread(task).start();
 
@@ -313,6 +315,14 @@ public class VisualizePane extends Pane {
         this.autoPlay = autoPlay;
     }
 
+    public VisualizeMode.View getView() {
+        return view;
+    }
+
+    public void setView(VisualizeMode.View view) {
+        this.view = view;
+    }
+
     public VisualizeMode.Side getSide() {
         return side;
     }
@@ -321,12 +331,12 @@ public class VisualizePane extends Pane {
         this.side = side;
     }
 
-    public VisualizeMode.View getView() {
-        return view;
+    public VisualizeMode.Direct getDirect() {
+        return direct;
     }
 
-    public void setView(VisualizeMode.View view) {
-        this.view = view;
+    public void setDirect(VisualizeMode.Direct direct) {
+        this.direct = direct;
     }
 
     public VisualizeMode.Stereo getStereo() {

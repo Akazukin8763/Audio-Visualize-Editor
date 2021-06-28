@@ -53,7 +53,7 @@ public class LineVisualize extends AudioVisualize{
 
     // Methods
     @Override
-    public Pane preview(VisualizeFormat visualizeFormat, VisualizeMode.Side side) {
+    public Pane preview(VisualizeFormat visualizeFormat) {
         pane.getChildren().clear(); // 清空所有矩形物件
 
         int barNum = visualizeFormat.getBarNum();
@@ -74,7 +74,7 @@ public class LineVisualize extends AudioVisualize{
         dropShadow.setRadius(15);
 
         for (int i = 0; i < barNum; i++) {
-            double rand = random(i);
+            double rand = random(directModes[direct.value()].direct(i, barNum));
 
             double y = yModes[side.value()].y(posY, rand);
             double height = heightModes[side.value()].height(rand);
@@ -91,12 +91,13 @@ public class LineVisualize extends AudioVisualize{
     }
 
     @Override
-    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf) {
-        pane = preview(visualizeFormat, side); // 重設所有矩形
+    public VisualizeParameter.PaneTimeline animate(VisualizeFormat visualizeFormat, double[][][] magnitude, double spf) {
+        pane = preview(visualizeFormat); // 重設所有矩形
         timeline = new Timeline(); // 重設所有動畫
 
         Rectangle rect; // 要動畫化的 Rectangle
         int bar = 0; // 第幾個 Bar (邊號)
+        int barNum = magnitude[0].length;
         int lengths = magnitude[0][0].length; // 時間區塊
         int channels = (stereo == VisualizeMode.Stereo.SINGLE) ? 0 : 1; // 單雙聲道，用來確保參數個數一樣
 
@@ -111,14 +112,15 @@ public class LineVisualize extends AudioVisualize{
 
             KeyFrame[] keyFrames = new KeyFrame[lengths + 1]; // 關鍵影格
 
+            int realBar = directModes[direct.value()].direct(bar, barNum);
             for (int length = 0; length < lengths; length++) {
                 keyFrames[length] = new KeyFrame(
                     new Duration(spf * (length + 1) * 1000), // 第幾秒
                     new KeyValue(rect.heightProperty(), heightModes[side.value()].height(
-                            magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length]))),
+                            magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length]))),
                     new KeyValue(rect.yProperty(), yModes[side.value()].y(
                             visualizeFormat.getPosY(),
-                            magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length])))
+                            magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length])))
                 );
             }
             keyFrames[lengths] = new KeyFrame( // 將視覺化矩形高度重製
@@ -135,8 +137,8 @@ public class LineVisualize extends AudioVisualize{
     }
 
     @Override
-    public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
-        pane = preview(visualizeFormat, side); // 重設所有矩形
+    public void saveVideo(VisualizeFormat visualizeFormat, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
+        pane = preview(visualizeFormat); // 重設所有矩形
         new Scene(pane);
         pane.setPrefSize(width, height);
 
@@ -171,7 +173,9 @@ public class LineVisualize extends AudioVisualize{
 
             for (int length = 0; length < lengths; length++) {
                 for (bar = 0; bar < barNum; bar++) {
-                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][bar][length], magnitude[channels][bar][length]);
+                    int realBar = directModes[direct.value()].direct(bar, barNum);
+
+                    double m = magnitudeModes[stereo.value()].magnitudeSelect(magnitude[0][realBar][length], magnitude[channels][realBar][length]);
                     double y = visualizeFormat.getPosY();
 
                     rectangles[bar].setHeight(heightModes[side.value()].height(m));

@@ -2,6 +2,20 @@ package com.visualize.view;
 
 public final class VisualizeMode {
 
+    public enum View {
+        LINE(0), CIRCLE(1), ANALOGY(3);
+
+        private final int value;
+
+        View (int value) {
+            this.value = value;
+        }
+
+        public int value() {
+            return value;
+        }
+    }
+
     public enum Side {
         OUT(0), IN(1), BOTH(2);
 
@@ -16,12 +30,12 @@ public final class VisualizeMode {
         }
     }
 
-    public enum View {
-        LINE(0), CIRCLE(1), ANALOGY(3);
+    public enum Direct {
+        NORMAL(0), INVERSE(1);
 
         private final int value;
 
-        View (int value) {
+        Direct (int value) {
             this.value = value;
         }
 

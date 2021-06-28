@@ -13,15 +13,27 @@ public abstract class AudioVisualize implements Drawable{
     protected final int width;
     protected final int height;
 
+    protected VisualizeMode.Side side;
+    protected VisualizeMode.Direct direct;
+    protected VisualizeMode.Stereo stereo;
+
     protected static double sensitivity;
     protected static double offset;
 
     // Lambda Function Array
-    protected static final AudioVisualize.MagnitudeMode magnitudeSingle = (s1, s2) -> s1; // s1 = s2
-    protected static final AudioVisualize.MagnitudeMode magnitudeLeft = (l, r) -> l;
-    protected static final AudioVisualize.MagnitudeMode magnitudeRight = (l, r) -> r;
-    protected static final AudioVisualize.MagnitudeMode magnitudeBoth = (l, r) -> .5 * (l + r);
-    protected static final AudioVisualize.MagnitudeMode[] magnitudeModes = new AudioVisualize.MagnitudeMode[] {magnitudeSingle, magnitudeLeft, magnitudeRight, magnitudeBoth};
+    protected static final DirectMode directNormal = (c, m) -> c;
+    protected static final DirectMode directInverse = (c, m) -> m - c - 1;
+    protected static final DirectMode[] directModes = new DirectMode[] {directNormal, directInverse};
+
+    protected static final MagnitudeMode magnitudeSingle = (s1, s2) -> s1; // s1 = s2
+    protected static final MagnitudeMode magnitudeLeft = (l, r) -> l;
+    protected static final MagnitudeMode magnitudeRight = (l, r) -> r;
+    protected static final MagnitudeMode magnitudeBoth = (l, r) -> .5 * (l + r);
+    protected static final MagnitudeMode[] magnitudeModes = new MagnitudeMode[] {magnitudeSingle, magnitudeLeft, magnitudeRight, magnitudeBoth};
+
+    protected interface DirectMode {
+        int direct(int cur, int max);
+    }
 
     protected interface MagnitudeMode {
         double magnitudeSelect(double left, double right);
@@ -50,6 +62,18 @@ public abstract class AudioVisualize implements Drawable{
 
     protected void setOffset(int barNum) {
         this.offset = barNum / 64.0;
+    }
+
+    public void setSide(VisualizeMode.Side side) {
+        this.side = side;
+    }
+
+    public void setDirect(VisualizeMode.Direct direct) {
+        this.direct = direct;
+    }
+
+    public void setStereo(VisualizeMode.Stereo stereo) {
+        this.stereo = stereo;
     }
 
     public void setBackgroundStyle(String backgroundStyle) {
