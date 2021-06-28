@@ -1,6 +1,7 @@
 package com.visualize.view;
 
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
@@ -146,6 +147,8 @@ public class CircleVisualize extends AudioVisualize{
     @Override
     public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
         pane = preview(visualizeFormat, side); // 重設所有矩形
+        new Scene(pane);
+        pane.setPrefSize(width, height);
 
         FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(exportPath, width, height);
         recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
@@ -195,7 +198,6 @@ public class CircleVisualize extends AudioVisualize{
 
                 BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
                 recorder.record(converter.getFrame(bufferedImage), avutil.AV_PIX_FMT_ARGB);
-                System.out.println(length);
             }
         } catch (Exception e) {
             e.printStackTrace();

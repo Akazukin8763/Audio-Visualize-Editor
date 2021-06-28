@@ -1,9 +1,9 @@
 package com.visualize.view;
 
-import com.visualize.Jar;
+import com.visualize.gui.*;
 import com.visualize.file.*;
 import com.visualize.math.*;
-import com.visualize.convert.*;
+import com.visualize.execute.*;
 
 import javafx.scene.layout.Pane;
 import javafx.animation.Timeline;
@@ -14,12 +14,6 @@ import javafx.util.Duration;
 import javafx.animation.Animation;
 
 import java.io.File;
-import java.util.concurrent.CountDownLatch;
-import javafx.concurrent.Task;
-import javafx.concurrent.Service;
-import javafx.application.Platform;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -259,116 +253,11 @@ public class VisualizePane extends Pane {
     public void saveVideo(String filepath) throws java.io.IOException {
         updateData();
 
-        try {
-            audioVisualize.saveVideo(visualizeFormat, side, stereo, magnitude, spf, fps, DefaultPath.TEMP_VIDEO_PATH);
-            ExportMp4.mergeAudio(DefaultPath.TEMP_VIDEO_PATH, audioFile.getAbsolutePath(), filepath);
-            new File(DefaultPath.TEMP_VIDEO_PATH).delete();
-        } catch (Exception e) {
-            System.out.println("error");
-        }
-        /*VisualizePane visualizePane = new VisualizePane(audioFile, visualizeFormat, side, view, stereo);
-        visualizePane.setBackgroundStyle(backgroundImage, backgroundColor, backgroundRepeat, backgroundPosition);
-        visualizePane.updateData();
-        visualizePane.preview();
-        javafx.scene.Scene scene = new javafx.scene.Scene(visualizePane);
+        audioVisualize.setBackgroundStyle(getBackgroundStyle());
+        BackgroundSaveVideo task = new BackgroundSaveVideo(audioVisualize, visualizeFormat, side, stereo, magnitude, spf, fps, audioFile.getAbsolutePath(), filepath);
+        //Progress.progress.progressProperty().bind(task.progressProperty());
+        new Thread(task).start();
 
-        Service<Void> service = new Service<Void>() {
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        final CountDownLatch latch = new CountDownLatch(1);
-                        Platform.runLater(() -> {
-                            try{
-                                java.io.File imgPath = new java.io.File("image");
-                                String jpgDirPath = imgPath.getAbsolutePath();
-                                imgPath.delete();
-                                imgPath.mkdirs();
-
-                                // Images nums
-                                int nums = 0;
-
-                                // Images
-                                gui.EventLog.eventLog.encode("Video Fetching...");
-                                switch (view) {
-                                    case LINE:
-                                        nums = new LineVisualize(visualizePane).saveImage(visualizeFormat, side, stereo, magnitude, spf);
-                                        break;
-                                    case CIRCLE:
-                                        nums = new CircleVisualize(visualizePane).saveImage(visualizeFormat, side, stereo, magnitude, spf);;
-                                        break;
-                                    case ANALOGY:
-                                        nums = new AnalogyVisualize(visualizePane).saveImage(visualizeFormat, side, stereo, magnitude, spf);;
-                                        break;
-                                    default:
-                                        throw new IllegalArgumentException("Doesn't support this view mode.");
-                                }
-
-                                // Convert Image Array to Video
-                                gui.EventLog.eventLog.encode("Video Encoding...");
-                                ExportMp4.exportMp4(jpgDirPath, audioFile.getAbsolutePath(), (float)(fps), (int)visualizePane.getPrefWidth(), (int)visualizePane.getPrefHeight(), filepath);
-
-                                // Delete Image
-                                for (int i = 1; i <= nums; i++) {
-                                    java.io.File imgFile = new java.io.File(String.format("image/%06d.jpg", i));
-                                    imgFile.delete();
-                                }
-
-                                gui.EventLog.eventLog.finish("The file has been exported correctly.");
-                                MediaPlayer mediaPlayer = new MediaPlayer(new Media(new java.io.File("music/__finish__.mp3").toURI().toString()));
-                                mediaPlayer.setVolume(.5);
-                                mediaPlayer.play();
-                            } catch (Exception e) {
-                                gui.EventLog.eventLog.warning("The file can not be exported correctly.");
-                            } finally{
-                                latch.countDown();
-                            }
-                        });
-                        latch.await();
-
-                        return null;
-                    }
-                };
-            }
-        };
-        service.start();*/
-
-        /*java.io.File imgPath = new java.io.File(Jar.getJarPath() + "/image");
-        //java.io.File imgPath = new java.io.File("src/main/resources/image");
-        imgPath.delete();
-        imgPath.mkdirs();
-
-        // Images nums
-        int nums = 0;
-
-        // Images
-        try {
-            switch (view) {
-                case LINE:
-                    nums = new LineVisualize(this).saveImage(visualizeFormat, side, stereo, magnitude, spf);
-                    break;
-                case CIRCLE:
-                    nums = new CircleVisualize(this).saveImage(visualizeFormat, side, stereo, magnitude, spf);
-                    break;
-                case ANALOGY:
-                    nums = new AnalogyVisualize(this).saveImage(visualizeFormat, side, stereo, magnitude, spf);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Doesn't support this view mode.");
-            }
-        } catch (java.io.IOException e) {
-            throw new java.io.IOException();
-        }
-
-        // Convert Image Array to Video
-        String jpgDirPath = new java.io.File(Jar.getJarPath() + "/image").getAbsolutePath();
-        //String jpgDirPath = new java.io.File("src/main/resources/image").getAbsolutePath();
-        String audioPath = audioFile.getAbsolutePath();
-
-        BackgroundExportMp4 backgroundExportMp4 = new BackgroundExportMp4(jpgDirPath, audioPath, (float)(fps), (int)this.getPrefWidth(), (int)this.getPrefHeight(), filepath, nums);
-        backgroundExportMp4.execute();
-        */
     }
 
     public void play() {
@@ -512,6 +401,23 @@ public class VisualizePane extends Pane {
         return backgroundPosition;
     }
 
+    public String getBackgroundStyle() {
+        String backgroundStyle = "";
+
+        try {
+            String image = (this.backgroundImage.equals("null") ? "" : "-fx-background-image: url(\"" + new File(this.backgroundImage).toURI().toString() + "\");");
+            String color = "-fx-background-color: " + this.backgroundColor + ";";
+            String repeat = "-fx-background-repeat: " + this.backgroundRepeat + ";";
+            String position = "-fx-background-position: " + this.backgroundPosition + ";";
+
+            backgroundStyle = image + color + repeat + position;
+        } catch (NullPointerException ignored) {
+            // 不做任何事
+        }
+
+        return backgroundStyle;
+    }
+
     public void setBackgroundStyle(String backgroundImage, String backgroundColor, String backgroundRepeat, String backgroundPosition) {
         this.backgroundImage = backgroundImage;
         this.backgroundColor = backgroundColor;
@@ -519,7 +425,7 @@ public class VisualizePane extends Pane {
         this.backgroundPosition = backgroundPosition;
 
         try {
-            String image = (backgroundImage.equals("null") ? "" : "-fx-background-image: url(\"" + new java.io.File(backgroundImage).toURI().toString() + "\");");
+            String image = (backgroundImage.equals("null") ? "" : "-fx-background-image: url(\"" + new File(backgroundImage).toURI().toString() + "\");");
             String color = "-fx-background-color: " + backgroundColor + ";";
             String repeat = "-fx-background-repeat: " + backgroundRepeat + ";";
             String position = "-fx-background-position: " + backgroundPosition + ";";

@@ -1,7 +1,7 @@
 package com.visualize.view;
 
-import com.visualize.file.DefaultPath;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
@@ -20,13 +20,10 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import java.awt.image.BufferedImage;
-import java.io.File;
 
 import org.bytedeco.ffmpeg.global.avcodec;
 import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.*;
-
-import javax.imageio.ImageIO;
 
 public class LineVisualize extends AudioVisualize{
 
@@ -140,6 +137,8 @@ public class LineVisualize extends AudioVisualize{
     @Override
     public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception {
         pane = preview(visualizeFormat, side); // 重設所有矩形
+        new Scene(pane);
+        pane.setPrefSize(width, height);
 
         FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(exportPath, width, height);
         recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);

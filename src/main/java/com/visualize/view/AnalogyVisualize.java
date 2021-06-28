@@ -1,6 +1,7 @@
 package com.visualize.view;
 
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polyline;
 
@@ -211,6 +212,8 @@ public class AnalogyVisualize extends AudioVisualize{
     @Override
     public void saveVideo(VisualizeFormat visualizeFormat, VisualizeMode.Side side, VisualizeMode.Stereo stereo, double[][][] magnitude, double spf, double fps, String exportPath) throws FrameRecorder.Exception{
         pane = preview(visualizeFormat, side); // 重設所有矩形
+        new Scene(pane);
+        pane.setPrefSize(width, height);
 
         FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(exportPath, width, height);
         recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);

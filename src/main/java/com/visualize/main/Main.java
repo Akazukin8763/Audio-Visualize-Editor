@@ -92,7 +92,6 @@ public class Main extends Application {
         paneButton.add(buttonStop, 20, 0);
         paneButton.add(labelTime, 21, 0);
         paneButton.add(sliderTime, 22, 0);
-
         EventLog.eventLog = new EventLog("Event Log:\n");
         EventLog.eventLog.setPrefHeight(215);
         EventLog.eventLog.setEditable(false);
@@ -107,6 +106,9 @@ public class Main extends Application {
         BorderPane middlePane = new BorderPane(paneButton, fitPane, null, EventLog.eventLog, null);
         HBox hBox = new HBox(paneFile.getPane(), middlePane, paneController.getPane());
         Scene scene = new Scene(hBox);
+
+        //scene.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
+        //buttonChangeWallpaper.getStyleClass().add("button");
 
         stage.setScene(scene);
         stage.setTitle("Ɐudio Ʌisualizer Ǝditor");
@@ -262,9 +264,9 @@ public class Main extends Application {
         if (visualizePane.isRunning())
             stop();
         updateData();
-        visualizePane.preview();
+        //visualizePane.preview();
 
-        zoom(SCALE_DEFAULT); // 縮放為正常尺寸以方便剪輯
+        //zoom(SCALE_DEFAULT); // 縮放為正常尺寸以方便剪輯
         try {
             String path = fileExportChooser.showSaveDialog(stage).getPath();
 
@@ -276,7 +278,7 @@ public class Main extends Application {
         } catch (java.io.IOException e) {
             EventLog.eventLog.warning("The file can not be exported correctly.");
         }
-        zoom(SCALE_OUT); // 縮放回預設大小
+        //zoom(SCALE_OUT); // 縮放回預設大小
     }
 
     public void changeWallpaper() {

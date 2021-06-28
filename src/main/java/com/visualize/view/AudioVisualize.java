@@ -52,4 +52,8 @@ public abstract class AudioVisualize implements Drawable{
         this.offset = barNum / 64.0;
     }
 
+    public void setBackgroundStyle(String backgroundStyle) {
+        pane.setStyle(backgroundStyle);
+    }
+
 }

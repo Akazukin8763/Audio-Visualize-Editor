@@ -1,7 +1,7 @@
 package com.visualize.file;
 
 //import com.visualize.Jar;
-import com.visualize.convert.*;
+import com.visualize.export.*;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -19,17 +19,16 @@ public class Mp3File extends AudioFile{
     private final MediaPlayer mediaPlayer;
 
     //private final String wavPath = Jar.getJarPath() + "/music/__temp__.wav"; // 轉換的暫存（我想刪，但我刪不掉）
-    private final String wavPath = "src/main/resources/music/__temp__.wav"; // 轉換的暫存（我想刪，但我刪不掉）
 
     // Constructor
     public Mp3File (String path) throws javax.sound.sampled.UnsupportedAudioFileException, java.io.IOException{
         super(path);
 
-        MP3toWAV.mp3ToWav(this.getAbsolutePath(), wavPath);
+        MP3toWAV.mp3ToWav(this.getAbsolutePath(), DefaultPath.TEMP_WAV_PATH);
         //BackgroundMP3toWAV backgroundMP3toWAV = new BackgroundMP3toWAV(this.getAbsolutePath(), wavPath);
         //backgroundMP3toWAV.execute();
 
-        this.audioInputStream = AudioSystem.getAudioInputStream(new File(wavPath));
+        this.audioInputStream = AudioSystem.getAudioInputStream(new File(DefaultPath.TEMP_WAV_PATH));
         this.audioFormat = audioInputStream.getFormat();
 
         this.frameLength = (int) audioInputStream.getFrameLength();

@@ -1,5 +1,7 @@
 package com.visualize.convert;
 
+import com.visualize.export.MP3toWAV;
+
 import javax.swing.SwingWorker;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

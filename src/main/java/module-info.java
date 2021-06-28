@@ -16,6 +16,4 @@ module com.visualize.main {
 
     opens com.visualize.main to javafx.fxml;
     exports com.visualize.main;
-    exports com.visualize.file;
-    opens com.visualize.file to javafx.fxml;
 }

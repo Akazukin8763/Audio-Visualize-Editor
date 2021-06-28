@@ -1,16 +1,16 @@
 package com.visualize.convert;
 
-import org.bytedeco.ffmpeg.global.avcodec;
-import org.bytedeco.ffmpeg.global.avutil;
+//import org.bytedeco.ffmpeg.global.avcodec;
+//import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+//import javax.imageio.ImageIO;
+//import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class ExportMp4 {
 
-    private static void createMp4(String jpgDirPath, String targetPath, float fps, int mWidth, int mHeight) throws FrameRecorder.Exception {
+    /*private static void createMp4(String jpgDirPath, String targetPath, float fps, int mWidth, int mHeight) throws FrameRecorder.Exception {
         final File[] jpgs = new File(jpgDirPath).listFiles();
         if (jpgs == null || jpgs.length == 0) {
             return;
@@ -39,21 +39,22 @@ public class ExportMp4 {
             recorder.release();
         }
 
-    }
+    }*/
 
-    public static void mergeAudio(String videoPath, String audioPath, String outPut) throws Exception {
+    public static void mergeAudio(String videoPath, String audioPath, String exportPath) throws Exception {
         FrameRecorder recorder = null;
         FrameGrabber grabber1 = null;
         FrameGrabber grabber2 = null;
+
         try {
-            //抓取影檔幀數
+            // 抓取影音檔幀數
             grabber1 = new FFmpegFrameGrabber(videoPath);
-            //抓取音檔幀數
             grabber2 = new FFmpegFrameGrabber(audioPath);
+
             grabber1.start();
             grabber2.start();
             //創建錄製
-            recorder = new FFmpegFrameRecorder(outPut,
+            recorder = new FFmpegFrameRecorder(exportPath,
                     grabber1.getImageWidth(), grabber1.getImageHeight(),
                     grabber2.getAudioChannels());
 
@@ -66,14 +67,14 @@ public class ExportMp4 {
 
             Frame frame1;
             Frame frame2 ;
-            //錄入影檔
-            while ((frame1 = grabber1.grabFrame()) != null ){
+
+            // 錄入影檔
+            while ((frame1 = grabber1.grabFrame()) != null )
                 recorder.record(frame1);
-            }
-            //錄入音檔
-            while ((frame2 = grabber2.grabFrame()) != null) {
+            // 錄入音檔
+            while ((frame2 = grabber2.grabFrame()) != null)
                 recorder.record(frame2);
-            }
+
             grabber1.stop();
             grabber2.stop();
             recorder.stop();
@@ -98,7 +99,7 @@ public class ExportMp4 {
 
     public static void exportMp4(String jpgDirPath, String audioPath, float fps, int width, int height, String exportPath) throws Exception {
         //將資料夾中的全部圖片(jpg)轉為mp4檔後再嵌入mp3融合出新的mp4
-        createMp4(jpgDirPath, "temp.mp4", fps, width, height);
+        //createMp4(jpgDirPath, "temp.mp4", fps, width, height);
         mergeAudio("temp.mp4", audioPath, exportPath);
         //刪掉過程檔案
         (new File("temp.mp4")).delete();
