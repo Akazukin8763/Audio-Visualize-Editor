@@ -107,7 +107,8 @@ public class Main extends Application {
         HBox hBox = new HBox(paneFile.getPane(), middlePane, paneController.getPane());
         Scene scene = new Scene(hBox);
 
-        //scene.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
+        scene = new Scene(new AudioVisualizeUI(1920, 1080));
+        scene.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
         //buttonChangeWallpaper.getStyleClass().add("button");
 
         stage.setScene(scene);
