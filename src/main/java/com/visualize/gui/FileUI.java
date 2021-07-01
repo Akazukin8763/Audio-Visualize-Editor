@@ -10,6 +10,8 @@ import javafx.stage.FileChooser;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.Control;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
@@ -17,17 +19,22 @@ import javafx.scene.control.TextInputDialog;
 import javafx.collections.FXCollections;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import java.io.File;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
+
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
+
+import javafx.scene.input.KeyCode;
 
 public class FileUI extends ScrollPane {
 
@@ -49,7 +56,9 @@ public class FileUI extends ScrollPane {
 
     private String selectTag = "";
 
-    private final HashMap<String, HashSet<String>> tags = new HashMap<>();
+    private final HashMap<String, LinkedHashSet<String>> tags = new HashMap<>();
+
+    public final StringProperty selectFileProperty = new SimpleStringProperty(null);
 
     // Constructor
     public FileUI(double width, double height) {
@@ -60,7 +69,6 @@ public class FileUI extends ScrollPane {
         //this.image.setSmooth(true);
 
         accordion = new VBox();
-        accordion.setPrefWidth(width);
         setContent(accordion);
         setPrefSize(width, height);
 
@@ -80,20 +88,23 @@ public class FileUI extends ScrollPane {
         createList("TEST");
 
         // Event
-        this.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+        this.setHbarPolicy(ScrollBarPolicy.NEVER);
+        this.setOnMousePressed(event -> {
             menuFileGroup.hide();
             menuFile.hide();
         });
-
         this.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.SECONDARY) {
+            if (event.getButton() == MouseButton.SECONDARY) { // 右鍵功能列表
                 menuFileGroup.show(this, event.getScreenX(), event.getScreenY());
             }
             else {
                 menuFileGroup.hide();
             }
         });
+        this.setOnMouseEntered(event -> this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED));
+        this.setOnMouseExited(event -> this.setVbarPolicy(ScrollBarPolicy.NEVER));
 
+        // 新增列表
         fileGroupNew.setOnAction(event -> {
             TextInputDialog textInputDialog = new TextInputDialog("");
             textInputDialog.setTitle("New List");
@@ -108,17 +119,20 @@ public class FileUI extends ScrollPane {
             if (tag != null && !tag.equals(""))
                 System.out.println("Create List: " + createList(tag));
         });
+        // 清除所有列表
         fileGroupClear.setOnAction(event -> clearList());
 
+        // 新增音樂至列表
         fileAdd.setOnAction(event -> {
             try {
                 List<File> files = fileChooser.showOpenMultipleDialog(null);
                 fileChooser.setInitialDirectory(new File(files.get(0).getParent()));
-                System.out.println("Insert List: " + insertList(selectTag, files));
+                System.out.println("Insert List: " + insertListFile(selectTag, files));
             } catch (NullPointerException ignored) {
                 // 不做任何事
             }
         });
+        // 列表改名
         fileRename.setOnAction(event -> {
             TextInputDialog textInputDialog = new TextInputDialog(selectTag);
             textInputDialog.setTitle("Rename List");
@@ -142,49 +156,26 @@ public class FileUI extends ScrollPane {
             return false;
 
         // 新增標籤
-        TitledPane list = new TitledPane(tag, new ListView<String>());
+        ListView<String> items = new ListView<>();
+        items.setPrefHeight(20);
+
+        TitledPane list = new TitledPane(tag, items);
         //list.setGraphic(image);
+        list.setPrefWidth(width);
         list.setAnimated(false);
         list.setExpanded(false);
         list.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.SECONDARY) {
-                selectTag = list.getText();
+            selectTag = list.getText();
+            if (event.getButton() == MouseButton.SECONDARY) // 右鍵功能列表
                 menuFile.show(this, event.getScreenX(), event.getScreenY());
-            }
             else {
                 menuFileGroup.hide();
                 menuFile.hide();
             }
         });
 
-        tags.put(tag, new HashSet<>());
+        tags.put(tag, new LinkedHashSet<>());
         accordion.getChildren().add(list);
-
-        return true;
-    }
-
-    public boolean insertList(String tag, List<File> files) {
-        // 標籤是否已建立，有則新增路徑
-        if (!tags.containsKey(tag))
-            return false;
-
-        // 新增檔案
-        HashSet<String> fileList = tags.get(tag);
-        for (File file: files)
-            fileList.add("\t" + file.getAbsolutePath());
-
-        tags.replace(tag, fileList);
-        for (Node node: accordion.getChildren()) {
-            TitledPane list = (TitledPane) node;
-            if (list.getText().equals(tag)) {
-                ListView<String> items = new ListView<>(FXCollections.observableArrayList(fileList));
-                items.setPrefHeight(items.getItems().size() * 22 + 20);
-
-                list.setContent(items);
-                list.setExpanded(true);
-                break;
-            }
-        }
 
         return true;
     }
@@ -200,7 +191,7 @@ public class FileUI extends ScrollPane {
 
         for (Node node: accordion.getChildren()) {
             TitledPane list = (TitledPane) node;
-            if (list.getText().equals(tag)) {
+            if (list.getText().equals(tag)) { // 尋找該標籤
                 list.setText(newTag);
                 break;
             }
@@ -217,6 +208,96 @@ public class FileUI extends ScrollPane {
         accordion.getChildren().clear();
 
         return true;
+    }
+
+    public boolean insertListFile(String tag, List<File> files) {
+        // 標籤是否已建立，有則新增路徑
+        if (!tags.containsKey(tag))
+            return false;
+
+        // 新增檔案
+        LinkedHashSet<String> fileList = tags.get(tag);
+        for (File file: files)
+            fileList.add(file.getAbsolutePath());
+
+        refreshListFile(tag, fileList);
+
+        return true;
+    }
+
+    public boolean deleteListFile(String tag, String filepath) {
+        // 標籤是否已建立，有則新增路徑
+        if (!tags.containsKey(tag))
+            return false;
+
+        // 刪除檔案
+        LinkedHashSet<String> fileList = tags.get(tag);
+        fileList.remove(filepath);
+
+        refreshListFile(tag, fileList);
+
+        return true;
+    }
+
+    private void refreshListFile(String tag, LinkedHashSet<String> fileList) {
+        tags.replace(tag, fileList);
+        for (Node node: accordion.getChildren()) {
+            TitledPane list = (TitledPane) node;
+            if (list.getText().equals(tag)) { // 尋找該標籤
+                List<String> filenames = fileList.stream().map(file -> "\t" + new File(file).getName()).collect(Collectors.toList()); // 添加檔名至所屬標籤
+                ListView<String> items = new ListView<>(FXCollections.observableArrayList(filenames));
+
+                items.getSelectionModel().clearSelection();
+                items.setPrefHeight(items.getItems().size() * 22 + 20);
+                items.setCellFactory(param -> new ListCell<>() {
+                    {
+                        prefWidthProperty().bind(items.widthProperty().subtract(2));
+                        setMaxWidth(Control.USE_PREF_SIZE);
+                    }
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item != null && !empty)
+                            setText(item);
+                        else
+                            setText(null);
+                    }
+                });
+                items.setOnMouseClicked(event -> {
+                    selectTag = list.getText();
+                    if (event.getButton() == MouseButton.SECONDARY) // 右鍵功能列表
+                        menuFile.show(this, event.getScreenX(), event.getScreenY());
+                    else {
+                        if (event.getButton() == MouseButton.PRIMARY) {
+                            int index = items.getSelectionModel().getSelectedIndex();
+
+                            if (index != -1) {
+                                if (event.getClickCount() >= 2) // 左鍵雙擊或以上，設定所選檔案
+                                    selectFileProperty.setValue(new ArrayList<>(fileList).get(index));
+                            }
+                        }
+                        menuFile.hide();
+                    }
+                });
+                items.setOnKeyPressed(event -> {
+                    int index = items.getSelectionModel().getSelectedIndex();
+
+                    if (index != -1) {
+                        if (event.getCode() == KeyCode.BACK_SPACE) { // 左鍵單擊，可刪除所選檔案
+                            items.getItems().remove(index);
+                            items.getSelectionModel().clearSelection();
+                            deleteListFile(selectTag, new ArrayList<>(fileList).get(index));
+                        }
+                    }
+                });
+
+                list.setContent(items);
+                list.setExpanded(true);
+                break;
+            }
+        }
     }
 
 }
