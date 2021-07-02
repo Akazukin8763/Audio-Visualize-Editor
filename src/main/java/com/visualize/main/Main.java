@@ -11,6 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.Screen;
+import javafx.geometry.Rectangle2D;
 
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
@@ -107,15 +109,14 @@ public class Main extends Application {
         HBox hBox = new HBox(paneFile.getPane(), middlePane, paneController.getPane());
         Scene scene = new Scene(hBox);
 
-        scene = new Scene(new AudioVisualizeUI(1600, 900));
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+        scene = new Scene(new AudioVisualizeUI(bounds.getWidth(), bounds.getHeight()));
         scene.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
-        //buttonChangeWallpaper.getStyleClass().add("button");
-
         stage.setScene(scene);
         stage.setTitle("Ɐudio Ʌisualizer Ǝditor");
-        //stage.getIcons().add(new javafx.scene.image.Image(new java.io.File(Jar.getJarPath() + "/icon/icon.png").toURI().toString()));
         stage.getIcons().add(new javafx.scene.image.Image(new java.io.File("src/main/resources/icon/icon.png").toURI().toString()));
-        stage.setResizable(true);
+        //stage.getIcons().add(new javafx.scene.image.Image(new java.io.File(Jar.getJarPath() + "/icon/icon.png").toURI().toString()));
         stage.setMaximized(true);
         stage.show();
 

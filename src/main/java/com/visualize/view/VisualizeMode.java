@@ -3,7 +3,7 @@ package com.visualize.view;
 public final class VisualizeMode {
 
     public enum View {
-        LINE(0), CIRCLE(1), ANALOGY(3);
+        LINE(0), CIRCLE(1), ANALOGY(2);
 
         private final int value;
 

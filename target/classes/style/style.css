@@ -1,5 +1,24 @@
  /*@import url("http://fonts.googleapis.com/css?family=Fontdiner+Swanky");*/
 
+/* Menu */
+.context-menu {
+    -fx-background-color: #2F3136;
+    -fx-border-color: #444444;
+    -fx-border-width: 1 1 1 1;
+}
+.context-menu > * > .separator > .line {
+    -fx-border-color: #444444;
+}
+.menu-bar {
+    -fx-background-color: #2F3136;
+    -fx-border-color: #444444;
+    -fx-border-width: 0 0 2 0;
+}
+.menu-bar > .container > .menu-button > .label {
+    -fx-text-fill: white;
+}
+
+/* ScollPane */
 .scroll-pane {
     -fx-background-color: #333333;
 }
@@ -12,7 +31,7 @@
     -fx-border-insets: -1 -1 -1 -1;
 }
 .titled-pane > .title {
-    -fx-background-color: #333333;
+    -fx-background-color: transparent;
     -fx-background-radius: 0 0 0 0;
 }
 .titled-pane:expanded > .title {
@@ -51,13 +70,34 @@
     -fx-opacity: 0;
 }
 
+/* Label */
+.label {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+/* ChoiceBox */
+.choice-box {
+    -fx-background-color: #2B2B2B;
+}
+
+/* Slider */
+.slider .track {
+    -fx-background-color: #444444;
+}
+.slider .thumb {
+    //-fx-shape: "M0 20a20 20 0 0 1 20 -20h10a20 20 0 0 1 20 20v110a20 20 0 0 1 -20 20h-10a20 20 0 0 1 -20 -20z";
+    //-fx-shape: "M 0 0  50 0 250 0 50 150 Z";
+    //-fx-shape: "M 0 0 h 4 v 10 h -4 z";
+}
+
 /* Scroll Bar */
 .scroll-bar {
     -fx-background-color: transparent;
     -fx-width: 5px;
     -fx-height: 5px;
 }
-.scroll-bar: .track {
+.scroll-bar .track {
     -fx-border-radius: 10px;
     -fx-margin: 5px 0px;
 }

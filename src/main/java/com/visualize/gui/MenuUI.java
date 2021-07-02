@@ -15,7 +15,13 @@ import javafx.application.Platform;
 
 public class MenuUI extends BorderPane {
 
+    private final double width;
+    private final double height;
+
     public MenuUI (double width, double height) {
+        this.width = width;
+        this.height = height;
+
         // File
         Menu menuFile = new Menu("File");
         MenuItem fileNew = new MenuItem("New");
