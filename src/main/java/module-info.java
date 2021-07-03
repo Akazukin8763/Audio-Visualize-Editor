@@ -5,6 +5,14 @@ module com.visualize.main {
     requires javafx.swing;
     requires java.desktop;
 
+    //--add-opens=javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls
+    //requires org.controlsfx.controls;
+    /*<dependency>
+        <groupId>org.controlsfx</groupId>
+        <artifactId>controlsfx</artifactId>
+        <version>11.1.0</version>
+    </dependency>*/
+
     requires mp3spi;
 
     requires org.bytedeco.ffmpeg.platform;

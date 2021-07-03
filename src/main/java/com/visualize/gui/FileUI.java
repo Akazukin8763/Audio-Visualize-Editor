@@ -104,7 +104,8 @@ public class FileUI extends ScrollPane {
         });
         this.setOnMouseEntered(event -> this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED));
         this.setOnMouseExited(event -> this.setVbarPolicy(ScrollBarPolicy.NEVER));
-        // └ 新增列表
+        // └ 總體列表
+        //  └ 新增列表
         fileGroupNew.setOnAction(event -> {
             TextInputDialog textInputDialog = new TextInputDialog("");
             textInputDialog.setTitle("New List");
@@ -119,10 +120,10 @@ public class FileUI extends ScrollPane {
             if (tag != null && !tag.equals(""))
                 System.out.println("Create List: " + createList(tag));
         });
-        // └ 清除所有列表
+        //  └ 清除所有列表
         fileGroupClear.setOnAction(event -> clearList());
-
-        // └ 新增音樂至列表
+        // └ 個別列表
+        //  └ 新增音樂至列表
         fileAdd.setOnAction(event -> {
             try {
                 List<File> files = fileChooser.showOpenMultipleDialog(null);
@@ -132,7 +133,7 @@ public class FileUI extends ScrollPane {
                 // 不做任何事
             }
         });
-        // └ 列表改名
+        //  └ 列表改名
         fileRename.setOnAction(event -> {
             TextInputDialog textInputDialog = new TextInputDialog(selectTag);
             textInputDialog.setTitle("Rename List");

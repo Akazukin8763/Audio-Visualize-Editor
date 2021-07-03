@@ -80,6 +80,21 @@
 .choice-box {
     -fx-background-color: #2B2B2B;
 }
+.choice-box:focused {
+    -fx-border-color: lightseagreen;
+}
+
+/* CheckBox */
+.check-box > .box {
+    -fx-background-color: transparent;
+    -fx-border-color: #444444;
+}
+.check-box:focused > .box {
+    -fx-border-color: lightseagreen;
+}
+.check-box:selected > .box > .mark {
+    -fx-background-color: white;
+}
 
 /* Slider */
 .slider .track {
@@ -89,6 +104,17 @@
     //-fx-shape: "M0 20a20 20 0 0 1 20 -20h10a20 20 0 0 1 20 20v110a20 20 0 0 1 -20 20h-10a20 20 0 0 1 -20 -20z";
     //-fx-shape: "M 0 0  50 0 250 0 50 150 Z";
     //-fx-shape: "M 0 0 h 4 v 10 h -4 z";
+}
+
+/* TextField */
+.text-field {
+    -fx-text-fill: white;
+    -fx-background-color: #444444, #333333;
+    -fx-background-insets: 0, 1 1 1 1 ;
+}
+.text-field:focused {
+    -fx-background-color: lightseagreen, #333333;
+    -fx-background-insets: 0, 1 1 1 1 ;
 }
 
 /* Scroll Bar */
