@@ -79,7 +79,7 @@ public class VisualizePane extends Pane {
         this.freqIsChanged = true; // 保證第一次計算 magnitude
 
         // Discord Color: #36393F
-        this.setBackgroundStyle("null", "#FFFFFF", "no-repeat", "center");
+        this.setBackgroundStyle("null", "#000000", "no-repeat", "center");
         this.setPrefSize(width, height);
     }
 

@@ -18,7 +18,7 @@
     -fx-text-fill: white;
 }
 
-/* ScollPane */
+/* ScrollPane */
 .scroll-pane {
     -fx-background-color: #333333;
 }
@@ -97,13 +97,18 @@
 }
 
 /* Slider */
-.slider .track {
+.slider .track,
+.range-slider .track {
     -fx-background-color: #444444;
 }
-.slider .thumb {
+.slider .thumb,
+.range-slider .thumb {
     //-fx-shape: "M0 20a20 20 0 0 1 20 -20h10a20 20 0 0 1 20 20v110a20 20 0 0 1 -20 20h-10a20 20 0 0 1 -20 -20z";
     //-fx-shape: "M 0 0  50 0 250 0 50 150 Z";
     //-fx-shape: "M 0 0 h 4 v 10 h -4 z";
+}
+.range-slider .range-bar {
+    -fx-background-color: lightseagreen;
 }
 
 /* TextField */
@@ -115,6 +120,25 @@
 .text-field:focused {
     -fx-background-color: lightseagreen, #333333;
     -fx-background-insets: 0, 1 1 1 1 ;
+}
+
+/* ColorPicker */
+.color-picker {
+    -fx-background-color: #2B2B2B;
+}
+.color-picker:focused {
+    -fx-border-color: lightseagreen;
+}
+.color-palette {
+    -fx-background-color: #333333;
+    -fx-border-color: lightseagreen;
+}
+.color-palette .text {
+    -fx-fill: white;
+}
+.color-palette .text:hover,
+.color-palette-region > .color-square.hover-square {
+    -fx-fill: lightseagreen;
 }
 
 /* Scroll Bar */

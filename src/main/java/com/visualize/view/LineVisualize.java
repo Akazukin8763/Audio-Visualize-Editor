@@ -74,10 +74,10 @@ public class LineVisualize extends AudioVisualize{
         dropShadow.setRadius(15);
 
         for (int i = 0; i < barNum; i++) {
-            double rand = random(directModes[direct.value()].direct(i, barNum));
+            double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));
 
-            double y = yModes[side.value()].y(posY, rand);
-            double height = heightModes[side.value()].height(rand);
+            double y = yModes[side.value()].y(posY, initHeight);
+            double height = heightModes[side.value()].height(initHeight);
 
             Rectangle rectangle = new Rectangle(posX + i * (barSize + barGap) , y, barSize, height);
             rectangle.getTransforms().add(rotate);

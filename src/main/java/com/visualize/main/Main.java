@@ -53,7 +53,7 @@ public class Main extends Application {
         stage = new Stage();
 
         //audioFile = new WavFile(Jar.getJarPath() + "/music/__default__.wav");
-        audioFile = new WavFile("src/main/resources/music/__default__.wav");
+        /*audioFile = new WavFile("src/main/resources/music/__default__.wav");
         visualizeFormat = new VisualizeFormat(64, 4, 2, 100, 0, 0, 0, Color.WHITE, Color.WHITE, .5);
 
         paneFile = new paneFile();
@@ -107,11 +107,11 @@ public class Main extends Application {
 
         BorderPane middlePane = new BorderPane(paneButton, fitPane, null, EventLog.eventLog, null);
         HBox hBox = new HBox(paneFile.getPane(), middlePane, paneController.getPane());
-        Scene scene = new Scene(hBox);
+        Scene scene = new Scene(hBox);*/
 
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
-        scene = new Scene(new AudioVisualizeUI(bounds.getWidth(), bounds.getHeight()));
+        Scene scene = new Scene(new AudioVisualizeUI(bounds.getWidth(), bounds.getHeight()));
         scene.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Ɐudio Ʌisualizer Ǝditor");
@@ -120,10 +120,10 @@ public class Main extends Application {
         stage.setMaximized(true);
         stage.show();
 
-        preview();
+        //preview();
 
         // Event
-        paneController.valueChangeProperty.addListener((obs, oldValue, newValue) -> {
+        /*paneController.valueChangeProperty.addListener((obs, oldValue, newValue) -> {
             if (!visualizePane.isRunning()) {
                 clear();
                 preview();
@@ -180,7 +180,7 @@ public class Main extends Application {
             sliderTime.setValue(value);
             playFrom(value);
             setTime(labelTime, (int)value, (int)audioFile.getDuration());
-        });
+        });*/
 
     }
 
@@ -188,6 +188,7 @@ public class Main extends Application {
         launch(args);
     }
 
+    /*
     private void updateData() {
         VisualizeFormat visualizeFormatOld = visualizePane.getVisualizeFormat();
         VisualizeMode.Side sideOld = visualizePane.getSide();
@@ -349,5 +350,6 @@ public class Main extends Application {
 
         return String.format("%02d:%02d:%02d", hour, min, sec);
     }
+    */
 
 }

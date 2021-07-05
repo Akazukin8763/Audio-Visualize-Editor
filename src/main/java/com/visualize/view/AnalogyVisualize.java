@@ -82,9 +82,9 @@ public class AnalogyVisualize extends AudioVisualize{
         Polyline polyline = new Polyline();
         polyline.getPoints().addAll(posX - (barSize + barGap), posY); // 起端
         for (int i = 0; i < barNum; i++) {
-            double rand = random(directModes[direct.value()].direct(i, barNum));
+            double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));
 
-            double y = yModes[side.value()].y(posY, rand);
+            double y = yModes[side.value()].y(posY, initHeight);
 
             polyline.getPoints().addAll(posX + i * (barSize + barGap), y);
         }

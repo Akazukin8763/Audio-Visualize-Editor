@@ -19,12 +19,16 @@ public class VisualizeFormat {
 
     private double sensitivity;
 
+    private double minFreq;
+    private double maxFreq;
+
     // Constructor
-    public VisualizeFormat (int barNum, int barSize, int barGap, int radius, double posX, double posY, double rotation, Color barColor, Color dropShadowColor) {
-        this(barNum, barSize, barGap, radius, posX, posY, rotation, barColor, dropShadowColor, 1);
+    public VisualizeFormat () {
+        this(0, 0, 0, 0, 0, 0, 0, Color.WHITE);
     }
 
-    public VisualizeFormat (int barNum, int barSize, int barGap, int radius, double posX, double posY, double rotation, Color barColor, Color dropShadowColor, double sensitivity) {
+    public VisualizeFormat (int barNum, int barSize, int barGap, int radius, double posX, double posY, double rotation, Color barColor) {
+        // Normal
         this.barNum = barNum;
         this.barSize = barSize;
 
@@ -36,9 +40,14 @@ public class VisualizeFormat {
         this.rotation = rotation;
 
         this.barColor = barColor;
-        this.dropShadowColor = dropShadowColor;
 
-        this.sensitivity = sensitivity;
+        // Advance
+        this.dropShadowColor = Color.rgb(0, 0, 0, 0);
+
+        this.sensitivity = 1;
+
+        this.minFreq = 0;
+        this.maxFreq = 0;
     }
 
     // Methods
@@ -121,4 +130,21 @@ public class VisualizeFormat {
     public void setSensitivity(double sensitivity) {
         this.sensitivity = sensitivity;
     }
+
+    public double getMinFreq() {
+        return minFreq;
+    }
+
+    public void setMinFreq(double minFreq) {
+        this.minFreq = minFreq;
+    }
+
+    public double getMaxFreq() {
+        return maxFreq;
+    }
+
+    public void setMaxFreq(double maxFreq) {
+        this.maxFreq = maxFreq;
+    }
+
 }

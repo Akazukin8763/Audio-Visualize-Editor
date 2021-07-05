@@ -78,13 +78,13 @@ public class CircleVisualize extends AudioVisualize{
         dropShadow.setRadius(15);
 
         for (int i = 0; i < barNum; i++) {
-            double rand = random(directModes[direct.value()].direct(i, barNum));
+            double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));
 
             double x = posX + radius * Math.cos(radian * i + rotateRadian); // 每個 bar 實際上的 x 座標
             double y = posY + radius * Math.sin(radian * i + rotateRadian); // 每個 bar 實際上的 y 座標
-            double height = heightModes[side.value()].height(rand);
+            double height = heightModes[side.value()].height(initHeight);
 
-            Rectangle rectangle = new Rectangle(x - barSize / 2.0, yModes[side.value()].y(y, rand), barSize, height); // 將 x 錨點校正至 bar 底邊中心
+            Rectangle rectangle = new Rectangle(x - barSize / 2.0, yModes[side.value()].y(y, initHeight), barSize, height); // 將 x 錨點校正至 bar 底邊中心
             rectangle.getTransforms().add(new Rotate(angle * i - 90 + rotateAngle, x, y)); // 依照 bar 正中心點旋轉
             rectangle.setFill(barColor);
             rectangle.setEffect(dropShadow);

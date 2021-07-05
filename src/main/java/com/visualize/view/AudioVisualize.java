@@ -52,8 +52,9 @@ public abstract class AudioVisualize implements Drawable{
     }
 
     // Methods
-    protected double random(int i) {
-        return Math.abs(Math.sin((2 * Math.PI / 24) * (i % 24))) * 150 + 1;
+    protected double getInitHeight(int i) {
+        return 1;
+        //return Math.abs(Math.sin((2 * Math.PI / 24) * (i % 24))) * 150 + 1;
     }
 
     protected void setSensitivity(double sensitivity) { // 調整靈敏度

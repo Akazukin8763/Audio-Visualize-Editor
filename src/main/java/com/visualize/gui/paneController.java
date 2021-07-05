@@ -707,12 +707,12 @@ public class paneController {
         else if("RIGHT".equals(choiceBoxStereo.getValue().toString())) return VisualizeMode.Stereo.RIGHT;
         else return VisualizeMode.Stereo.BOTH;
     }
-    public VisualizeFormat getVisualizeFormat() {
+    /*public VisualizeFormat getVisualizeFormat() {
         return new VisualizeFormat(
                 (int)getNumberBar(), (int)getSize(), (int)getGap(), (int)getRadius(),
                 getPosX(), getPosY(), getRotation(),
                 getColor(), getColorBlur(), getSensitivity());
-    }
+    }*/
     public String getImg(){
         return img;
     }
