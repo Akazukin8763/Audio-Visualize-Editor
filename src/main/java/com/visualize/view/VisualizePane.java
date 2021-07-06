@@ -49,9 +49,6 @@ public class VisualizePane extends Pane {
     private double[][] frequency; // 頻率振福 [channels][availableLengths / 2]
     private double[][][] magnitude; // 區域總振幅 [channels][barNum][availableLengths / BUFFER]
 
-    private double minFreq;
-    private double maxFreq;
-
     protected boolean autoPlay; // 繪製完音波是否立即撥放
     private boolean audioIsChanged; // 外部是否改變 audioFile，有的話則要重新計算 frequency
     private boolean barNumIsChanged; // 外部是否改變 barNum 數量，有的話則要重新計算 magnitude
@@ -63,15 +60,14 @@ public class VisualizePane extends Pane {
 
         this.audioFile = audioFile;
         this.visualizeFormat = visualizeFormat;
+        this.visualizeFormat.setMinFreq(this.audioFile.getFrameRate() / BUFFER);
+        this.visualizeFormat.setMaxFreq(this.audioFile.getFrameRate() / 2);
 
         this.audioVisualize = new LineVisualize(width, height);
         this.view = VisualizeMode.View.LINE;
         this.side = VisualizeMode.Side.OUT;
         this.direct = VisualizeMode.Direct.NORMAL;
         this.stereo = VisualizeMode.Stereo.BOTH; // 防止輸入可用聲道數
-
-        this.minFreq = this.audioFile.getFrameRate() / BUFFER;
-        this.maxFreq = this.audioFile.getFrameRate() / 2;
 
         this.autoPlay = true; // 預設為立即撥放
         this.audioIsChanged = true; // 保證第一次計算 frequency
@@ -81,6 +77,11 @@ public class VisualizePane extends Pane {
         // Discord Color: #36393F
         this.setBackgroundStyle("null", "#000000", "no-repeat", "center");
         this.setPrefSize(width, height);
+
+        // Event
+        this.visualizeFormat.barNumProperty.addListener((obs, oldValue, newValue) -> this.barNumIsChanged = true);
+        this.visualizeFormat.minFreqProperty.addListener((obs, oldValue, newValue) -> this.freqIsChanged = true);
+        this.visualizeFormat.maxFreqProperty.addListener((obs, oldValue, newValue) -> this.freqIsChanged = true);
     }
 
     // Methods
@@ -190,11 +191,12 @@ public class VisualizePane extends Pane {
         }
 
         if (audioIsChanged | barNumIsChanged | freqIsChanged) { // 若改變過 barNum, freq 則振幅重新計算
-            int[] frequencyIndex = frequencyIndex(this.audioFile.getFrameRate() / 2, this.visualizeFormat.getBarNum(), minFreq, maxFreq);
+            int[] frequencyIndex = frequencyIndex(this.audioFile.getFrameRate() / 2, this.visualizeFormat.getBarNum(), this.visualizeFormat.getMinFreq(), this.visualizeFormat.getMaxFreq());
             magnitude = magnitudeCollect(frequency, frequencyIndex);
 
             audioIsChanged = false;
             barNumIsChanged = false;
+            freqIsChanged = false;
         }
     }
 
@@ -364,8 +366,8 @@ public class VisualizePane extends Pane {
     }
 
     public void setAudioFile(AudioFile audioFile) {
-        this.audioFile = audioFile;
         this.audioIsChanged = true;
+        this.audioFile = audioFile;
     }
 
     public VisualizeFormat getVisualizeFormat() {
@@ -376,23 +378,11 @@ public class VisualizePane extends Pane {
         if (this.visualizeFormat.getBarNum() != visualizeFormat.getBarNum())
             this.barNumIsChanged = true;
 
-        this.visualizeFormat = visualizeFormat;
-    }
-
-    public double getMinFreq() {
-        return minFreq;
-    }
-
-    public double getMaxFreq() {
-        return maxFreq;
-    }
-
-    public void setMinMaxFreq(double minFreq, double maxFreq) {
-        if (this.minFreq != minFreq || this.maxFreq != maxFreq)
+        if (this.visualizeFormat.getMinFreq() != visualizeFormat.getMinFreq() |
+            this.visualizeFormat.getMaxFreq() != visualizeFormat.getMaxFreq())
             this.freqIsChanged = true;
 
-        this.minFreq = minFreq;
-        this.maxFreq = maxFreq;
+        this.visualizeFormat = visualizeFormat;
     }
 
     public String getBackgroundImage() {

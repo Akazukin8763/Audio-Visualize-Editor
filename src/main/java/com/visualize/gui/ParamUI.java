@@ -17,12 +17,16 @@ import org.controlsfx.control.RangeSlider;
 import javafx.scene.text.Font;
 import javafx.geometry.HPos;
 
+import javafx.scene.paint.Color;
+
 import javafx.collections.FXCollections;
 
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 public class ParamUI extends ScrollPane {
 
@@ -61,6 +65,12 @@ public class ParamUI extends ScrollPane {
     public final IntegerProperty maxFrequencyProperty = new SimpleIntegerProperty();
 
     public final StringProperty colorProperty = new SimpleStringProperty(null);
+    public final StringProperty colorShadowProperty = new SimpleStringProperty(null);
+    public final IntegerProperty colorShadowRadiusProperty = new SimpleIntegerProperty();
+    public final IntegerProperty colorShadowSpreadProperty = new SimpleIntegerProperty();
+
+    private final IntegerProperty channelsProperty = new SimpleIntegerProperty(); // 影響 Stereo
+    //private final DoubleProperty frameRateProperty = new SimpleDoubleProperty(); // 影響 Frequency
 
     public ParamUI(double width, double height) {
         this.width = width;
@@ -179,6 +189,25 @@ public class ParamUI extends ScrollPane {
         labelColor.setPrefWidth(width * (WIDTH_OFFSET_LEFT + WIDTH_OFFSET_MIDDLE));
         colorPickerColor.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
+        Label labelColorShadow = new Label("Color Shadow");
+        ColorPicker colorPickerColorShadow = new ColorPicker();
+        labelColorShadow.setPrefWidth(width * (WIDTH_OFFSET_LEFT + WIDTH_OFFSET_MIDDLE));
+        colorPickerColorShadow.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+        Label labelColorShadowRadius = new Label(" └ Radius");
+        Slider sliderColorShadowRadius = new Slider(0, 127, 0);
+        TextField textFieldColorShadowRadius = new TextField("0");
+        labelColorShadowRadius.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        sliderColorShadowRadius.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        textFieldColorShadowRadius.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+        Label labelColorShadowSpread = new Label(" └ Spread");
+        Slider sliderColorShadowSpread = new Slider(0, 100, 0);
+        TextField textFieldColorShadowSpread = new TextField("0");
+        labelColorShadowSpread.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        sliderColorShadowSpread.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        textFieldColorShadowSpread.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
         Label labelSensitivity = new Label("Sensitivity");
         Slider sliderSensitivity = new Slider(0, 100, 0);
         TextField textFieldSensitivity = new TextField("0");
@@ -191,7 +220,7 @@ public class ParamUI extends ScrollPane {
         labelFreq.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         rangeSliderFreq.setPrefWidth(width * (WIDTH_OFFSET_MIDDLE + WIDTH_OFFSET_RIGHT));
 
-        Label labelMinMaxFreq = new Label("Min / Max");
+        Label labelMinMaxFreq = new Label(" └ Min / Max");
         Label labelFreqNull = new Label();
         TextField textFieldMinFreq = new TextField("0");
         TextField textFieldMaxFreq = new TextField("24000");
@@ -221,10 +250,13 @@ public class ParamUI extends ScrollPane {
         groupAdvance.setVgap(5);
         paramPane.add(groupAdvance, 0, 6, 2, 1);
 
+        HBox groupColorShadow = new HBox(labelColorShadow, colorPickerColorShadow);
+        HBox groupColorShadowRadius = new HBox(labelColorShadowRadius, sliderColorShadowRadius, textFieldColorShadowRadius);
+        HBox groupColorShadowSpread = new HBox(labelColorShadowSpread, sliderColorShadowSpread, textFieldColorShadowSpread);
         HBox groupSensitivity = new HBox(labelSensitivity, sliderSensitivity, textFieldSensitivity);
         HBox groupFreq = new HBox(labelFreq, rangeSliderFreq);
         HBox groupMinMaxFreq = new HBox(labelMinMaxFreq, textFieldMinFreq, labelFreqNull, textFieldMaxFreq);
-        HBox[] groupAdvanceParam = new HBox[] {groupSensitivity, groupFreq, groupMinMaxFreq};
+        HBox[] groupAdvanceParam = new HBox[] {groupColorShadow, groupColorShadowRadius, groupColorShadowSpread, groupSensitivity, groupFreq, groupMinMaxFreq};
 
         // Event
         // └ this
@@ -253,9 +285,20 @@ public class ParamUI extends ScrollPane {
             equalizerDirectionProperty.setValue(type.toString()); // Property
         });
         //  └ Equalizer Stereo
-        choiceBoxEqualizerStereo.setOnAction(event -> {
-            VisualizeMode.Stereo type = choiceBoxEqualizerStereo.getValue();
+        choiceBoxEqualizerStereo.valueProperty().addListener((obs, oldValue, newValue) -> {
+            VisualizeMode.Stereo type = (newValue == null ? oldValue : newValue);
             equalizerStereoProperty.setValue(type.toString()); // Property
+        });
+        //   └ Audio File Changed Affect On Stereo and Frequency
+        channelsProperty.addListener((obs, oldValue, newValue) -> {
+            if (newValue.intValue() == 1) {
+                choiceBoxEqualizerStereo.getItems().setAll(EQUALIZER_STEREO[0]);
+                choiceBoxEqualizerStereo.setValue(EQUALIZER_STEREO[0]);
+            }
+            else if (newValue.intValue() == 2) {
+                choiceBoxEqualizerStereo.getItems().setAll(EQUALIZER_STEREO[1], EQUALIZER_STEREO[2], EQUALIZER_STEREO[3]);
+                choiceBoxEqualizerStereo.setValue(EQUALIZER_STEREO[3]);
+            }
         });
         // └ Check Box
         //  └ Advance
@@ -267,6 +310,19 @@ public class ParamUI extends ScrollPane {
                     groupAdvance.add(param, 0, groupRow++, 2, 1);
                 groupAdvance.add(labelEqualizerStereo, 0, groupRow);
                 groupAdvance.add(choiceBoxEqualizerStereo, 1, groupRow);
+
+                colorShadowProperty.setValue(colorPickerColorShadow.getValue().toString());
+                sensitivityProperty.setValue(sliderSensitivity.getValue());
+                minFrequencyProperty.setValue(rangeSliderFreq.getLowValue());
+                maxFrequencyProperty.setValue(rangeSliderFreq.getHighValue());
+                //sliderSensitivity.lookup(".track").setStyle(sliderTrackStyle(sliderSensitivity.getValue() / sliderSensitivity.getMax() * 100));
+            }
+            else { // 保留內部資料，重製音波資料，因為處於未啟用狀態
+                // 預設值
+                colorShadowProperty.setValue(Color.rgb(0, 0, 0, 0).toString());
+                sensitivityProperty.setValue(50);
+                minFrequencyProperty.setValue(0);
+                maxFrequencyProperty.setValue(24000);
             }
         });
         // └ Slider
@@ -351,6 +407,7 @@ public class ParamUI extends ScrollPane {
         sliderSensitivity.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderSensitivity.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderSensitivity.getMax() * 100));
             textFieldSensitivity.textProperty().setValue(String.format("%d", newValue.intValue()));
+            System.out.println(newValue.intValue());
         });
         textFieldSensitivity.textProperty().addListener((obs, oldValue, newValue) -> {
             int value = textFieldStringToInt(textFieldSensitivity.getText(), (int) sliderSensitivity.getMax());
@@ -359,12 +416,8 @@ public class ParamUI extends ScrollPane {
             sensitivityProperty.setValue(value); // Property
         });
         //  └ Frequency
-        rangeSliderFreq.lowValueProperty().addListener((obs, oldValue, newValue) -> {
-            textFieldMinFreq.textProperty().setValue(String.format("%d", newValue.intValue()));
-        });
-        rangeSliderFreq.highValueProperty().addListener((obs, oldValue, newValue) -> {
-            textFieldMaxFreq.textProperty().setValue(String.format("%d", newValue.intValue()));
-        });
+        rangeSliderFreq.lowValueProperty().addListener((obs, oldValue, newValue) -> textFieldMinFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
+        rangeSliderFreq.highValueProperty().addListener((obs, oldValue, newValue) -> textFieldMaxFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldMinFreq.textProperty().addListener((obs, oldValue, newValue) -> {
             int value = textFieldStringToInt(textFieldMinFreq.getText(), (int) rangeSliderFreq.getMax());
             rangeSliderFreq.lowValueProperty().setValue(value);
@@ -377,11 +430,33 @@ public class ParamUI extends ScrollPane {
             textFieldMaxFreq.textProperty().setValue(String.format("%d", value));
             maxFrequencyProperty.setValue(value); // Property
         });
+        //  └ Color Shadow Radius
+        sliderColorShadowRadius.valueProperty().addListener((obs, oldValue, newValue) -> {
+            sliderColorShadowRadius.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowRadius.getMax() * 100));
+            textFieldColorShadowRadius.textProperty().setValue(String.format("%d", newValue.intValue()));
+        });
+        textFieldColorShadowRadius.textProperty().addListener((obs, oldValue, newValue) -> {
+            int value = textFieldStringToInt(textFieldColorShadowRadius.getText(), (int) sliderColorShadowRadius.getMax());
+            sliderColorShadowRadius.valueProperty().setValue(value);
+            textFieldColorShadowRadius.textProperty().setValue(String.format("%d", value));
+            colorShadowRadiusProperty.setValue(value); // Property
+        });
+        //  └ Color Shadow Spread
+        sliderColorShadowSpread.valueProperty().addListener((obs, oldValue, newValue) -> {
+            sliderColorShadowSpread.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowSpread.getMax() * 100));
+            textFieldColorShadowSpread.textProperty().setValue(String.format("%d", newValue.intValue()));
+        });
+        textFieldColorShadowSpread.textProperty().addListener((obs, oldValue, newValue) -> {
+            int value = textFieldStringToInt(textFieldColorShadowSpread.getText(), (int) sliderColorShadowSpread.getMax());
+            sliderColorShadowSpread.valueProperty().setValue(value);
+            textFieldColorShadowSpread.textProperty().setValue(String.format("%d", value));
+            colorShadowSpreadProperty.setValue(value); // Property
+        });
         // └ Color Picker
         //  └ Color
-        colorPickerColor.valueProperty().addListener((obs, oldValue, newValue) -> {
-            colorProperty.setValue(newValue.toString());
-        });
+        colorPickerColor.valueProperty().addListener((obs, oldValue, newValue) -> colorProperty.setValue(newValue.toString()));
+        //  └ Color Shadow
+        colorPickerColorShadow.valueProperty().addListener((obs, oldValue, newValue) -> colorShadowProperty.setValue(newValue.toString()));
 
         // Initialize
         choiceBoxEqualizerType.setValue(EQUALIZER_TYPE[0]); // Line
@@ -402,6 +477,11 @@ public class ParamUI extends ScrollPane {
             result = 0;
         }
         return result;
+    }
+
+    public void setChannels(int channels) {
+        if (channels == 1 || channels == 2)
+            this.channelsProperty.setValue(channels);
     }
 
 }

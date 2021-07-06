@@ -64,6 +64,8 @@ public class LineVisualize extends AudioVisualize{
         double rotation = visualizeFormat.getRotation();
         Color barColor = visualizeFormat.getBarColor();
         Color dropShadowColor = visualizeFormat.getDropShadowColor();
+        int dropShadowColorRadius = visualizeFormat.getDropShadowColorRadius();
+        double dropShadowColorSpread = visualizeFormat.getDropShadowColorSpread();
 
         // Rotation
         Rotate rotate = new Rotate(rotation, posX, posY);
@@ -71,7 +73,8 @@ public class LineVisualize extends AudioVisualize{
         // DropShadow
         DropShadow dropShadow = new DropShadow();
         dropShadow.setColor(dropShadowColor);
-        dropShadow.setRadius(15);
+        dropShadow.setRadius(dropShadowColorRadius);
+        dropShadow.setSpread(dropShadowColorSpread);
 
         for (int i = 0; i < barNum; i++) {
             double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));

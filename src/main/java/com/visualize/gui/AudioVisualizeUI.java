@@ -24,7 +24,7 @@ public class AudioVisualizeUI extends Pane {
     private final FileUI fileUI;
     private final ParamUI paramUI;
 
-    private final AudioFile audioFile;
+    private AudioFile audioFile;
     private final VisualizeFormat visualizeFormat;
     private final VisualizePane visualizePane;
 
@@ -65,7 +65,7 @@ public class AudioVisualizeUI extends Pane {
 
         // Event
         // └ File UI
-        fileUI.selectFileProperty.addListener(event -> System.out.println(fileUI.selectFileProperty.getValue()));
+        fileUI.selectFileProperty.addListener(event -> changeAudio(fileUI.selectFileProperty.getValue()));
         // └ Menu UI
         menuUI.previewClickProperty.addListener(event -> preview());
         menuUI.animateClickProperty.addListener(event -> animate());
@@ -187,6 +187,53 @@ public class AudioVisualizeUI extends Pane {
 
             preview();
         });
+        //  └ Color Shadow
+        paramUI.colorShadowProperty.addListener((obs, oldValue, newValue) -> {
+            Color dropShadowColor = Color.web(newValue);
+            visualizeFormat.setDropShadowColor(dropShadowColor);
+
+            preview();
+        });
+        //  └ Color Shadow Radius
+        paramUI.colorShadowRadiusProperty.addListener((obs, oldValue, newValue) -> {
+            int dropShadowColorRadius = newValue.intValue();
+            visualizeFormat.setDropShadowColorRadius(dropShadowColorRadius);
+
+            preview();
+        });
+        //  └ Color Shadow Spread
+        paramUI.colorShadowSpreadProperty.addListener((obs, oldValue, newValue) -> {
+            double dropShadowColorSpread = newValue.doubleValue() / 100;
+            visualizeFormat.setDropShadowColorSpread(dropShadowColorSpread);
+
+            preview();
+        });
+    }
+
+    public void changeAudio (String filepath) {
+        if (visualizePane.isRunning())
+            stop();
+        visualizePane.clearAnimation();
+
+        try {
+            if (filepath.endsWith(".wav"))
+                audioFile = new WavFile(filepath);
+            else if (filepath.endsWith("mp3"))
+                audioFile = new Mp3File(filepath);
+            else
+                throw new javax.sound.sampled.UnsupportedAudioFileException();
+
+            visualizePane.setAudioFile(audioFile);
+            paramUI.setChannels(audioFile.getChannels());
+            //paramUI.setFrameRate(audioFile.getFrameRate());
+
+            //audioFile.setVolume(paneFile.getVolume() / 100.0);
+            //setTime(labelTime, 0, (int)audioFile.getDuration());
+            //sliderTime.setMax(audioFile.getDuration());
+            //EventLog.eventLog.songChange(songOld, songNew);
+        } catch (javax.sound.sampled.UnsupportedAudioFileException | java.io.IOException e) {
+            //EventLog.eventLog.warning("The file is Unsupported or Non-existent.");
+        }
     }
 
     public void preview() {
@@ -202,7 +249,6 @@ public class AudioVisualizeUI extends Pane {
         visualizePane.clearAnimation();
         visualizePane.animate();
     }
-
 
     public void stop() {
         try {
