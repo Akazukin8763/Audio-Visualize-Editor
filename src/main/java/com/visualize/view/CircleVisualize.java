@@ -64,6 +64,10 @@ public class CircleVisualize extends AudioVisualize{
         double rotation = visualizeFormat.getRotation();
         Color barColor = visualizeFormat.getBarColor();
         Color dropShadowColor = visualizeFormat.getDropShadowColor();
+        int dropShadowColorRadius = visualizeFormat.getDropShadowColorRadius();
+        double dropShadowColorSpread = visualizeFormat.getDropShadowColorSpread();
+        double dropShadowColorOffsetX = visualizeFormat.getDropShadowColorOffsetX();
+        double dropShadowColorOffsetY = visualizeFormat.getDropShadowColorOffsetY();
 
         double radian = 2 * Math.PI / barNum;
         double angle = 360.0 / barNum;
@@ -75,7 +79,10 @@ public class CircleVisualize extends AudioVisualize{
         // DropShadow
         DropShadow dropShadow = new DropShadow();
         dropShadow.setColor(dropShadowColor);
-        dropShadow.setRadius(15);
+        dropShadow.setRadius(dropShadowColorRadius);
+        dropShadow.setSpread(dropShadowColorSpread);
+        //dropShadow.setOffsetX(dropShadowColorOffsetX);
+        //dropShadow.setOffsetY(dropShadowColorOffsetY);
 
         for (int i = 0; i < barNum; i++) {
             double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));

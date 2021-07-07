@@ -1,0 +1,16 @@
+ /*@import url("http://fonts.googleapis.com/css?family=Fontdiner+Swanky");*/
+
+/* Label */
+.label {
+    -fx-text-fill: white;
+    -fx-background-color: #333333;
+}
+
+/* TextField */
+.text-field {
+    -fx-text-fill: white;
+    -fx-background-color: #444444, #333333;
+    -fx-background-insets: 0, 1 1 1 1;
+    -fx-background-radius: 0 0 0 0;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}

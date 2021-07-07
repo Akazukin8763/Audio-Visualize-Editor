@@ -8,6 +8,6 @@ public final class DefaultPath {
     public static final String TEMP_WAV_PATH = new File("src/main/resources/music/__convert_audio__.wav").getAbsolutePath();
     public static final String TEMP_PCM_PATH = new File("src/main/resources/music/__convert_audio__.pcm").getAbsolutePath();
 
-    public static final String FOLDER_ICON_PATH = new File("src/main/resources/icon/103485-64.png").getAbsolutePath();
+    public static final String FOLDER_ICON_PATH = new File("src/main/resources/icon/103485-16.png").getAbsolutePath();
 
 }

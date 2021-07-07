@@ -60,6 +60,10 @@ public class AnalogyVisualize extends AudioVisualize{
         double rotation = visualizeFormat.getRotation();
         Color barColor = visualizeFormat.getBarColor();
         Color dropShadowColor = visualizeFormat.getDropShadowColor();
+        int dropShadowColorRadius = visualizeFormat.getDropShadowColorRadius();
+        double dropShadowColorSpread = visualizeFormat.getDropShadowColorSpread();
+        double dropShadowColorOffsetX = visualizeFormat.getDropShadowColorOffsetX();
+        double dropShadowColorOffsetY = visualizeFormat.getDropShadowColorOffsetY();
 
         // Rotation
         Rotate rotate = new Rotate(rotation, posX, posY);
@@ -67,7 +71,10 @@ public class AnalogyVisualize extends AudioVisualize{
         // DropShadow
         DropShadow dropShadow = new DropShadow();
         dropShadow.setColor(dropShadowColor);
-        dropShadow.setRadius(15);
+        dropShadow.setRadius(dropShadowColorRadius);
+        dropShadow.setSpread(dropShadowColorSpread);
+        dropShadow.setOffsetX(dropShadowColorOffsetX);
+        dropShadow.setOffsetY(dropShadowColorOffsetY);
 
         // Reflection
         if (side == VisualizeMode.Side.BOTH) {

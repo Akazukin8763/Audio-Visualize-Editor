@@ -26,6 +26,7 @@ public class AudioVisualizeUI extends Pane {
 
     private AudioFile audioFile;
     private final VisualizeFormat visualizeFormat;
+    private final BackgroundFormat backgroundFormat;
     private final VisualizePane visualizePane;
 
     // Constructor
@@ -36,13 +37,12 @@ public class AudioVisualizeUI extends Pane {
 
         menuUI = new MenuUI(width, height);
         fileUI = new FileUI(width * .12, height * .65);
-        paramUI = new ParamUI(width * .20, height * .65);
+        paramUI = new ParamUI(width * .20, height);
 
         audioFile = new WavFile("src/main/resources/music/__default__.wav");
         visualizeFormat = new VisualizeFormat();
-        //visualizeFormat.setMinFreq(0);
-        //visualizeFormat.setMaxFreq(0);
-        visualizePane = new VisualizePane(audioFile, visualizeFormat);
+        backgroundFormat = new BackgroundFormat();
+        visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat);
 
         ScrollPane fitPane = new ScrollPane();
         fitPane.setContent(visualizePane);
@@ -56,12 +56,23 @@ public class AudioVisualizeUI extends Pane {
         visualizePane.setTranslateX(0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2);
         visualizePane.setTranslateY(0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2);
 
-        HBox hBox = new HBox(fileUI, fitPane, paramUI);
-        VBox vBox = new VBox(menuUI, hBox);
-        getChildren().add(vBox);
+        // |----------------------------------------------------------------|
+        // |                              Menu                              |
+        // |----------|-----------------------------------------|-----------|
+        // |          |                                         |           |
+        // |          |                                         |           |
+        // |   File   |                Visualize                |           |
+        // |          |                                         |   Param   |
+        // |          |                                         |           |
+        // |----------|-----------------------------------------|           |
+        // |                                                    |           |
+        // |----------------------------------------------------|-----------|
 
-        //setStyle("-fx-background-color: lightgray");
-        //vBox.setStyle("-fx-background-color: lightgray");
+        HBox hBox1 = new HBox(fileUI, fitPane);
+        VBox vBox1 = new VBox(hBox1, new Pane());
+        HBox hBox2 = new HBox(vBox1, paramUI);
+        VBox vBox2 = new VBox(menuUI, hBox2);
+        getChildren().add(vBox2);
 
         // Event
         // └ File UI
@@ -70,7 +81,8 @@ public class AudioVisualizeUI extends Pane {
         menuUI.previewClickProperty.addListener(event -> preview());
         menuUI.animateClickProperty.addListener(event -> animate());
         // └ Param UI
-        //  └ Equalizer Type
+        //  └ Equalizer
+        //   └ Equalizer Type
         paramUI.equalizerTypeProperty.addListener(event -> {
             String equalizerType = paramUI.equalizerTypeProperty.getValue();
 
@@ -80,7 +92,7 @@ public class AudioVisualizeUI extends Pane {
 
             preview();
         });
-        //  └ Equalizer Side
+        //   └ Equalizer Side
         paramUI.equalizerSideProperty.addListener(event -> {
             String equalizerSide = paramUI.equalizerSideProperty.getValue();
 
@@ -90,7 +102,7 @@ public class AudioVisualizeUI extends Pane {
 
             preview();
         });
-        //  └ Equalizer Direction
+        //   └ Equalizer Direction
         paramUI.equalizerDirectionProperty.addListener(event -> {
             String equalizerDirection = paramUI.equalizerDirectionProperty.getValue();
 
@@ -100,7 +112,7 @@ public class AudioVisualizeUI extends Pane {
 
             preview();
         });
-        //  └ Equalizer Stereo
+        //   └ Equalizer Stereo
         paramUI.equalizerStereoProperty.addListener(event -> {
             String equalizerStereo = paramUI.equalizerStereoProperty.getValue();
 
@@ -110,101 +122,122 @@ public class AudioVisualizeUI extends Pane {
 
             preview();
         });
-        //  └ Bar Number
+        //   └ Bar Number
         paramUI.barNumberProperty.addListener(event -> {
             int barNum = paramUI.barNumberProperty.getValue();
             visualizeFormat.setBarNum(barNum);
 
             preview();
         });
-        //  └ Size
+        //   └ Size
         paramUI.sizeProperty.addListener(event -> {
             int barSize = paramUI.sizeProperty.getValue();
             visualizeFormat.setBarSize(barSize);
 
             preview();
         });
-        //  └ Rotation
+        //   └ Rotation
         paramUI.rotationProperty.addListener(event -> {
             int rotation = paramUI.rotationProperty.getValue();
             visualizeFormat.setRotation(rotation);
 
             preview();
         });
-        //  └ Gap
+        //   └ Gap
         paramUI.gapProperty.addListener(event -> {
             int barGap = paramUI.gapProperty.getValue();
             visualizeFormat.setBarGap(barGap);
 
             preview();
         });
-        //  └ Radius
+        //   └ Radius
         paramUI.radiusProperty.addListener(event -> {
             int radius = paramUI.radiusProperty.getValue();
             visualizeFormat.setRadius(radius);
 
             preview();
         });
-        //  └ Position X
+        //   └ Position X
         paramUI.positionXProperty.addListener(event -> {
             int posX = paramUI.positionXProperty.getValue();
             visualizeFormat.setPosX(posX);
 
             preview();
         });
-        //  └ Position Y
+        //   └ Position Y
         paramUI.positionYProperty.addListener(event -> {
             int posY = paramUI.positionYProperty.getValue();
             visualizeFormat.setPosY(posY);
 
             preview();
         });
-        //  └ Sensitivity
+        //   └ Sensitivity
         paramUI.sensitivityProperty.addListener(event -> {
             double sensitivity = paramUI.sensitivityProperty.getValue() / 100.0;
             visualizeFormat.setSensitivity(sensitivity);
 
             preview();
         });
-        //  └ Min Frequency
+        //   └ Min Frequency
         paramUI.minFrequencyProperty.addListener(event -> {
             int minFreq = paramUI.minFrequencyProperty.getValue();
             visualizeFormat.setMinFreq(minFreq);
 
             preview();
         });
-        //  └ Min Frequency
+        //   └ Min Frequency
         paramUI.maxFrequencyProperty.addListener(event -> {
             int maxFreq = paramUI.maxFrequencyProperty.getValue();
             visualizeFormat.setMaxFreq(maxFreq);
 
             preview();
         });
-        //  └ Color
+        //   └ Color
         paramUI.colorProperty.addListener(event -> {
             Color barColor = Color.web(paramUI.colorProperty.getValue());
             visualizeFormat.setBarColor(barColor);
 
             preview();
         });
-        //  └ Color Shadow
+        //   └ Color Shadow
         paramUI.colorShadowProperty.addListener((obs, oldValue, newValue) -> {
             Color dropShadowColor = Color.web(newValue);
             visualizeFormat.setDropShadowColor(dropShadowColor);
 
             preview();
         });
-        //  └ Color Shadow Radius
+        //   └ Color Shadow Radius
         paramUI.colorShadowRadiusProperty.addListener((obs, oldValue, newValue) -> {
             int dropShadowColorRadius = newValue.intValue();
             visualizeFormat.setDropShadowColorRadius(dropShadowColorRadius);
 
             preview();
         });
-        //  └ Color Shadow Spread
+        //   └ Color Shadow Spread
         paramUI.colorShadowSpreadProperty.addListener((obs, oldValue, newValue) -> {
             double dropShadowColorSpread = newValue.doubleValue() / 100;
             visualizeFormat.setDropShadowColorSpread(dropShadowColorSpread);
+
+            preview();
+        });
+        //   └ Color Shadow Offset X
+        paramUI.colorShadowOffsetXProperty.addListener((obs, oldValue, newValue) -> {
+            int dropShadowColorOffsetX = newValue.intValue();
+            visualizeFormat.setDropShadowColorOffsetX(dropShadowColorOffsetX);
+
+            preview();
+        });
+        //   └ Color Shadow Offset Y
+        paramUI.colorShadowOffsetYProperty.addListener((obs, oldValue, newValue) -> {
+            int dropShadowColorOffsetY = newValue.intValue();
+            visualizeFormat.setDropShadowColorOffsetY(dropShadowColorOffsetY);
+
+            preview();
+        });
+        //  └ Background
+        paramUI.backgroundColorProperty.addListener((obs, oldValue, newValue) -> {
+            Color backgroundColor = Color.web(newValue);
+            backgroundFormat.setBackgroundColor(backgroundColor);
 
             preview();
         });

@@ -23,6 +23,8 @@ public class VisualizeFormat {
     private Color dropShadowColor;
     private int dropShadowColorRadius;
     private double dropShadowColorSpread;
+    private double dropShadowColorOffsetX;
+    private double dropShadowColorOffsetY;
 
     private double sensitivity;
 
@@ -69,6 +71,8 @@ public class VisualizeFormat {
         this.dropShadowColor = Color.rgb(0, 0, 0, 0);
         this.dropShadowColorRadius = 0;
         this.dropShadowColorSpread = 0;
+        this.dropShadowColorOffsetX = 0;
+        this.dropShadowColorOffsetY = 0;
 
         this.sensitivity = .5;
 
@@ -174,6 +178,22 @@ public class VisualizeFormat {
     public void setDropShadowColorSpread(double dropShadowColorSpread) {
         this.dropShadowColorSpread = dropShadowColorSpread;
         this.dropShadowColorSpreadProperty.setValue(dropShadowColorSpread);
+    }
+
+    public double getDropShadowColorOffsetX() {
+        return dropShadowColorOffsetX;
+    }
+
+    public void setDropShadowColorOffsetX(double dropShadowColorOffsetX) {
+        this.dropShadowColorOffsetX = dropShadowColorOffsetX;
+    }
+
+    public double getDropShadowColorOffsetY() {
+        return dropShadowColorOffsetY;
+    }
+
+    public void setDropShadowColorOffsetY(double dropShadowColorOffsetY) {
+        this.dropShadowColorOffsetY = dropShadowColorOffsetY;
     }
 
     public double getSensitivity() {

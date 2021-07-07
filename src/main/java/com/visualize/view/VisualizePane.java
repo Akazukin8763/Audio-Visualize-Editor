@@ -32,16 +32,12 @@ public class VisualizePane extends Pane {
 
     private AudioFile audioFile;
     private VisualizeFormat visualizeFormat;
+    private BackgroundFormat backgroundFormat;
 
     private VisualizeMode.View view;
     private VisualizeMode.Side side;
     private VisualizeMode.Direct direct;
     private VisualizeMode.Stereo stereo;
-
-    private String backgroundImage;
-    private String backgroundColor;
-    private String backgroundRepeat;
-    private String backgroundPosition;
 
     //int availableLengths: 實際可用長度 (捨棄超過 BUFFER 倍的資料)
     private double fps; // 每秒偵數 (frame per second)
@@ -55,11 +51,12 @@ public class VisualizePane extends Pane {
     private boolean freqIsChanged; // 外部是否改變 freq 範圍，有的話則要重新計算 magnitude
 
     // Constructor
-    public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat) {
+    public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat, BackgroundFormat backgroundFormat) {
         timeChangeProperty = new SimpleBooleanProperty(false);
 
         this.audioFile = audioFile;
         this.visualizeFormat = visualizeFormat;
+        this.backgroundFormat = backgroundFormat;
         this.visualizeFormat.setMinFreq(this.audioFile.getFrameRate() / BUFFER);
         this.visualizeFormat.setMaxFreq(this.audioFile.getFrameRate() / 2);
 
@@ -75,13 +72,14 @@ public class VisualizePane extends Pane {
         this.freqIsChanged = true; // 保證第一次計算 magnitude
 
         // Discord Color: #36393F
-        this.setBackgroundStyle("null", "#000000", "no-repeat", "center");
+        this.setStyle("-fx-background-color: #" + backgroundFormat.getBackgroundColor().toString().subSequence(2, 8) + ";");
         this.setPrefSize(width, height);
 
         // Event
         this.visualizeFormat.barNumProperty.addListener((obs, oldValue, newValue) -> this.barNumIsChanged = true);
         this.visualizeFormat.minFreqProperty.addListener((obs, oldValue, newValue) -> this.freqIsChanged = true);
         this.visualizeFormat.maxFreqProperty.addListener((obs, oldValue, newValue) -> this.freqIsChanged = true);
+        this.backgroundFormat.backgroundColorProperty.addListener((obs, oldValue, newValue) -> this.setStyle("-fx-background-color: #" + newValue.subSequence(2, 8) + ";"));
     }
 
     // Methods
@@ -257,7 +255,7 @@ public class VisualizePane extends Pane {
     public void saveVideo(String filepath) throws java.io.IOException {
         updateData();
 
-        audioVisualize.setBackgroundStyle(getBackgroundStyle());
+        //audioVisualize.setBackgroundStyle(getBackgroundStyle());
         BackgroundSaveVideo task = new BackgroundSaveVideo(audioVisualize, visualizeFormat, magnitude, spf, fps, audioFile.getAbsolutePath(), filepath);
         //Progress.progress.progressProperty().bind(task.progressProperty());
         new Thread(task).start();
@@ -385,7 +383,15 @@ public class VisualizePane extends Pane {
         this.visualizeFormat = visualizeFormat;
     }
 
-    public String getBackgroundImage() {
+    public BackgroundFormat getBackgroundFormat() {
+        return backgroundFormat;
+    }
+
+    public void setBackgroundFormat(BackgroundFormat backgroundFormat) {
+        this.backgroundFormat = backgroundFormat;
+    }
+
+    /*public String getBackgroundImage() {
         return backgroundImage;
     }
 
@@ -434,5 +440,5 @@ public class VisualizePane extends Pane {
         } catch (NullPointerException ignored) {
             // 不做任何事
         }
-    }
+    }*/
 }

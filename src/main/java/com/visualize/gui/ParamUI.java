@@ -68,6 +68,10 @@ public class ParamUI extends ScrollPane {
     public final StringProperty colorShadowProperty = new SimpleStringProperty(null);
     public final IntegerProperty colorShadowRadiusProperty = new SimpleIntegerProperty();
     public final IntegerProperty colorShadowSpreadProperty = new SimpleIntegerProperty();
+    public final IntegerProperty colorShadowOffsetXProperty = new SimpleIntegerProperty();
+    public final IntegerProperty colorShadowOffsetYProperty = new SimpleIntegerProperty();
+
+    public final StringProperty backgroundColorProperty = new SimpleStringProperty(null);
 
     private final IntegerProperty channelsProperty = new SimpleIntegerProperty(); // 影響 Stereo
     //private final DoubleProperty frameRateProperty = new SimpleDoubleProperty(); // 影響 Frequency
@@ -96,6 +100,11 @@ public class ParamUI extends ScrollPane {
         labelBackgroundTitle.setFont(new Font(20));
         paramPane.add(labelBackgroundTitle, 0, 7, 3, 1);
         GridPane.setHalignment(labelBackgroundTitle, HPos.CENTER);
+
+        Label labelImageTitle = new Label("Image");
+        labelImageTitle.setFont(new Font(20));
+        paramPane.add(labelImageTitle, 0, 9, 3, 1);
+        GridPane.setHalignment(labelImageTitle, HPos.CENTER);
 
         // Selection
         Label labelEqualizerType = new Label("Equalizer Type");
@@ -135,6 +144,7 @@ public class ParamUI extends ScrollPane {
         //paramPane.add(choiceBoxEqualizerStereo, 1, ?);
 
         // Part
+        // └ Equalizer
         Label labelBarNum = new Label("Bar Number");
         Slider sliderBarNum = new Slider(0, 256, 0);
         TextField textFieldBarNum = new TextField("0");
@@ -208,6 +218,20 @@ public class ParamUI extends ScrollPane {
         sliderColorShadowSpread.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldColorShadowSpread.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
+        Label labelColorShadowOffsetX = new Label(" └ Offset X");
+        Slider sliderColorShadowOffsetX = new Slider(0, 1920, 0);
+        TextField textFieldColorShadowOffsetX = new TextField("0");
+        labelColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        sliderColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        textFieldColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+        Label labelColorShadowOffsetY = new Label(" └ Offset Y");
+        Slider sliderColorShadowOffsetY = new Slider(0, 1080, 0);
+        TextField textFieldColorShadowOffsetY = new TextField("0");
+        labelColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        sliderColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        textFieldColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
         Label labelSensitivity = new Label("Sensitivity");
         Slider sliderSensitivity = new Slider(0, 100, 0);
         TextField textFieldSensitivity = new TextField("0");
@@ -229,7 +253,14 @@ public class ParamUI extends ScrollPane {
         textFieldMinFreq.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
         textFieldMaxFreq.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
+        // └ Background
+        Label labelBackgroundColor = new Label("Color");
+        ColorPicker colorPickerBackgroundColor = new ColorPicker();
+        labelBackgroundColor.setPrefWidth(width * (WIDTH_OFFSET_LEFT + WIDTH_OFFSET_MIDDLE));
+        colorPickerBackgroundColor.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
         // Group
+        // └ Equalizer
         groupEqualizer = new GridPane();
         groupEqualizer.setHgap(10);
         groupEqualizer.setVgap(5);
@@ -253,10 +284,18 @@ public class ParamUI extends ScrollPane {
         HBox groupColorShadow = new HBox(labelColorShadow, colorPickerColorShadow);
         HBox groupColorShadowRadius = new HBox(labelColorShadowRadius, sliderColorShadowRadius, textFieldColorShadowRadius);
         HBox groupColorShadowSpread = new HBox(labelColorShadowSpread, sliderColorShadowSpread, textFieldColorShadowSpread);
+        HBox groupColorShadowOffsetX = new HBox(labelColorShadowOffsetX, sliderColorShadowOffsetX, textFieldColorShadowOffsetX);
+        HBox groupColorShadowOffsetY = new HBox(labelColorShadowOffsetY, sliderColorShadowOffsetY, textFieldColorShadowOffsetY);
         HBox groupSensitivity = new HBox(labelSensitivity, sliderSensitivity, textFieldSensitivity);
         HBox groupFreq = new HBox(labelFreq, rangeSliderFreq);
         HBox groupMinMaxFreq = new HBox(labelMinMaxFreq, textFieldMinFreq, labelFreqNull, textFieldMaxFreq);
-        HBox[] groupAdvanceParam = new HBox[] {groupColorShadow, groupColorShadowRadius, groupColorShadowSpread, groupSensitivity, groupFreq, groupMinMaxFreq};
+        HBox[] groupAdvanceParam = new HBox[] {groupColorShadow, groupColorShadowRadius, groupColorShadowSpread,
+                                                groupColorShadowOffsetX, groupColorShadowOffsetY,
+                                                groupSensitivity, groupFreq, groupMinMaxFreq};
+
+        // └ Background
+        HBox groupBackgroundColor = new HBox(labelBackgroundColor, colorPickerBackgroundColor);
+        paramPane.add(groupBackgroundColor, 0, 8, 2, 1);
 
         // Event
         // └ this
@@ -273,6 +312,19 @@ public class ParamUI extends ScrollPane {
             int groupRow = 0;
             for (int index: GROUP_EQUALIZER_INDEX[type.value()])
                 groupEqualizer.add(groupEqualizerParam[index], 0, groupRow++, 2, 1);
+
+            // TEMP
+            if (type == VisualizeMode.View.CIRCLE) {
+                sliderColorShadowOffsetX.setDisable(true);
+                sliderColorShadowOffsetY.setDisable(true);
+                textFieldColorShadowOffsetX.setEditable(false);
+                textFieldColorShadowOffsetY.setEditable(false);
+            } else {
+                sliderColorShadowOffsetX.setDisable(false);
+                sliderColorShadowOffsetY.setDisable(false);
+                textFieldColorShadowOffsetX.setEditable(true);
+                textFieldColorShadowOffsetY.setEditable(true);
+            }
         });
         //  └ Equalizer Side
         choiceBoxEqualizerSide.setOnAction(event -> {
@@ -407,7 +459,6 @@ public class ParamUI extends ScrollPane {
         sliderSensitivity.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderSensitivity.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderSensitivity.getMax() * 100));
             textFieldSensitivity.textProperty().setValue(String.format("%d", newValue.intValue()));
-            System.out.println(newValue.intValue());
         });
         textFieldSensitivity.textProperty().addListener((obs, oldValue, newValue) -> {
             int value = textFieldStringToInt(textFieldSensitivity.getText(), (int) sliderSensitivity.getMax());
@@ -452,17 +503,42 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowSpread.textProperty().setValue(String.format("%d", value));
             colorShadowSpreadProperty.setValue(value); // Property
         });
+        //  └ Color Shadow Offset X
+        sliderColorShadowOffsetX.valueProperty().addListener((obs, oldValue, newValue) -> {
+            sliderColorShadowOffsetX.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowOffsetX.getMax() * 100));
+            textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", newValue.intValue()));
+        });
+        textFieldColorShadowOffsetX.textProperty().addListener((obs, oldValue, newValue) -> {
+            int value = textFieldStringToInt(textFieldColorShadowOffsetX.getText(), (int) sliderColorShadowOffsetX.getMax());
+            sliderColorShadowOffsetX.valueProperty().setValue(value);
+            textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", value));
+            colorShadowOffsetXProperty.setValue(value); // Property
+        });
+        //  └ Color Shadow Offset Y
+        sliderColorShadowOffsetY.valueProperty().addListener((obs, oldValue, newValue) -> {
+            sliderColorShadowOffsetY.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowOffsetY.getMax() * 100));
+            textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", newValue.intValue()));
+        });
+        textFieldColorShadowOffsetY.textProperty().addListener((obs, oldValue, newValue) -> {
+            int value = textFieldStringToInt(textFieldColorShadowOffsetY.getText(), (int) sliderColorShadowOffsetY.getMax());
+            sliderColorShadowOffsetY.valueProperty().setValue(value);
+            textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", value));
+            colorShadowOffsetYProperty.setValue(value); // Property
+        });
         // └ Color Picker
         //  └ Color
         colorPickerColor.valueProperty().addListener((obs, oldValue, newValue) -> colorProperty.setValue(newValue.toString()));
         //  └ Color Shadow
         colorPickerColorShadow.valueProperty().addListener((obs, oldValue, newValue) -> colorShadowProperty.setValue(newValue.toString()));
+        //  └ Background Color
+        colorPickerBackgroundColor.valueProperty().addListener((obs, oldValue, newValue) -> backgroundColorProperty.setValue(newValue.toString()));
 
         // Initialize
         choiceBoxEqualizerType.setValue(EQUALIZER_TYPE[0]); // Line
         choiceBoxEqualizerSide.setValue(EQUALIZER_SIDE[0]); // Out
         choiceBoxEqualizerDirection.setValue(EQUALIZER_DIRECTION[0]); // Normal
         choiceBoxEqualizerStereo.setValue(EQUALIZER_STEREO[3]); // Both
+
     }
 
     // Methods
