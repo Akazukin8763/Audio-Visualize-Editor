@@ -141,6 +141,11 @@
     -fx-fill: lightseagreen;
 }
 
+/* Button */
+.button {
+    -fx-background-color: #222222;
+}
+
 /* Scroll Bar */
 .scroll-bar {
     -fx-background-color: transparent;

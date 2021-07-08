@@ -37,7 +37,7 @@ public class CustomTextInputDialog extends Stage {
         GridPane.setHalignment(labelTitle, HPos.CENTER);
 
         // Input
-        ImageView imageView = new ImageView(new Image(new File(DefaultPath.FOLDER_ICON_PATH).toURI().toString()));
+        ImageView imageView = new ImageView(new Image(new File(DefaultPath.MUSIC_ICON_PATH).toURI().toString()));
         gridPane.add(imageView, 0, 1);
 
         TextField textField = new TextField();

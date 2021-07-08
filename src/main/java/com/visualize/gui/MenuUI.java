@@ -21,6 +21,9 @@ public class MenuUI extends BorderPane {
     private final double width;
     private final double height;
 
+    // Property
+    public BooleanProperty fileNewClickProperty = new SimpleBooleanProperty(false);
+
     public BooleanProperty previewClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty animateClickProperty = new SimpleBooleanProperty(false);
 
@@ -55,14 +58,14 @@ public class MenuUI extends BorderPane {
 
         // Menu Bar
         MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuRun);
-        menuBar.setPrefWidth(width);
+        menuBar.setPrefSize(width, height);
 
         setTop(menuBar);
 
         // Event
         // └ File
         fileNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)); // ctrl + n
-        fileNew.setOnAction(event -> System.out.println("new"));
+        fileNew.setOnAction(event -> fileNewClickProperty.setValue(!fileNewClickProperty.getValue()));
         fileOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)); // ctrl + o
         fileOpen.setOnAction(event -> System.out.println("open"));
         fileSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)); // ctrl + s

@@ -15,10 +15,10 @@ import javafx.scene.paint.Color;
 
 public class AudioVisualizeUI extends Pane {
 
-    private final int DE_WIDTH = 1920;
-
     private final double width;
     private final double height;
+    private int rangeWidth = 1920;
+    private int rangeHeight = 1080;
 
     private final MenuUI menuUI;
     private final FileUI fileUI;
@@ -35,14 +35,14 @@ public class AudioVisualizeUI extends Pane {
         this.height = height;
         setPrefSize(width, height);
 
-        menuUI = new MenuUI(width, height);
+        menuUI = new MenuUI(width, height * .01);
         fileUI = new FileUI(width * .12, height * .65);
-        paramUI = new ParamUI(width * .20, height);
+        paramUI = new ParamUI(width * .20, height * .94, rangeWidth, rangeHeight);
 
         audioFile = new WavFile("src/main/resources/music/__default__.wav");
         visualizeFormat = new VisualizeFormat();
         backgroundFormat = new BackgroundFormat();
-        visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat);
+        visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat, rangeWidth, rangeHeight);
 
         ScrollPane fitPane = new ScrollPane();
         fitPane.setContent(visualizePane);
@@ -50,11 +50,22 @@ public class AudioVisualizeUI extends Pane {
         fitPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         fitPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         fitPane.addEventFilter(ScrollEvent.SCROLL, Event::consume);
-        double scale = width * .68 / DE_WIDTH;
+        fitPane.setStyle("-fx-border-color: #444444; -fx-border-width: 0 2 2 2;");
+
+        double scaleWidth = width * .68 / visualizePane.getPrefWidth();
+        double scaleHeight = height * .65 / visualizePane.getPrefHeight();
+        double scale = Math.min(scaleWidth, scaleHeight);
+        double offsetX = 0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2;
+        double offsetY = 0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2;
+        if (scale == scaleWidth)
+            offsetY += (height * .65 - visualizePane.getPrefHeight() * scale) / 2;
+        else if (scale == scaleHeight)
+            offsetX += (width * .68 - visualizePane.getPrefWidth() * scale) / 2;
+
         visualizePane.setScaleX(scale);
         visualizePane.setScaleY(scale);
-        visualizePane.setTranslateX(0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2);
-        visualizePane.setTranslateY(0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2);
+        visualizePane.setTranslateX(offsetX);
+        visualizePane.setTranslateY(offsetY);
 
         // |----------------------------------------------------------------|
         // |                              Menu                              |
@@ -78,6 +89,13 @@ public class AudioVisualizeUI extends Pane {
         // └ File UI
         fileUI.selectFileProperty.addListener(event -> changeAudio(fileUI.selectFileProperty.getValue()));
         // └ Menu UI
+        //  └ File
+        menuUI.fileNewClickProperty.addListener(event -> {
+            CustomNewProjectDialog newProject = new CustomNewProjectDialog();
+            newProject.setTitle("New Project");
+            newProject.show();
+        });
+        //  └ Run
         menuUI.previewClickProperty.addListener(event -> preview());
         menuUI.animateClickProperty.addListener(event -> animate());
         // └ Param UI
@@ -235,12 +253,14 @@ public class AudioVisualizeUI extends Pane {
             preview();
         });
         //  └ Background
-        paramUI.backgroundColorProperty.addListener((obs, oldValue, newValue) -> {
-            Color backgroundColor = Color.web(newValue);
-            backgroundFormat.setBackgroundColor(backgroundColor);
-
-            preview();
-        });
+        //   └ Color
+        paramUI.backgroundColorProperty.addListener((obs, oldValue, newValue) -> backgroundFormat.setBackgroundColor(Color.web(newValue)));
+        //   └ Image
+        paramUI.backgroundImageProperty.addListener((obs, oldValue, newValue) -> backgroundFormat.setBackgroundImage(newValue));
+        //   └ Image Position X
+        paramUI.backgroundImagePositionXProperty.addListener((obs, oldValue, newValue) -> backgroundFormat.setBackgroundImagePosX(newValue.intValue()));
+        //   └ Image Position Y
+        paramUI.backgroundImagePositionYProperty.addListener((obs, oldValue, newValue) -> backgroundFormat.setBackgroundImagePosY(newValue.intValue()));
     }
 
     public void changeAudio (String filepath) {

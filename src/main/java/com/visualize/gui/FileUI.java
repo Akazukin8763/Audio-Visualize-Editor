@@ -14,7 +14,6 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.Control;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
 
 import javafx.collections.FXCollections;
 
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import java.io.File;
@@ -64,7 +62,7 @@ public class FileUI extends ScrollPane {
     public FileUI(double width, double height) {
         this.width = width;
         this.height = height;
-        this.image = new ImageView(new Image(new File(DefaultPath.FOLDER_ICON_PATH).toURI().toString(), 10, 10, false, false));
+        this.image = new ImageView(new Image(new File(DefaultPath.MUSIC_ICON_PATH).toURI().toString(), 10, 10, false, false));
         //this.image.setFitHeight(.2);
         //this.image.setSmooth(true);
 

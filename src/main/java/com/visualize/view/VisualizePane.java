@@ -22,8 +22,8 @@ public class VisualizePane extends Pane {
 
     public static final int BUFFER = 2048;
 
-    private final int width = 1920;
-    private final int height = 1080;
+    private int width;
+    private int height;
     private AudioVisualize audioVisualize;
 
     private Timeline timeline;
@@ -51,7 +51,7 @@ public class VisualizePane extends Pane {
     private boolean freqIsChanged; // 外部是否改變 freq 範圍，有的話則要重新計算 magnitude
 
     // Constructor
-    public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat, BackgroundFormat backgroundFormat) {
+    public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat, BackgroundFormat backgroundFormat, int width, int height) {
         timeChangeProperty = new SimpleBooleanProperty(false);
 
         this.audioFile = audioFile;
@@ -59,6 +59,9 @@ public class VisualizePane extends Pane {
         this.backgroundFormat = backgroundFormat;
         this.visualizeFormat.setMinFreq(this.audioFile.getFrameRate() / BUFFER);
         this.visualizeFormat.setMaxFreq(this.audioFile.getFrameRate() / 2);
+
+        this.width = width;
+        this.height = height;
 
         this.audioVisualize = new LineVisualize(width, height);
         this.view = VisualizeMode.View.LINE;
@@ -79,7 +82,10 @@ public class VisualizePane extends Pane {
         this.visualizeFormat.barNumProperty.addListener((obs, oldValue, newValue) -> this.barNumIsChanged = true);
         this.visualizeFormat.minFreqProperty.addListener((obs, oldValue, newValue) -> this.freqIsChanged = true);
         this.visualizeFormat.maxFreqProperty.addListener((obs, oldValue, newValue) -> this.freqIsChanged = true);
-        this.backgroundFormat.backgroundColorProperty.addListener((obs, oldValue, newValue) -> this.setStyle("-fx-background-color: #" + newValue.subSequence(2, 8) + ";"));
+        this.backgroundFormat.backgroundColorProperty.addListener((obs, oldValue, newValue) -> this.setBackgroundStyle());
+        this.backgroundFormat.backgroundImageProperty.addListener((obs, oldValue, newValue) -> this.setBackgroundStyle());
+        this.backgroundFormat.backgroundImagePosXProperty.addListener((obs, oldValue, newValue) -> this.setBackgroundStyle());
+        this.backgroundFormat.backgroundImagePosYProperty.addListener((obs, oldValue, newValue) -> this.setBackgroundStyle());
     }
 
     // Methods
@@ -391,54 +397,18 @@ public class VisualizePane extends Pane {
         this.backgroundFormat = backgroundFormat;
     }
 
-    /*public String getBackgroundImage() {
-        return backgroundImage;
+    private void setBackgroundStyle() {
+        String backgroundColor = "#" + backgroundFormat.getBackgroundColor().toString().subSequence(2, 8);
+        String backgroundImage = backgroundFormat.getBackgroundImage();
+        int backgroundImagePosX = backgroundFormat.getBackgroundImagePosX();
+        int backgroundImagePosY = backgroundFormat.getBackgroundImagePosY();
+
+        String image = (backgroundImage != null ? "-fx-background-image: url(\"" + new File(backgroundImage).toURI() + "\");" : "");
+        String color = "-fx-background-color: " + backgroundColor + ";";
+        String repeat = "-fx-background-repeat: no-repeat;";
+        String position = "-fx-background-position: left " + backgroundImagePosX + " top " + backgroundImagePosY + ";";
+
+        this.setStyle(image + color + repeat + position);
     }
 
-    public String getBackgroundColor() {
-        return backgroundColor;
-    }
-
-    public String getBackgroundRepeat() {
-        return backgroundRepeat;
-    }
-
-    public String getBackgroundPosition() {
-        return backgroundPosition;
-    }
-
-    public String getBackgroundStyle() {
-        String backgroundStyle = "";
-
-        try {
-            String image = (this.backgroundImage.equals("null") ? "" : "-fx-background-image: url(\"" + new File(this.backgroundImage).toURI().toString() + "\");");
-            String color = "-fx-background-color: " + this.backgroundColor + ";";
-            String repeat = "-fx-background-repeat: " + this.backgroundRepeat + ";";
-            String position = "-fx-background-position: " + this.backgroundPosition + ";";
-
-            backgroundStyle = image + color + repeat + position;
-        } catch (NullPointerException ignored) {
-            // 不做任何事
-        }
-
-        return backgroundStyle;
-    }
-
-    public void setBackgroundStyle(String backgroundImage, String backgroundColor, String backgroundRepeat, String backgroundPosition) {
-        this.backgroundImage = backgroundImage;
-        this.backgroundColor = backgroundColor;
-        this.backgroundRepeat = backgroundRepeat;
-        this.backgroundPosition = backgroundPosition;
-
-        try {
-            String image = (backgroundImage.equals("null") ? "" : "-fx-background-image: url(\"" + new File(backgroundImage).toURI().toString() + "\");");
-            String color = "-fx-background-color: " + backgroundColor + ";";
-            String repeat = "-fx-background-repeat: " + backgroundRepeat + ";";
-            String position = "-fx-background-position: " + backgroundPosition + ";";
-
-            this.setStyle(image + color + repeat + position);
-        } catch (NullPointerException ignored) {
-            // 不做任何事
-        }
-    }*/
 }

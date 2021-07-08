@@ -1,9 +1,14 @@
 package com.visualize.gui;
 
+import com.visualize.file.*;
 import com.visualize.view.*;
+
+import javafx.stage.FileChooser;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Label;
@@ -12,11 +17,12 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Button;
 import org.controlsfx.control.RangeSlider;
 
 import javafx.scene.text.Font;
-import javafx.geometry.HPos;
-
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
 import javafx.collections.FXCollections;
@@ -28,14 +34,20 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 
+import java.io.File;
+
 public class ParamUI extends ScrollPane {
 
     private final double width;
     private final double height;
+    private int rangeWidth;
+    private int rangeHeight;
 
     private final GridPane paramPane;
     private final GridPane groupEqualizer;
     private final GridPane groupAdvance;
+
+    private final FileChooser fileChooser;
 
     private static final double WIDTH_OFFSET_LEFT = .35;
     private static final double WIDTH_OFFSET_MIDDLE = .48;
@@ -72,13 +84,18 @@ public class ParamUI extends ScrollPane {
     public final IntegerProperty colorShadowOffsetYProperty = new SimpleIntegerProperty();
 
     public final StringProperty backgroundColorProperty = new SimpleStringProperty(null);
+    public final StringProperty backgroundImageProperty = new SimpleStringProperty(null);
+    public final IntegerProperty backgroundImagePositionXProperty = new SimpleIntegerProperty();
+    public final IntegerProperty backgroundImagePositionYProperty = new SimpleIntegerProperty();
 
     private final IntegerProperty channelsProperty = new SimpleIntegerProperty(); // 影響 Stereo
     //private final DoubleProperty frameRateProperty = new SimpleDoubleProperty(); // 影響 Frequency
 
-    public ParamUI(double width, double height) {
+    public ParamUI(double width, double height, int rangeWidth, int rangeHeight) {
         this.width = width;
         this.height = height;
+        this.rangeWidth = rangeWidth;
+        this.rangeHeight = rangeHeight;
 
         paramPane = new GridPane();
         paramPane.setPrefWidth(width);
@@ -89,6 +106,9 @@ public class ParamUI extends ScrollPane {
         paramPane.setVgap(10);
         //paramPane.setGridLinesVisible(true);
         paramPane.setStyle("-fx-background-color: transparent");
+
+        this.fileChooser = new FileChooser();
+        this.fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image", "*.jpg", "*.png")); // 只抓 jpg, png
 
         // Title
         Label labelEqualizerTitle = new Label("Equalizer");
@@ -103,7 +123,7 @@ public class ParamUI extends ScrollPane {
 
         Label labelImageTitle = new Label("Image");
         labelImageTitle.setFont(new Font(20));
-        paramPane.add(labelImageTitle, 0, 9, 3, 1);
+        paramPane.add(labelImageTitle, 0, 12, 3, 1);
         GridPane.setHalignment(labelImageTitle, HPos.CENTER);
 
         // Selection
@@ -181,14 +201,14 @@ public class ParamUI extends ScrollPane {
         textFieldRadius.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
         Label labelPosX = new Label("Position X");
-        Slider sliderPosX = new Slider(0, 1920, 0);
+        Slider sliderPosX = new Slider(-rangeWidth, 2 * rangeWidth, 0);
         TextField textFieldPosX = new TextField("0");
         labelPosX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderPosX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldPosX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
         Label labelPosY = new Label("Position Y");
-        Slider sliderPosY = new Slider(0, 1080, 0);
+        Slider sliderPosY = new Slider(-rangeHeight, 2 * rangeHeight, 0);
         TextField textFieldPosY = new TextField("0");
         labelPosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderPosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
@@ -219,14 +239,14 @@ public class ParamUI extends ScrollPane {
         textFieldColorShadowSpread.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
         Label labelColorShadowOffsetX = new Label(" └ Offset X");
-        Slider sliderColorShadowOffsetX = new Slider(0, 1920, 0);
+        Slider sliderColorShadowOffsetX = new Slider(-rangeWidth, 2 * rangeWidth, 0);
         TextField textFieldColorShadowOffsetX = new TextField("0");
         labelColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
         Label labelColorShadowOffsetY = new Label(" └ Offset Y");
-        Slider sliderColorShadowOffsetY = new Slider(0, 1080, 0);
+        Slider sliderColorShadowOffsetY = new Slider(-rangeHeight, 2 * rangeHeight, 0);
         TextField textFieldColorShadowOffsetY = new TextField("0");
         labelColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
@@ -258,6 +278,36 @@ public class ParamUI extends ScrollPane {
         ColorPicker colorPickerBackgroundColor = new ColorPicker();
         labelBackgroundColor.setPrefWidth(width * (WIDTH_OFFSET_LEFT + WIDTH_OFFSET_MIDDLE));
         colorPickerBackgroundColor.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+        Label labelBackgroundImage = new Label("Image");
+        Label labelBackgroundImageName = new Label();
+        Label labelBackgroundImageNull = new Label();
+        Button buttonBackgroundImageImport = new Button();
+        Button buttonBackgroundImageClear = new Button();
+        ImageView imageViewBackgroundImageImport = new ImageView(new Image(new File(DefaultPath.FOLDER_ICON_PATH).toURI().toString()));
+        ImageView imageViewBackgroundImageClear = new ImageView(new Image(new File(DefaultPath.CANCEL_ICON_PATH).toURI().toString()));
+        buttonBackgroundImageImport.setGraphic(imageViewBackgroundImageImport);
+        buttonBackgroundImageClear.setGraphic(imageViewBackgroundImageClear);
+        labelBackgroundImage.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        labelBackgroundImageName.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        labelBackgroundImageNull.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .24);
+        buttonBackgroundImageImport.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .38);
+        buttonBackgroundImageClear.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .38);
+        labelBackgroundImageName.setAlignment(Pos.CENTER_RIGHT);
+
+        Label labelBackgroundImagePosX = new Label(" └ Position X");
+        Slider sliderBackgroundImagePosX = new Slider(-rangeWidth, 2 * rangeWidth, 0);
+        TextField textFieldBackgroundImagePosX = new TextField("0");
+        labelBackgroundImagePosX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        sliderBackgroundImagePosX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        textFieldBackgroundImagePosX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+        Label labelBackgroundImagePosY = new Label(" └ Position Y");
+        Slider sliderBackgroundImagePosY = new Slider(-rangeHeight, 2 * rangeHeight, 0);
+        TextField textFieldBackgroundImagePosY = new TextField("0");
+        labelBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        sliderBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        textFieldBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
         // Group
         // └ Equalizer
@@ -295,15 +345,22 @@ public class ParamUI extends ScrollPane {
 
         // └ Background
         HBox groupBackgroundColor = new HBox(labelBackgroundColor, colorPickerBackgroundColor);
+        HBox groupBackgroundImage = new HBox(labelBackgroundImage, labelBackgroundImageName, buttonBackgroundImageImport, labelBackgroundImageNull, buttonBackgroundImageClear);
+        HBox groupBackgroundImagePosX = new HBox(labelBackgroundImagePosX, sliderBackgroundImagePosX, textFieldBackgroundImagePosX);
+        HBox groupBackgroundImagePosY = new HBox(labelBackgroundImagePosY, sliderBackgroundImagePosY, textFieldBackgroundImagePosY);
         paramPane.add(groupBackgroundColor, 0, 8, 2, 1);
+        paramPane.add(groupBackgroundImage, 0, 9, 2, 1);
+        paramPane.add(groupBackgroundImagePosX, 0, 10, 2, 1);
+        paramPane.add(groupBackgroundImagePosY, 0, 11, 2, 1);
 
         // Event
         // └ this
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.setOnMouseEntered(event -> this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED));
         this.setOnMouseExited(event -> this.setVbarPolicy(ScrollBarPolicy.NEVER));
-        // └ Choice Box
-        //  └ Equalizer Type
+        // └ Equalizer
+        //  └ Choice Box
+        //   └ Equalizer Type
         choiceBoxEqualizerType.setOnAction(event -> {
             VisualizeMode.View type = choiceBoxEqualizerType.getValue();
             equalizerTypeProperty.setValue(type.toString()); // Property
@@ -326,22 +383,22 @@ public class ParamUI extends ScrollPane {
                 textFieldColorShadowOffsetY.setEditable(true);
             }
         });
-        //  └ Equalizer Side
+        //   └ Equalizer Side
         choiceBoxEqualizerSide.setOnAction(event -> {
             VisualizeMode.Side type = choiceBoxEqualizerSide.getValue();
             equalizerSideProperty.setValue(type.toString()); // Property
         });
-        //  └ Equalizer Direction
+        //   └ Equalizer Direction
         choiceBoxEqualizerDirection.setOnAction(event -> {
             VisualizeMode.Direct type = choiceBoxEqualizerDirection.getValue();
             equalizerDirectionProperty.setValue(type.toString()); // Property
         });
-        //  └ Equalizer Stereo
+        //   └ Equalizer Stereo
         choiceBoxEqualizerStereo.valueProperty().addListener((obs, oldValue, newValue) -> {
             VisualizeMode.Stereo type = (newValue == null ? oldValue : newValue);
             equalizerStereoProperty.setValue(type.toString()); // Property
         });
-        //   └ Audio File Changed Affect On Stereo and Frequency
+        //    └ Audio File Changed Affect On Stereo and Frequency
         channelsProperty.addListener((obs, oldValue, newValue) -> {
             if (newValue.intValue() == 1) {
                 choiceBoxEqualizerStereo.getItems().setAll(EQUALIZER_STEREO[0]);
@@ -352,8 +409,8 @@ public class ParamUI extends ScrollPane {
                 choiceBoxEqualizerStereo.setValue(EQUALIZER_STEREO[3]);
             }
         });
-        // └ Check Box
-        //  └ Advance
+        //  └ Check Box
+        //   └ Advance
         checkBoxAdvance.setOnAction(event -> {
             groupAdvance.getChildren().clear(); // 清空所有可能選單
             if (checkBoxAdvance.isSelected()) {
@@ -377,8 +434,8 @@ public class ParamUI extends ScrollPane {
                 maxFrequencyProperty.setValue(24000);
             }
         });
-        // └ Slider
-        //  └ Bar Number
+        //  └ Slider
+        //   └ Bar Number
         sliderBarNum.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderBarNum.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderBarNum.getMax() * 100));
             textFieldBarNum.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -389,7 +446,7 @@ public class ParamUI extends ScrollPane {
             textFieldBarNum.textProperty().setValue(String.format("%d", value));
             barNumberProperty.setValue(value); // Property
         });
-        //  └ Size
+        //   └ Size
         sliderSize.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderSize.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderSize.getMax() * 100));
             textFieldSize.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -400,7 +457,7 @@ public class ParamUI extends ScrollPane {
             textFieldSize.textProperty().setValue(String.format("%d", value));
             sizeProperty.setValue(value); // Property
         });
-        //  └ Rotation
+        //   └ Rotation
         sliderRotation.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderRotation.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderRotation.getMax() * 100));
             textFieldRotation.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -411,7 +468,7 @@ public class ParamUI extends ScrollPane {
             textFieldRotation.textProperty().setValue(String.format("%d", value));
             rotationProperty.setValue(value); // Property
         });
-        //  └ Gap
+        //   └ Gap
         sliderGap.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderGap.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderGap.getMax() * 100));
             textFieldGap.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -422,7 +479,7 @@ public class ParamUI extends ScrollPane {
             textFieldGap.textProperty().setValue(String.format("%d", value));
             gapProperty.setValue(value); // Property
         });
-        //  └ Radius
+        //   └ Radius
         sliderRadius.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderRadius.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderRadius.getMax() * 100));
             textFieldRadius.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -433,9 +490,9 @@ public class ParamUI extends ScrollPane {
             textFieldRadius.textProperty().setValue(String.format("%d", value));
             radiusProperty.setValue(value); // Property
         });
-        //  └ Position X
+        //   └ Position X
         sliderPosX.valueProperty().addListener((obs, oldValue, newValue) -> {
-            sliderPosX.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderPosX.getMax() * 100));
+            sliderPosX.lookup(".track").setStyle(sliderTrackStyle((newValue.doubleValue() + rangeWidth) / (sliderPosX.getMax() - sliderPosX.getMin()) * 100));
             textFieldPosX.textProperty().setValue(String.format("%d", newValue.intValue()));
         });
         textFieldPosX.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -444,9 +501,9 @@ public class ParamUI extends ScrollPane {
             textFieldPosX.textProperty().setValue(String.format("%d", value));
             positionXProperty.setValue(value); // Property
         });
-        //  └ Position Y
+        //   └ Position Y
         sliderPosY.valueProperty().addListener((obs, oldValue, newValue) -> {
-            sliderPosY.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderPosY.getMax() * 100));
+            sliderPosY.lookup(".track").setStyle(sliderTrackStyle((newValue.doubleValue() + rangeHeight) / (sliderPosY.getMax() - sliderPosY.getMin()) * 100));
             textFieldPosY.textProperty().setValue(String.format("%d", newValue.intValue()));
         });
         textFieldPosY.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -455,7 +512,7 @@ public class ParamUI extends ScrollPane {
             textFieldPosY.textProperty().setValue(String.format("%d", value));
             positionYProperty.setValue(value); // Property
         });
-        //  └ Sensitivity
+        //   └ Sensitivity
         sliderSensitivity.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderSensitivity.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderSensitivity.getMax() * 100));
             textFieldSensitivity.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -466,7 +523,7 @@ public class ParamUI extends ScrollPane {
             textFieldSensitivity.textProperty().setValue(String.format("%d", value));
             sensitivityProperty.setValue(value); // Property
         });
-        //  └ Frequency
+        //   └ Frequency
         rangeSliderFreq.lowValueProperty().addListener((obs, oldValue, newValue) -> textFieldMinFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
         rangeSliderFreq.highValueProperty().addListener((obs, oldValue, newValue) -> textFieldMaxFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldMinFreq.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -481,7 +538,7 @@ public class ParamUI extends ScrollPane {
             textFieldMaxFreq.textProperty().setValue(String.format("%d", value));
             maxFrequencyProperty.setValue(value); // Property
         });
-        //  └ Color Shadow Radius
+        //   └ Color Shadow Radius
         sliderColorShadowRadius.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderColorShadowRadius.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowRadius.getMax() * 100));
             textFieldColorShadowRadius.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -492,7 +549,7 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowRadius.textProperty().setValue(String.format("%d", value));
             colorShadowRadiusProperty.setValue(value); // Property
         });
-        //  └ Color Shadow Spread
+        //   └ Color Shadow Spread
         sliderColorShadowSpread.valueProperty().addListener((obs, oldValue, newValue) -> {
             sliderColorShadowSpread.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowSpread.getMax() * 100));
             textFieldColorShadowSpread.textProperty().setValue(String.format("%d", newValue.intValue()));
@@ -503,9 +560,9 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowSpread.textProperty().setValue(String.format("%d", value));
             colorShadowSpreadProperty.setValue(value); // Property
         });
-        //  └ Color Shadow Offset X
+        //   └ Color Shadow Offset X
         sliderColorShadowOffsetX.valueProperty().addListener((obs, oldValue, newValue) -> {
-            sliderColorShadowOffsetX.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowOffsetX.getMax() * 100));
+            sliderColorShadowOffsetX.lookup(".track").setStyle(sliderTrackStyle((newValue.doubleValue() + rangeWidth) / (sliderColorShadowOffsetX.getMax() - sliderColorShadowOffsetX.getMin()) * 100));
             textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", newValue.intValue()));
         });
         textFieldColorShadowOffsetX.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -514,9 +571,9 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", value));
             colorShadowOffsetXProperty.setValue(value); // Property
         });
-        //  └ Color Shadow Offset Y
+        //   └ Color Shadow Offset Y
         sliderColorShadowOffsetY.valueProperty().addListener((obs, oldValue, newValue) -> {
-            sliderColorShadowOffsetY.lookup(".track").setStyle(sliderTrackStyle(newValue.doubleValue() / sliderColorShadowOffsetY.getMax() * 100));
+            sliderColorShadowOffsetY.lookup(".track").setStyle(sliderTrackStyle((newValue.doubleValue() + rangeHeight) / (sliderColorShadowOffsetY.getMax() - sliderColorShadowOffsetY.getMin()) * 100));
             textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", newValue.intValue()));
         });
         textFieldColorShadowOffsetY.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -525,13 +582,51 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", value));
             colorShadowOffsetYProperty.setValue(value); // Property
         });
-        // └ Color Picker
-        //  └ Color
+        //  └ Color Picker
+        //   └ Color
         colorPickerColor.valueProperty().addListener((obs, oldValue, newValue) -> colorProperty.setValue(newValue.toString()));
-        //  └ Color Shadow
+        //   └ Color Shadow
         colorPickerColorShadow.valueProperty().addListener((obs, oldValue, newValue) -> colorShadowProperty.setValue(newValue.toString()));
-        //  └ Background Color
+        // └ Background
+        //  └ Slider
+        //   └ Position X
+        sliderBackgroundImagePosX.valueProperty().addListener((obs, oldValue, newValue) -> {
+            sliderBackgroundImagePosX.lookup(".track").setStyle(sliderTrackStyle((newValue.doubleValue() + rangeWidth) / (sliderBackgroundImagePosX.getMax() - sliderBackgroundImagePosX.getMin()) * 100));
+            textFieldBackgroundImagePosX.textProperty().setValue(String.format("%d", newValue.intValue()));
+        });
+        textFieldBackgroundImagePosX.textProperty().addListener((obs, oldValue, newValue) -> {
+            int value = textFieldStringToInt(textFieldBackgroundImagePosX.getText(), (int) sliderBackgroundImagePosX.getMax());
+            sliderBackgroundImagePosX.valueProperty().setValue(value);
+            textFieldBackgroundImagePosX.textProperty().setValue(String.format("%d", value));
+            backgroundImagePositionXProperty.setValue(value); // Property
+        });
+        //   └ Position Y
+        sliderBackgroundImagePosY.valueProperty().addListener((obs, oldValue, newValue) -> {
+            sliderBackgroundImagePosY.lookup(".track").setStyle(sliderTrackStyle((newValue.doubleValue() + rangeHeight) / (sliderBackgroundImagePosY.getMax() - sliderBackgroundImagePosY.getMin()) * 100));
+            textFieldBackgroundImagePosY.textProperty().setValue(String.format("%d", newValue.intValue()));
+        });
+        textFieldBackgroundImagePosY.textProperty().addListener((obs, oldValue, newValue) -> {
+            int value = textFieldStringToInt(textFieldBackgroundImagePosY.getText(), (int) sliderBackgroundImagePosY.getMax());
+            sliderBackgroundImagePosY.valueProperty().setValue(value);
+            textFieldBackgroundImagePosY.textProperty().setValue(String.format("%d", value));
+            backgroundImagePositionYProperty.setValue(value); // Property
+        });
+        //  └ Color Picker
+        //   └ Background Color
         colorPickerBackgroundColor.valueProperty().addListener((obs, oldValue, newValue) -> backgroundColorProperty.setValue(newValue.toString()));
+        //  └ Button
+        //   └ Background Image
+        buttonBackgroundImageImport.setOnAction(event -> {
+            try {
+                File file = fileChooser.showOpenDialog(null);
+                fileChooser.setInitialDirectory(new File(file.getParent()));
+                labelBackgroundImageName.setText(file.getName());
+                backgroundImageProperty.setValue(file.getAbsolutePath());
+            } catch (NullPointerException ignored) {
+                // 不做任何事
+            }
+        });
+        buttonBackgroundImageClear.setOnAction(event -> backgroundImageProperty.setValue(null));
 
         // Initialize
         choiceBoxEqualizerType.setValue(EQUALIZER_TYPE[0]); // Line

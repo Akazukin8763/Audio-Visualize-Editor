@@ -1,0 +1,42 @@
+ /*@import url("http://fonts.googleapis.com/css?family=Fontdiner+Swanky");*/
+
+/* Label */
+.label {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+}
+
+/* TextField */
+.text-field {
+    -fx-text-fill: white;
+    -fx-background-color: #444444, #222222;
+    -fx-background-insets: 0, 1 1 1 1;
+    -fx-background-radius: 0 0 0 0;
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+}
+.text-field:focused {
+    -fx-border-color: lightseagreen;
+}
+
+/* ChoiceBox */
+.choice-box {
+    -fx-background-color: #222222;
+}
+.choice-box:focused {
+    -fx-border-color: lightseagreen;
+}
+.choice-box .context-menu {
+    -fx-background-color: #222222;
+    -fx-border-color: #444444
+}
+
+/* Button */
+.button {
+    -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-border-color: #555555;
+    -fx-border-radius: 15 15 15 15;
+}
+.button:hover {
+    -fx-border-color: lightseagreen;
+}

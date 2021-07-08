@@ -115,11 +115,11 @@
 .text-field {
     -fx-text-fill: white;
     -fx-background-color: #444444, #333333;
-    -fx-background-insets: 0, 1 1 1 1 ;
+    -fx-background-insets: 0, 1 1 1 1;
 }
 .text-field:focused {
     -fx-background-color: lightseagreen, #333333;
-    -fx-background-insets: 0, 1 1 1 1 ;
+    -fx-background-insets: 0, 1 1 1 1;
 }
 
 /* ColorPicker */
@@ -139,6 +139,11 @@
 .color-palette .text:hover,
 .color-palette-region > .color-square.hover-square {
     -fx-fill: lightseagreen;
+}
+
+/* Button */
+.button {
+    -fx-background-color: #222222;
 }
 
 /* Scroll Bar */
