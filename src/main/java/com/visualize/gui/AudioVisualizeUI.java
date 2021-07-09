@@ -25,9 +25,11 @@ public class AudioVisualizeUI extends Pane {
     private final ParamUI paramUI;
 
     private AudioFile audioFile;
-    private final VisualizeFormat visualizeFormat;
-    private final BackgroundFormat backgroundFormat;
-    private final VisualizePane visualizePane;
+    private VisualizeFormat visualizeFormat;
+    private BackgroundFormat backgroundFormat;
+    private VisualizePane visualizePane;
+
+    private ScrollPane fitPane;
 
     // Constructor
     public AudioVisualizeUI(double width, double height) throws Exception {
@@ -39,40 +41,24 @@ public class AudioVisualizeUI extends Pane {
         fileUI = new FileUI(width * .12, height * .65);
         paramUI = new ParamUI(width * .20, height * .94, rangeWidth, rangeHeight);
 
-        audioFile = new WavFile("src/main/resources/music/__default__.wav");
+        audioFile = new WavFile(DefaultPath.DEFAULT_MUSIC_PATH);
         visualizeFormat = new VisualizeFormat();
         backgroundFormat = new BackgroundFormat();
         visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat, rangeWidth, rangeHeight);
 
-        ScrollPane fitPane = new ScrollPane();
-        fitPane.setContent(visualizePane);
+        fitPane = new ScrollPane();
         fitPane.setPrefSize(width * .68, height * .65);
         fitPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         fitPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         fitPane.addEventFilter(ScrollEvent.SCROLL, Event::consume);
-        fitPane.setStyle("-fx-border-color: #444444; -fx-border-width: 0 2 2 2;");
-
-        double scaleWidth = width * .68 / visualizePane.getPrefWidth();
-        double scaleHeight = height * .65 / visualizePane.getPrefHeight();
-        double scale = Math.min(scaleWidth, scaleHeight);
-        double offsetX = 0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2;
-        double offsetY = 0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2;
-        if (scale == scaleWidth)
-            offsetY += (height * .65 - visualizePane.getPrefHeight() * scale) / 2;
-        else if (scale == scaleHeight)
-            offsetX += (width * .68 - visualizePane.getPrefWidth() * scale) / 2;
-
-        visualizePane.setScaleX(scale);
-        visualizePane.setScaleY(scale);
-        visualizePane.setTranslateX(offsetX);
-        visualizePane.setTranslateY(offsetY);
+        fitPane.setStyle("-fx-background-color: #2B2B2B; -fx-border-color: #444444; -fx-border-width: 0 2 2 2;");
 
         // |----------------------------------------------------------------|
         // |                              Menu                              |
         // |----------|-----------------------------------------|-----------|
         // |          |                                         |           |
         // |          |                                         |           |
-        // |   File   |                Visualize                |           |
+        // |   File   |           fitPane (Visualize)           |           |
         // |          |                                         |   Param   |
         // |          |                                         |           |
         // |----------|-----------------------------------------|           |
@@ -93,7 +79,47 @@ public class AudioVisualizeUI extends Pane {
         menuUI.fileNewClickProperty.addListener(event -> {
             CustomNewProjectDialog newProject = new CustomNewProjectDialog();
             newProject.setTitle("New Project");
-            newProject.show();
+            CustomNewProjectDialogFormat format = newProject.showAndReturn();
+
+            if (format != null) {
+                // 編輯視窗
+                visualizeFormat = new VisualizeFormat();
+
+                backgroundFormat = new BackgroundFormat();
+                backgroundFormat.setBackgroundColor(format.getBackgroundColor());
+
+                visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat, format.getWidth(), format.getHeight());
+                visualizePane.setView(format.getView());
+                visualizePane.setSide(format.getSide());
+                visualizePane.setDirect(format.getDirect());
+
+                double scaleWidth = width * .68 / visualizePane.getPrefWidth();
+                double scaleHeight = height * .65 / visualizePane.getPrefHeight();
+                double scale = Math.min(scaleWidth, scaleHeight);
+                double offsetX = 0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2;
+                double offsetY = 0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2;
+                if (scale == scaleWidth)
+                    offsetY += (height * .65 - visualizePane.getPrefHeight() * scale) / 2;
+                else if (scale == scaleHeight)
+                    offsetX += (width * .68 - visualizePane.getPrefWidth() * scale) / 2;
+
+                visualizePane.setScaleX(scale);
+                visualizePane.setScaleY(scale);
+                visualizePane.setTranslateX(offsetX);
+                visualizePane.setTranslateY(offsetY);
+
+                fitPane.setContent(visualizePane);
+
+                // 參數視窗
+                paramUI.setEqualizerType(format.getView());
+                paramUI.setEqualizerSide(format.getSide());
+                paramUI.setEqualizerDirection(format.getDirect());
+                paramUI.setBackgroundColor(format.getBackgroundColor());
+                paramUI.setRangeWidth(format.getWidth());
+                paramUI.setRangeHeight(format.getHeight());
+
+                System.out.println(format.getProjectName());
+            }
         });
         //  └ Run
         menuUI.previewClickProperty.addListener(event -> preview());

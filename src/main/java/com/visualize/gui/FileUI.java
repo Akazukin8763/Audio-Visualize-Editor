@@ -83,7 +83,10 @@ public class FileUI extends ScrollPane {
         this.fileRename = new MenuItem("Rename List");
         this.menuFile.getItems().addAll(fileAdd, fileRename);
 
-        createList("TEST");
+        createList("Music");
+        insertListFile("Music", new ArrayList<>() {{
+            add(new File(DefaultPath.DEFAULT_MUSIC_PATH));
+        }});
 
         // Event
         // └ this
@@ -107,9 +110,9 @@ public class FileUI extends ScrollPane {
         fileGroupNew.setOnAction(event -> {
             CustomTextInputDialog textInputDialog = new CustomTextInputDialog();
             textInputDialog.setTitle("New List");
-            String tag = textInputDialog.showAndReturn();
+            String tag = textInputDialog.showAndReturn().trim();
 
-            if (tag != null && !tag.equals(""))
+            if (!tag.equals(""))
                 System.out.println("Create List: " + createList(tag));
         });
         //  └ 清除所有列表
@@ -129,9 +132,9 @@ public class FileUI extends ScrollPane {
         fileRename.setOnAction(event -> {
             CustomTextInputDialog textInputDialog = new CustomTextInputDialog();
             textInputDialog.setTitle("Rename List");
-            String newtag = textInputDialog.showAndReturn();
+            String newtag = textInputDialog.showAndReturn().trim();
 
-            if (newtag != null && !newtag.equals(""))
+            if (!newtag.equals(""))
                 System.out.println("Rename List: " + renameList(selectTag, newtag));
         });
     }

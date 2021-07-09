@@ -33,21 +33,6 @@ public class Main extends Application {
 
     private Stage stage;
 
-    //paneMenu p0 = new paneMenu(); //裡面沒東西要用 而且很醜
-    private paneFile paneFile;
-    private VisualizePane visualizePane;
-    private paneController paneController;
-
-    private GridPane paneButton;
-    private FileChooser fileExportChooser;
-    private FileChooser fileWallpaperChooser;
-
-    private AudioFile audioFile;
-    private VisualizeFormat visualizeFormat;
-
-    private final double SCALE_DEFAULT = 1;
-    private final double SCALE_OUT = 1000 / 1920.0;
-
     @Override
     public void start(Stage primaryStage) throws Exception{
         stage = new Stage();

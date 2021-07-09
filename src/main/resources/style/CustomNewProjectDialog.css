@@ -1,5 +1,10 @@
  /*@import url("http://fonts.googleapis.com/css?family=Fontdiner+Swanky");*/
 
+/* Separator */
+.separator:horizontal .line {
+    -fx-border-color: #444444;
+}
+
 /* Label */
 .label {
     -fx-text-fill: white;
@@ -28,6 +33,26 @@
 .choice-box .context-menu {
     -fx-background-color: #222222;
     -fx-border-color: #444444
+}
+
+
+/* ColorPicker */
+.color-picker {
+    -fx-background-color: #222222;
+}
+.color-picker:focused {
+    -fx-border-color: lightseagreen;
+}
+.color-palette {
+    -fx-background-color: #333333;
+    -fx-border-color: lightseagreen;
+}
+.color-palette .text {
+    -fx-fill: white;
+}
+.color-palette .text:hover,
+.color-palette-region > .color-square.hover-square {
+    -fx-fill: lightseagreen;
 }
 
 /* Button */
