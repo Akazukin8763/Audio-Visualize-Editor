@@ -15,4 +15,6 @@ public final class DefaultPath {
     public static final String FOLDER_ICON_PATH = new File("src/main/resources/icon/folder-16.png").getAbsolutePath();
     public static final String CANCEL_ICON_PATH = new File("src/main/resources/icon/cancel-16.png").getAbsolutePath();
 
+    public static final String PROJECT_PATH = new File("src/main/resources/project").getAbsolutePath();
+
 }

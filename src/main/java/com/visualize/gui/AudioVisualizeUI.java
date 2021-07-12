@@ -13,7 +13,12 @@ import javafx.event.Event;
 
 import javafx.scene.paint.Color;
 
+import java.io.IOException;
+
 public class AudioVisualizeUI extends Pane {
+
+    private final ProjectSL project = new ProjectSL();
+    private String projectName = null;
 
     private final double width;
     private final double height;
@@ -40,6 +45,7 @@ public class AudioVisualizeUI extends Pane {
         menuUI = new MenuUI(width, height * .01);
         fileUI = new FileUI(width * .12, height * .65);
         paramUI = new ParamUI(width * .20, height * .94, rangeWidth, rangeHeight);
+        paramUI.setEnable(false);
 
         audioFile = new WavFile(DefaultPath.DEFAULT_MUSIC_PATH);
         visualizeFormat = new VisualizeFormat();
@@ -79,46 +85,43 @@ public class AudioVisualizeUI extends Pane {
         menuUI.fileNewClickProperty.addListener(event -> {
             CustomNewProjectDialog newProject = new CustomNewProjectDialog();
             newProject.setTitle("New Project");
-            CustomNewProjectDialogFormat format = newProject.showAndReturn();
+            ProjectFormat format = newProject.showAndReturn();
 
             if (format != null) {
-                // 編輯視窗
-                visualizeFormat = new VisualizeFormat();
+                this.projectName = format.getProjectName();
+                this.rangeWidth = format.getWidth();
+                this.rangeHeight = format.getHeight();
 
-                backgroundFormat = new BackgroundFormat();
-                backgroundFormat.setBackgroundColor(format.getBackgroundColor());
+                setProject(format);
 
-                visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat, format.getWidth(), format.getHeight());
-                visualizePane.setView(format.getView());
-                visualizePane.setSide(format.getSide());
-                visualizePane.setDirect(format.getDirect());
+                paramUI.setEnable(true);
+            }
+        });
+        menuUI.fileOpenClickProperty.addListener(event -> {
+            try {
+                ProjectFormat format = project.load();
 
-                double scaleWidth = width * .68 / visualizePane.getPrefWidth();
-                double scaleHeight = height * .65 / visualizePane.getPrefHeight();
-                double scale = Math.min(scaleWidth, scaleHeight);
-                double offsetX = 0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2;
-                double offsetY = 0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2;
-                if (scale == scaleWidth)
-                    offsetY += (height * .65 - visualizePane.getPrefHeight() * scale) / 2;
-                else if (scale == scaleHeight)
-                    offsetX += (width * .68 - visualizePane.getPrefWidth() * scale) / 2;
+                this.projectName = format.getProjectName();
+                this.rangeWidth = format.getWidth();
+                this.rangeHeight = format.getHeight();
 
-                visualizePane.setScaleX(scale);
-                visualizePane.setScaleY(scale);
-                visualizePane.setTranslateX(offsetX);
-                visualizePane.setTranslateY(offsetY);
+                setProject(format);
 
-                fitPane.setContent(visualizePane);
-
-                // 參數視窗
-                paramUI.setEqualizerType(format.getView());
-                paramUI.setEqualizerSide(format.getSide());
-                paramUI.setEqualizerDirection(format.getDirect());
-                paramUI.setBackgroundColor(format.getBackgroundColor());
-                paramUI.setRangeWidth(format.getWidth());
-                paramUI.setRangeHeight(format.getHeight());
-
-                System.out.println(format.getProjectName());
+                paramUI.setEnable(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("ERROR");
+            }
+        });
+        menuUI.fileSaveClickProperty.addListener(event -> {
+            if (projectName != null) {
+                project.save(new ProjectFormat(
+                        projectName, rangeWidth, rangeHeight, paramUI.isAdvancedEnable(),
+                        paramUI.getView(), paramUI.getSide(), paramUI.getDirect(), paramUI.getStereo(), audioFile.getAbsolutePath(),
+                        paramUI.getBarNum(), paramUI.getSize(), paramUI.getGap(), paramUI.getRadius(), paramUI.getPosX(), paramUI.getPosY(), paramUI.getRotation(),
+                        paramUI.getColor(), paramUI.getColorShadow(), paramUI.getColorShadowRadius(), paramUI.getColorShadowSpread(), paramUI.getColorShadowOffsetX(), paramUI.getColorShadowOffsetY(),
+                        paramUI.getSensitivity(), paramUI.getMinFreq(), paramUI.getMaxFreq(),
+                        paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY()));
             }
         });
         //  └ Run
@@ -315,6 +318,84 @@ public class AudioVisualizeUI extends Pane {
         }
     }
 
+    public void setProject (ProjectFormat format) {
+        // 編輯視窗
+        visualizeFormat = new VisualizeFormat(
+                format.getBarNum(), format.getSize(), format.getGap(), format.getRadius(),
+                format.getPosX(), format.getPosY(), format.getRotation(), format.getColor());
+        visualizeFormat.setDropShadowColor(format.getColorShadow());
+        visualizeFormat.setDropShadowColorRadius(format.getColorShadowRadius());
+        visualizeFormat.setDropShadowColorSpread(format.getColorShadowSpread() / 100);
+        visualizeFormat.setDropShadowColorOffsetX(format.getColorShadowOffsetX());
+        visualizeFormat.setDropShadowColorOffsetY(format.getColorShadowOffsetY());
+        visualizeFormat.setSensitivity(format.getSensitivity() / 100);
+        visualizeFormat.setMinFreq(format.getMinFreq());
+        visualizeFormat.setMaxFreq(format.getMaxFreq());
+
+        backgroundFormat = new BackgroundFormat(format.getBackgroundColor(), format.getBackgroundImage(), format.getBackgroundImagePosX(), format.getBackgroundImagePosY());
+
+        visualizePane = new VisualizePane(audioFile, visualizeFormat, backgroundFormat, format.getWidth(), format.getHeight());
+        visualizePane.setView(format.getView());
+        visualizePane.setSide(format.getSide());
+        visualizePane.setDirect(format.getDirect());
+        visualizePane.setStereo(format.getStereo());
+
+        double scaleWidth = width * .68 / visualizePane.getPrefWidth();
+        double scaleHeight = height * .65 / visualizePane.getPrefHeight();
+        double scale = Math.min(scaleWidth, scaleHeight);
+        double offsetX = 0 - (visualizePane.getPrefWidth() * (1 - scale)) / 2;
+        double offsetY = 0 - (visualizePane.getPrefHeight() * (1 - scale)) / 2;
+        if (scale == scaleWidth)
+            offsetY += (height * .65 - visualizePane.getPrefHeight() * scale) / 2;
+        else if (scale == scaleHeight)
+            offsetX += (width * .68 - visualizePane.getPrefWidth() * scale) / 2;
+
+        visualizePane.setScaleX(scale);
+        visualizePane.setScaleY(scale);
+        visualizePane.setTranslateX(offsetX);
+        visualizePane.setTranslateY(offsetY);
+
+        fitPane.setContent(visualizePane);
+
+        // 參數視窗
+        paramUI.setRangeWidth(format.getWidth());
+        paramUI.setRangeHeight(format.getHeight());
+
+        paramUI.setAdvancedEnable(format.isAdvanced());
+
+        paramUI.setView(format.getView());
+        paramUI.setSide(format.getSide());
+        paramUI.setDirect(format.getDirect());
+        paramUI.setStereo(format.getStereo());
+
+        // └ Music
+        changeAudio(format.getFilepath());
+
+        // └ Equalizer
+        paramUI.setBarNum(format.getBarNum());
+        paramUI.setSize(format.getSize());
+        paramUI.setGap(format.getGap());
+        paramUI.setRadius(format.getRadius());
+        paramUI.setPosX(format.getPosX());
+        paramUI.setPosY(format.getPosY());
+        paramUI.setRotation(format.getRotation());
+        paramUI.setColor(format.getColor());
+        paramUI.setColorShadow(format.getColorShadow());
+        paramUI.setColorShadowRadius(format.getColorShadowRadius());
+        paramUI.setColorShadowSpread(format.getColorShadowSpread());
+        paramUI.setColorShadowOffsetX(format.getColorShadowOffsetX());
+        paramUI.setColorShadowOffsetY(format.getColorShadowOffsetY());
+        paramUI.setSensitivity(format.getSensitivity());
+        paramUI.setMinFreq(format.getMinFreq());
+        paramUI.setMaxFreq(format.getMaxFreq());
+
+        // └ Background
+        paramUI.setBackgroundColor(format.getBackgroundColor());
+        paramUI.setBackgroundImage(format.getBackgroundImage());
+        paramUI.setBackgroundImagePosX(format.getBackgroundImagePosX());
+        paramUI.setBackgroundImagePosY(format.getBackgroundImagePosY());
+    }
+
     public void preview() {
         if (visualizePane.isRunning())
             stop();
@@ -337,4 +418,5 @@ public class AudioVisualizeUI extends Pane {
             //EventLog.eventLog.warning(e.getMessage());
         }
     }
+
 }

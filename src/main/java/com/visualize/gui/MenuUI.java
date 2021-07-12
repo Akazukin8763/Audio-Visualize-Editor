@@ -23,6 +23,8 @@ public class MenuUI extends BorderPane {
 
     // Property
     public BooleanProperty fileNewClickProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty fileOpenClickProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty fileSaveClickProperty = new SimpleBooleanProperty(false);
 
     public BooleanProperty previewClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty animateClickProperty = new SimpleBooleanProperty(false);
@@ -67,9 +69,9 @@ public class MenuUI extends BorderPane {
         fileNew.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN)); // ctrl + n
         fileNew.setOnAction(event -> fileNewClickProperty.setValue(!fileNewClickProperty.getValue()));
         fileOpen.setAccelerator(new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN)); // ctrl + o
-        fileOpen.setOnAction(event -> System.out.println("open"));
+        fileOpen.setOnAction(event -> fileOpenClickProperty.setValue(!fileOpenClickProperty.getValue()));
         fileSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)); // ctrl + s
-        fileSave.setOnAction(event -> System.out.println("save"));
+        fileSave.setOnAction(event -> fileSaveClickProperty.setValue(!fileSaveClickProperty.getValue()));
         fileSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)); // ctrl + shift + s
         fileSaveAs.setOnAction(event -> System.out.println("save as"));
         fileExit.setOnAction(event -> Platform.exit());

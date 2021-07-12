@@ -3,6 +3,7 @@ package com.visualize.gui;
 import com.visualize.file.*;
 import com.visualize.view.*;
 
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Modality;
 import javafx.scene.Scene;
@@ -48,7 +49,7 @@ public class CustomNewProjectDialog extends Stage {
     private static final VisualizeMode.Side[] EQUALIZER_SIDE = VisualizeMode.Side.values();
     private static final VisualizeMode.Direct[] EQUALIZER_DIRECTION = VisualizeMode.Direct.values();
 
-    private CustomNewProjectDialogFormat format = null;
+    private ProjectFormat format = null;
 
     // Constructor
     public CustomNewProjectDialog() {
@@ -218,11 +219,13 @@ public class CustomNewProjectDialog extends Stage {
             if (projectName.equals(""))
                 textFieldProject.requestFocus();
             else {
-                format = new CustomNewProjectDialogFormat(
-                        projectName,
-                        textFieldStringToInt(textFieldWidth.getText()), textFieldStringToInt(textFieldHeight.getText()),
-                        choiceBoxEqualizerType.getValue(), choiceBoxEqualizerSide.getValue(), choiceBoxEqualizerDirection.getValue(),
-                        colorPickerBackgroundColor.getValue());
+                format = new ProjectFormat(
+                        projectName, textFieldStringToInt(textFieldWidth.getText()), textFieldStringToInt(textFieldHeight.getText()), false,
+                        choiceBoxEqualizerType.getValue(), choiceBoxEqualizerSide.getValue(), choiceBoxEqualizerDirection.getValue(), VisualizeMode.Stereo.BOTH, DefaultPath.DEFAULT_MUSIC_PATH,
+                        64, 2, 4, 100, 0, 0, 0,
+                        Color.WHITE, Color.WHITE, 0, 0, 0, 0,
+                        100, 0, 24000,
+                        colorPickerBackgroundColor.getValue(), null, 0, 0);
                 this.close();
             }
         });
@@ -237,7 +240,7 @@ public class CustomNewProjectDialog extends Stage {
     }
 
     // Methods
-    public CustomNewProjectDialogFormat showAndReturn() {
+    public ProjectFormat showAndReturn() {
         super.showAndWait();
         return format;
     }
