@@ -2,6 +2,7 @@ package com.visualize.view;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
@@ -81,9 +82,10 @@ public class CircleVisualize extends AudioVisualize{
         dropShadow.setColor(dropShadowColor);
         dropShadow.setRadius(dropShadowColorRadius);
         dropShadow.setSpread(dropShadowColorSpread);
-        //dropShadow.setOffsetX(dropShadowColorOffsetX);
-        //dropShadow.setOffsetY(dropShadowColorOffsetY);
+        dropShadow.setOffsetX(dropShadowColorOffsetX);
+        dropShadow.setOffsetY(dropShadowColorOffsetY);
 
+        Group group = new Group();
         for (int i = 0; i < barNum; i++) {
             double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));
 
@@ -94,10 +96,12 @@ public class CircleVisualize extends AudioVisualize{
             Rectangle rectangle = new Rectangle(x - barSize / 2.0, yModes[side.value()].y(y, initHeight), barSize, height); // 將 x 錨點校正至 bar 底邊中心
             rectangle.getTransforms().add(new Rotate(angle * i - 90 + rotateAngle, x, y)); // 依照 bar 正中心點旋轉
             rectangle.setFill(barColor);
-            rectangle.setEffect(dropShadow);
 
-            pane.getChildren().add(rectangle);
+            group.getChildren().add(rectangle);
         }
+
+        group.setEffect(dropShadow);
+        pane.getChildren().add(group);
 
         return pane;
     }
@@ -121,7 +125,14 @@ public class CircleVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        for (Node node: pane.getChildren()) {
+        Group group = null;
+        for (Node node: pane.getChildren())
+            if (node instanceof Group)
+                group = (Group) node;
+        if (group == null)
+            return null;
+
+        for (Node node: group.getChildren()) {
             if (node instanceof Rectangle) // 確保物件為 Rectangle
                 rect = (Rectangle) node;
             else
@@ -183,8 +194,15 @@ public class CircleVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
+        Group group = null;
+        for (Node node: pane.getChildren())
+            if (node instanceof Group)
+                group = (Group) node;
+        if (group == null)
+            return;
+
         int bar = 0;
-        for (Node node: pane.getChildren()) {
+        for (Node node: group.getChildren()) {
             if (node instanceof Rectangle) // 確保物件為 Rectangle
                 rectangles[bar++] = (Rectangle) node;
         }

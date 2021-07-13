@@ -2,6 +2,7 @@ package com.visualize.view;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
 
@@ -80,6 +81,7 @@ public class LineVisualize extends AudioVisualize{
         dropShadow.setOffsetX(dropShadowColorOffsetX);
         dropShadow.setOffsetY(dropShadowColorOffsetY);
 
+        Group group = new Group();
         for (int i = 0; i < barNum; i++) {
             double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));
 
@@ -89,11 +91,13 @@ public class LineVisualize extends AudioVisualize{
             Rectangle rectangle = new Rectangle(posX + i * (barSize + barGap) , y, barSize, height);
             rectangle.getTransforms().add(rotate);
             rectangle.setFill(barColor);
-            rectangle.setEffect(dropShadow);
             //rectangle.setOpacity(.2);
 
-            pane.getChildren().add(rectangle);
+            group.getChildren().add(rectangle);
         }
+
+        group.setEffect(dropShadow);
+        pane.getChildren().add(group);
 
         return pane;
     }
@@ -112,7 +116,14 @@ public class LineVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        for (Node node: pane.getChildren()) {
+        Group group = null;
+        for (Node node: pane.getChildren())
+            if (node instanceof Group)
+                group = (Group) node;
+        if (group == null)
+            return null;
+
+        for (Node node: group.getChildren()) {
             if (node instanceof Rectangle) // 確保物件為 Rectangle
                 rect = (Rectangle) node;
             else
@@ -169,8 +180,15 @@ public class LineVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
+        Group group = null;
+        for (Node node: pane.getChildren())
+            if (node instanceof Group)
+                group = (Group) node;
+        if (group == null)
+            return;
+
         int bar = 0;
-        for (Node node: pane.getChildren()) {
+        for (Node node: group.getChildren()) {
             if (node instanceof Rectangle) // 確保物件為 Rectangle
                 rectangles[bar++] = (Rectangle) node;
         }

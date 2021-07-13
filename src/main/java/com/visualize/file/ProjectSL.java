@@ -21,7 +21,7 @@ public class ProjectSL {
         properties = new Properties();
     }
 
-    public void save(ProjectFormat format) {
+    public void save(ProjectFormat format, String filepath) throws IOException {
         properties.setProperty("Project_Name", format.getProjectName());
 
         properties.setProperty("Width", String.format("%d", format.getWidth()));
@@ -62,17 +62,17 @@ public class ProjectSL {
         properties.setProperty("Background_Image_Position_Y", String.format("%d", format.getBackgroundImagePosY()));
 
         try {
-            properties.storeToXML(new FileOutputStream(DefaultPath.PROJECT_PATH + "/" + format.getProjectName() + ".xml"), "Saved by Ɐudio Ʌisualizer Ǝditor");
+            properties.storeToXML(new FileOutputStream(filepath), "Saved by Ɐudio Ʌisualizer Ǝditor");
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IOException();
         } finally {
             properties.clear();
         }
     }
 
-    public ProjectFormat load() throws IOException {
+    public ProjectFormat load(String filepath) throws IOException {
         try {
-            properties.loadFromXML(new FileInputStream(DefaultPath.PROJECT_PATH + "/" + "test" + ".xml"));
+            properties.loadFromXML(new FileInputStream(filepath));
 
             String projectName = properties.getProperty("Project_Name");
 
@@ -87,7 +87,7 @@ public class ProjectSL {
             VisualizeMode.Stereo stereo = Arrays.stream(VisualizeMode.Stereo.values()).filter(prop -> properties.getProperty("Equalizer_Stereo").equals(prop.toString())).collect(Collectors.toList()).get(0);
 
             // Music
-            String filepath = properties.getProperty("Music");
+            String musicpath = properties.getProperty("Music");
 
             // Equalizer
             int barNum = Integer.parseInt(properties.getProperty("Bar_Number"));
@@ -115,7 +115,7 @@ public class ProjectSL {
 
             return new ProjectFormat(
                     projectName, width, height, advanced,
-                    view, side, direct, stereo, filepath,
+                    view, side, direct, stereo, musicpath,
                     barNum, size, gap, radius, posX, posY, rotation,
                     color, colorShadow, colorShadowRadius, colorShadowSpread, colorShadowOffsetX, colorShadowOffsetY,
                     sensitivity, minFreq, maxFreq,

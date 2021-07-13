@@ -54,6 +54,45 @@
 .color-palette-region > .color-square.hover-square {
     -fx-fill: lightseagreen;
 }
+.custom-color-dialog {
+    -fx-background-color: #333333;
+}
+.custom-color-dialog .controls-pane .current-new-color-grid #current-new-color-border {
+    -fx-border-color: #444444;
+}
+.custom-color-dialog .controls-pane #settings-pane {
+    -fx-border-color: #444444;
+}
+.custom-color-dialog .controls-pane .color-input-field,
+.custom-color-dialog .controls-pane .web-field {
+    -fx-text-fill: white;
+    -fx-background-color: #444444, #333333;
+    -fx-background-insets: 0, 1 1 1 1;
+}
+.custom-color-dialog .controls-pane .color-input-field:focused,
+.custom-color-dialog .controls-pane .web-field:focused {
+  -fx-background-color: lightseagreen, #333333;
+  -fx-background-insets: 0, 1 1 1 1;
+}
+.custom-color-dialog .controls-pane .button {
+    -fx-text-fill: white;
+    -fx-background-color: #222222;
+    -fx-border-color: transparent;
+    -fx-border-radius: 0;
+}
+.custom-color-dialog .controls-pane .customcolor-controls-background {
+    -fx-background-color: transparent;
+}
+
+/* Slider */
+.slider .track {
+    -fx-background-color: #444444;
+}
+.slider .thumb {
+    //-fx-shape: "M0 20a20 20 0 0 1 20 -20h10a20 20 0 0 1 20 20v110a20 20 0 0 1 -20 20h-10a20 20 0 0 1 -20 -20z";
+    //-fx-shape: "M 0 0  50 0 250 0 50 150 Z";
+    //-fx-shape: "M 0 0 h 4 v 10 h -4 z";
+}
 
 /* Button */
 .button {

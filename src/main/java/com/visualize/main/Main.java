@@ -96,16 +96,15 @@ public class Main extends Application {
 
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
-        Scene scene = new Scene(new AudioVisualizeUI(bounds.getWidth(), bounds.getHeight()));
+        AudioVisualizeUI UI = new AudioVisualizeUI(bounds.getWidth(), bounds.getHeight());
+        Scene scene = new Scene(UI);
         scene.getStylesheets().add(getClass().getResource("/style/style.css").toExternalForm());
         stage.setScene(scene);
-        stage.setTitle("Ɐudio Ʌisualizer Ǝditor");
+        stage.titleProperty().bind(UI.titleProperty); // 將程式名與專案名綁定
         stage.getIcons().add(new javafx.scene.image.Image(new java.io.File("src/main/resources/icon/icon.png").toURI().toString()));
         //stage.getIcons().add(new javafx.scene.image.Image(new java.io.File(Jar.getJarPath() + "/icon/icon.png").toURI().toString()));
         stage.setMaximized(true);
         stage.show();
-
-        //preview();
 
         // Event
         /*paneController.valueChangeProperty.addListener((obs, oldValue, newValue) -> {

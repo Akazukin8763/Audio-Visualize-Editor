@@ -140,9 +140,22 @@
 .color-palette-region > .color-square.hover-square {
     -fx-fill: lightseagreen;
 }
+.custom-color-dialog {
+    -fx-background-color: #333333;
+}
+.custom-color-dialog .controls-pane .current-new-color-grid #current-new-color-border {
+    -fx-border-color: #444444;
+}
+.custom-color-dialog .controls-pane #settings-pane {
+    -fx-border-color: #444444;
+}
+.custom-color-dialog .controls-pane .customcolor-controls-background {
+    -fx-background-color: transparent;
+}
 
 /* Button */
 .button {
+    -fx-text-fill: white;
     -fx-background-color: #222222;
 }
 

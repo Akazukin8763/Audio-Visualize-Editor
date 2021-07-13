@@ -415,19 +415,6 @@ public class ParamUI extends ScrollPane {
             int groupRow = 0;
             for (int index: GROUP_EQUALIZER_INDEX[type.value()])
                 groupEqualizer.add(groupEqualizerParam[index], 0, groupRow++, 2, 1);
-
-            // TEMP
-            if (type == VisualizeMode.View.CIRCLE) {
-                sliderColorShadowOffsetX.setDisable(true);
-                sliderColorShadowOffsetY.setDisable(true);
-                textFieldColorShadowOffsetX.setEditable(false);
-                textFieldColorShadowOffsetY.setEditable(false);
-            } else {
-                sliderColorShadowOffsetX.setDisable(false);
-                sliderColorShadowOffsetY.setDisable(false);
-                textFieldColorShadowOffsetX.setEditable(true);
-                textFieldColorShadowOffsetY.setEditable(true);
-            }
         });
         //   └ Equalizer Side
         choiceBoxEqualizerSide.setOnAction(event -> {

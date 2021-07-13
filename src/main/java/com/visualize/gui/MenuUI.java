@@ -21,10 +21,27 @@ public class MenuUI extends BorderPane {
     private final double width;
     private final double height;
 
+    private final MenuItem fileNew;
+    private final MenuItem fileOpen;
+    private final MenuItem fileSave;
+    private final MenuItem fileSaveAs;
+    private final MenuItem fileImport;
+    private final MenuItem fileExit;
+
+    private final MenuItem editUndo;
+    private final MenuItem editRedo;
+
+    private final MenuItem runPreview;
+    private final MenuItem runAnimate;
+
     // Property
     public BooleanProperty fileNewClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty fileOpenClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty fileSaveClickProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty fileSaveAsClickProperty = new SimpleBooleanProperty(false);
+
+    public BooleanProperty editUndoClickProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty editRedoClickProperty = new SimpleBooleanProperty(false);
 
     public BooleanProperty previewClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty animateClickProperty = new SimpleBooleanProperty(false);
@@ -35,12 +52,12 @@ public class MenuUI extends BorderPane {
 
         // File
         Menu menuFile = new Menu("File");
-        MenuItem fileNew = new MenuItem("New");
-        MenuItem fileOpen = new MenuItem("Open");
-        MenuItem fileSave = new MenuItem("Save");
-        MenuItem fileSaveAs = new MenuItem("Save As...");
-        MenuItem fileImport = new MenuItem("Import");
-        MenuItem fileExit = new MenuItem("Exit");
+        fileNew = new MenuItem("New");
+        fileOpen = new MenuItem("Open");
+        fileSave = new MenuItem("Save");
+        fileSaveAs = new MenuItem("Save As...");
+        fileImport = new MenuItem("Import");
+        fileExit = new MenuItem("Exit");
 
         menuFile.getItems().addAll(fileNew, fileOpen, fileSave, fileSaveAs);
         menuFile.getItems().add(new SeparatorMenuItem()); // 分隔線
@@ -50,11 +67,15 @@ public class MenuUI extends BorderPane {
 
         // Edit
         Menu menuEdit = new Menu("Edit");
+        editUndo = new MenuItem("Undo");
+        editRedo = new MenuItem("Redo");
+
+        menuEdit.getItems().addAll(editUndo, editRedo);
 
         // Run
         Menu menuRun = new Menu("Run");
-        MenuItem runPreview = new MenuItem("Preview");
-        MenuItem runAnimate = new MenuItem("Visualize");
+        runPreview = new MenuItem("Preview");
+        runAnimate = new MenuItem("Visualize");
 
         menuRun.getItems().addAll(runPreview, runAnimate);
 
@@ -73,14 +94,40 @@ public class MenuUI extends BorderPane {
         fileSave.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN)); // ctrl + s
         fileSave.setOnAction(event -> fileSaveClickProperty.setValue(!fileSaveClickProperty.getValue()));
         fileSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)); // ctrl + shift + s
-        fileSaveAs.setOnAction(event -> System.out.println("save as"));
+        fileSaveAs.setOnAction(event -> fileSaveAsClickProperty.setValue(!fileSaveAsClickProperty.getValue()));
         fileExit.setOnAction(event -> Platform.exit());
+        // └ Edit
+        editUndo.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)); // ctrl + z
+        editUndo.setOnAction(event -> editUndoClickProperty.setValue(!editUndoClickProperty.getValue()));
+        editRedo.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)); // ctrl + shift + z
+        editRedo.setOnAction(event -> editRedoClickProperty.setValue(!editRedoClickProperty.getValue()));
         // └ Run
         runPreview.setAccelerator(new KeyCodeCombination(KeyCode.F10)); // F10
         runPreview.setOnAction(event -> previewClickProperty.setValue(!previewClickProperty.getValue()));
         runAnimate.setAccelerator(new KeyCodeCombination(KeyCode.F11)); // F11
         runAnimate.setOnAction(event -> animateClickProperty.setValue(!animateClickProperty.getValue()));
 
+    }
+
+    // Methods
+    public void setMenuEnable(boolean enable) {
+        setMenuEnable(enable, enable);
+    }
+    public void setMenuEnable(boolean enable, boolean save) {
+        boolean disable = !enable;
+
+        //fileNew.setDisable(disable);
+        //fileOpen.setDisable(disable);
+        fileSave.setDisable(disable | !save);
+        fileSaveAs.setDisable(disable);
+        fileImport.setDisable(disable);
+        //fileExit.setDisable(disable);
+
+        editUndo.setDisable(disable);
+        editRedo.setDisable(disable);
+
+        runPreview.setDisable(disable);
+        runAnimate.setDisable(disable);
     }
 
 }

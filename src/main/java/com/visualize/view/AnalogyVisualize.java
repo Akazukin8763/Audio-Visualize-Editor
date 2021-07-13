@@ -2,6 +2,7 @@ package com.visualize.view;
 
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.Group;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Polyline;
 
@@ -112,7 +113,9 @@ public class AnalogyVisualize extends AudioVisualize{
         polyline.setStroke(barColor);
         polyline.setEffect(dropShadow);
 
-        pane.getChildren().add(polyline);
+        Group group = new Group(polyline);
+        //group.setEffect(dropShadow);
+        pane.getChildren().add(group);
 
         return pane;
     }
@@ -129,7 +132,14 @@ public class AnalogyVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        for (Node node: pane.getChildren()) { // 基本上只有一個 Polyline
+        Group group = null;
+        for (Node node: pane.getChildren())
+            if (node instanceof Group)
+                group = (Group) node;
+        if (group == null)
+            return null;
+
+        for (Node node: group.getChildren()) { // 基本上只有一個 Polyline
             Polyline polyline; // 要動畫化的 Polyline
 
             if (node instanceof Polyline) // 確保物件為 Polyline
@@ -243,7 +253,14 @@ public class AnalogyVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        for (Node node: pane.getChildren()) { // 基本上只有一個 Polyline
+        Group group = null;
+        for (Node node: pane.getChildren())
+            if (node instanceof Group)
+                group = (Group) node;
+        if (group == null)
+            return;
+
+        for (Node node: group.getChildren()) { // 基本上只有一個 Polyline
             if (node instanceof Polyline) // 確保物件為 Polyline
                 polyline = (Polyline) node;
         }
