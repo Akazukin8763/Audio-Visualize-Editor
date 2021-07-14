@@ -3,6 +3,7 @@ package com.visualize.gui;
 import com.visualize.file.*;
 import com.visualize.view.*;
 
+import javafx.beans.property.*;
 import javafx.stage.FileChooser;
 
 import javafx.scene.layout.GridPane;
@@ -27,14 +28,11 @@ import javafx.scene.paint.Color;
 
 import javafx.collections.FXCollections;
 
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-
 import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class ParamUI extends ScrollPane {
 
@@ -46,6 +44,10 @@ public class ParamUI extends ScrollPane {
     private final GridPane paramPane;
     private final GridPane groupEqualizer;
     private final GridPane groupAdvance;
+    private final GridPane groupBackgroundImagePos;
+    private final HBox[] groupBackgroundImagePosParam;
+    private final GridPane groupImage;
+    private final CustomImageListView images;
 
     private final FileChooser fileChooser;
 
@@ -105,6 +107,9 @@ public class ParamUI extends ScrollPane {
     private final Slider sliderBackgroundImagePosY;
     private final TextField textFieldBackgroundImagePosY;
 
+    private final Button buttonImageImport;
+    private final Button buttonImageClear;
+
     // Property
     public final StringProperty equalizerTypeProperty = new SimpleStringProperty(null);
     public final StringProperty equalizerSideProperty = new SimpleStringProperty(null);
@@ -142,6 +147,7 @@ public class ParamUI extends ScrollPane {
         this.height = height;
         this.rangeWidth = rangeWidth;
         this.rangeHeight = rangeHeight;
+        this.images = new CustomImageListView(width, height);
 
         paramPane = new GridPane();
         paramPane.setPrefWidth(width);
@@ -169,7 +175,7 @@ public class ParamUI extends ScrollPane {
 
         Label labelImageTitle = new Label("Image");
         labelImageTitle.setFont(new Font(20));
-        paramPane.add(labelImageTitle, 0, 12, 3, 1);
+        paramPane.add(labelImageTitle, 0, 11, 3, 1);
         GridPane.setHalignment(labelImageTitle, HPos.CENTER);
 
         // Selection
@@ -336,9 +342,9 @@ public class ParamUI extends ScrollPane {
         buttonBackgroundImageClear.setGraphic(imageViewBackgroundImageClear);
         labelBackgroundImage.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         labelBackgroundImageName.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
-        labelBackgroundImageNull.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .24);
-        buttonBackgroundImageImport.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .38);
-        buttonBackgroundImageClear.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .38);
+        labelBackgroundImageNull.setPrefWidth(14);
+        buttonBackgroundImageImport.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
+        buttonBackgroundImageClear.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
         labelBackgroundImageName.setAlignment(Pos.CENTER_RIGHT);
 
         Label labelBackgroundImagePosX = new Label(" └ Position X");
@@ -354,6 +360,22 @@ public class ParamUI extends ScrollPane {
         labelBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+        // └ Image
+        Label labelImage = new Label("Image");
+        Label labelImageNull1 = new Label();
+        Label labelImageNull2 = new Label();
+        buttonImageImport = new Button();
+        buttonImageClear = new Button();
+        ImageView imageViewImageImport = new ImageView(new Image(new File(DefaultPath.FOLDER_ICON_PATH).toURI().toString()));
+        ImageView imageViewImageClear = new ImageView(new Image(new File(DefaultPath.CANCEL_ICON_PATH).toURI().toString()));
+        buttonImageImport.setGraphic(imageViewImageImport);
+        buttonImageClear.setGraphic(imageViewImageClear);
+        labelImage.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+        labelImageNull1.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+        labelImageNull2.setPrefWidth(14);
+        buttonImageImport.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
+        buttonImageClear.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
 
         // Group
         // └ Equalizer
@@ -390,14 +412,29 @@ public class ParamUI extends ScrollPane {
                                                 groupSensitivity, groupFreq, groupMinMaxFreq};
 
         // └ Background
+        groupBackgroundImagePos = new GridPane();
+        groupBackgroundImagePos.setHgap(10);
+        groupBackgroundImagePos.setVgap(5);
+        paramPane.add(groupBackgroundImagePos, 0, 10, 2, 1);
+
         HBox groupBackgroundColor = new HBox(labelBackgroundColor, colorPickerBackgroundColor);
         HBox groupBackgroundImage = new HBox(labelBackgroundImage, labelBackgroundImageName, buttonBackgroundImageImport, labelBackgroundImageNull, buttonBackgroundImageClear);
         HBox groupBackgroundImagePosX = new HBox(labelBackgroundImagePosX, sliderBackgroundImagePosX, textFieldBackgroundImagePosX);
         HBox groupBackgroundImagePosY = new HBox(labelBackgroundImagePosY, sliderBackgroundImagePosY, textFieldBackgroundImagePosY);
+        groupBackgroundImagePosParam = new HBox[] {groupBackgroundImagePosX, groupBackgroundImagePosY};
         paramPane.add(groupBackgroundColor, 0, 8, 2, 1);
         paramPane.add(groupBackgroundImage, 0, 9, 2, 1);
-        paramPane.add(groupBackgroundImagePosX, 0, 10, 2, 1);
-        paramPane.add(groupBackgroundImagePosY, 0, 11, 2, 1);
+        //paramPane.add(groupBackgroundImagePosX, 0, 10, 2, 1);
+        //paramPane.add(groupBackgroundImagePosY, 0, 11, 2, 1);
+
+        // └ Image
+        groupImage = new GridPane();
+        groupImage.setHgap(10);
+        groupImage.setVgap(5);
+        paramPane.add(groupImage, 0, 13, 2, 1);
+
+        HBox groupImageControl = new HBox(labelImage, labelImageNull1, buttonImageImport, labelImageNull2, buttonImageClear);
+        paramPane.add(groupImageControl, 0, 12, 2, 1);
 
         // Event
         // └ this
@@ -573,6 +610,29 @@ public class ParamUI extends ScrollPane {
         //   └ Color Shadow
         colorPickerColorShadow.valueProperty().addListener((obs, oldValue, newValue) -> colorShadowProperty.setValue(newValue.toString()));
         // └ Background
+        //  └ Button
+        //   └ Background Image
+        buttonBackgroundImageImport.setOnAction(event -> {
+            try {
+                File file = fileChooser.showOpenDialog(null);
+                fileChooser.setInitialDirectory(new File(file.getParent()));
+                labelBackgroundImageName.setText(file.getName());
+                backgroundImageProperty.setValue(file.getAbsolutePath());
+
+                groupBackgroundImagePos.getChildren().clear(); // 清空所有可能選單
+                int groupRow = 0;
+                for (HBox param: groupBackgroundImagePosParam)
+                    groupBackgroundImagePos.add(param, 0, groupRow++, 2, 1);
+            } catch (NullPointerException ignored) {
+                // 不做任何事
+            }
+        });
+        buttonBackgroundImageClear.setOnAction(event -> {
+            labelBackgroundImageName.setText("");
+            backgroundImageProperty.setValue(null);
+
+            groupBackgroundImagePos.getChildren().clear(); // 清空所有可能選單
+        });
         //  └ Slider
         //   └ Position X
         sliderBackgroundImagePosX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldBackgroundImagePosX.textProperty().setValue(String.format("%d", newValue.intValue())));
@@ -593,21 +653,37 @@ public class ParamUI extends ScrollPane {
         //  └ Color Picker
         //   └ Background Color
         colorPickerBackgroundColor.valueProperty().addListener((obs, oldValue, newValue) -> backgroundColorProperty.setValue(newValue.toString()));
+        // └ Image
         //  └ Button
-        //   └ Background Image
-        buttonBackgroundImageImport.setOnAction(event -> {
+        //   └ Image
+        buttonImageImport.setOnAction(event -> {
             try {
-                File file = fileChooser.showOpenDialog(null);
-                fileChooser.setInitialDirectory(new File(file.getParent()));
-                labelBackgroundImageName.setText(file.getName());
-                backgroundImageProperty.setValue(file.getAbsolutePath());
+                List<File> files = fileChooser.showOpenMultipleDialog(null);
+
+                groupImage.getChildren().clear(); // 清空所有可能選單
+
+                for (File file: files)
+                    images.add(file.getAbsolutePath());
+
+                int groupRow = 0;
+                for (GridPane param: images.getGridPane())
+                    groupImage.add(param, 0, groupRow++, 2, 1);
+
+                fileChooser.setInitialDirectory(new File(files.get(0).getParent()));
             } catch (NullPointerException ignored) {
                 // 不做任何事
             }
         });
-        buttonBackgroundImageClear.setOnAction(event -> {
-            labelBackgroundImageName.setText("");
-            backgroundImageProperty.setValue(null);
+        buttonImageClear.setOnAction(event -> {
+            images.clear();
+            groupImage.getChildren().clear();
+        });
+        images.orderChangedProperty.addListener(event -> {
+            groupImage.getChildren().clear(); // 清空所有可能選單
+
+            int groupRow = 0;
+            for (GridPane param: images.getGridPane())
+                groupImage.add(param, 0, groupRow++, 2, 1);
         });
 
         // Initialize
@@ -895,8 +971,18 @@ public class ParamUI extends ScrollPane {
     }
 
     public void setBackgroundImage(String backgroundImage) {
-        if (backgroundImage != null)
+        groupBackgroundImagePos.getChildren().clear(); // 清空所有可能選單
+
+        if (backgroundImage != null) {
             labelBackgroundImageName.setText(new File(backgroundImage).getName());
+
+            int groupRow = 0;
+            for (HBox param: groupBackgroundImagePosParam)
+                groupBackgroundImagePos.add(param, 0, groupRow++, 2, 1);
+        } else {
+            labelBackgroundImageName.setText("");
+        }
+
         backgroundImageProperty.setValue(backgroundImage);
     }
 
@@ -933,6 +1019,127 @@ public class ParamUI extends ScrollPane {
 
         private String sliderTrackStyle(double value) {
             return String.format("-fx-background-color: linear-gradient(to right, lightseagreen %f%%, #444444 %f%%);", value, value);
+        }
+
+    }
+
+    private static class CustomImageListView {
+
+        private final double width;
+        private final double height;
+
+        private final List<GridPane> groupImageList;
+
+        public final BooleanProperty orderChangedProperty = new SimpleBooleanProperty(false);
+
+        // Constructor
+        public CustomImageListView(double width, double height) {
+            this.width = width;
+            this.height = height;
+
+            groupImageList = new ArrayList<>();
+        }
+
+        // Methods
+        public List<GridPane> getGridPane() {
+            return groupImageList;
+        }
+
+        public void add(String filepath) {
+            GridPane gridImages = new GridPane();
+            groupImageList.add(gridImages);
+
+            // Selection
+            Label labelImages = new Label(new File(filepath).getName());
+            Label labelImagesNull1 = new Label();
+            Label labelImagesNull2 = new Label();
+            Button buttonMoveUps = new Button();
+            Button buttonMoveDowns = new Button();
+            ImageView imageViewMoveUps = new ImageView(new Image(new File(DefaultPath.ARROW_UP_ICON_PATH).toURI().toString()));
+            ImageView imageViewMoveDowns = new ImageView(new Image(new File(DefaultPath.ARROW_DOWN_ICON_PATH).toURI().toString()));
+            buttonMoveUps.setGraphic(imageViewMoveUps);
+            buttonMoveDowns.setGraphic(imageViewMoveDowns);
+            labelImages.setPrefWidth(width * (WIDTH_OFFSET_LEFT + WIDTH_OFFSET_MIDDLE) - 14);
+            labelImagesNull1.setPrefWidth(14);
+            labelImagesNull2.setPrefWidth(14);
+            buttonMoveUps.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
+            buttonMoveDowns.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
+
+            HBox groupImages = new HBox(labelImages, labelImagesNull1, buttonMoveUps, labelImagesNull2, buttonMoveDowns);
+            gridImages.add(groupImages, 0, 0);
+
+            // Part
+            GridPane gridImagesParam = new GridPane();
+            //gridImages.add(gridImagesParam, 0, 1, 2, 1);
+
+            Label labelImagePosX = new Label(" └ Position X");
+            Slider sliderImagePosX = new CustomSlider(0, 1920, 0);
+            TextField textFieldImagePosX = new TextField(String.format("%d", 0));
+            labelImagePosX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+            sliderImagePosX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+            textFieldImagePosX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+            Label labelImagePosY = new Label(" └ Position Y");
+            Slider sliderImagePosY = new CustomSlider(0, 1920, 0);
+            TextField textFieldImagePosY = new TextField(String.format("%d", 0));
+            labelImagePosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+            sliderImagePosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+            textFieldImagePosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+            // Group
+            HBox groupImagePosX = new HBox(labelImagePosX, sliderImagePosX, textFieldImagePosX);
+            HBox groupImagePosY = new HBox(labelImagePosY, sliderImagePosY, textFieldImagePosY);
+            HBox[] groupImageParam = new HBox[] {groupImagePosX, groupImagePosY};
+
+            // 上下按鈕隱藏
+            // └ 上按鈕
+            if (groupImageList.size() == 1) // 只有當是第一個的時候才隱藏
+                buttonMoveUps.setVisible(false);
+            // └ 下按鈕
+            buttonMoveDowns.setVisible(false); // 新加入的必定隱藏，前一個則顯示出來
+            if (groupImageList.size() != 1)
+                ((HBox) groupImageList.get(groupImageList.indexOf(gridImages) - 1).getChildren().get(0)).getChildren().get(4).setVisible(true);
+
+            // Event
+            /*gridImages.setOnMouseEntered(event -> {
+                int groupRow = 0;
+                for (HBox param: groupImageParam)
+                    gridImagesParam.add(param, 0, groupRow++, 2, 1);
+            });
+            gridImages.setOnMouseExited(event -> gridImagesParam.getChildren().clear());*/
+
+            buttonMoveUps.setOnAction(event -> {
+                int index = groupImageList.indexOf(gridImages);
+
+                if (index != 0) {
+                    Collections.swap(groupImageList, index, index - 1);
+                    orderChangedProperty.setValue(!orderChangedProperty.getValue());
+                    buttonShowAndHide();
+                }
+            });
+            buttonMoveDowns.setOnAction(event -> {
+                int index = groupImageList.indexOf(gridImages);
+
+                if (index != groupImageList.size() - 1) {
+                    Collections.swap(groupImageList, index, index + 1);
+                    orderChangedProperty.setValue(!orderChangedProperty.getValue());
+                    buttonShowAndHide();
+                }
+            });
+        }
+
+        public void clear() {
+            groupImageList.clear();
+        }
+
+        private void buttonShowAndHide() {
+            // 上按鈕，無論如何第一一定隱藏，之後一定顯示
+            ((HBox) groupImageList.get(0).getChildren().get(0)).getChildren().get(2).setVisible(false);
+            ((HBox) groupImageList.get(1).getChildren().get(0)).getChildren().get(2).setVisible(true);
+
+            // 下按鈕，無論如何最後一定隱藏，之前一定顯示
+            ((HBox) groupImageList.get(groupImageList.size() - 1).getChildren().get(0)).getChildren().get(4).setVisible(false);
+            ((HBox) groupImageList.get(groupImageList.size() - 2).getChildren().get(0)).getChildren().get(4).setVisible(true);
         }
 
     }

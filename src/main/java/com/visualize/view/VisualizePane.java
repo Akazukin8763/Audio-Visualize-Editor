@@ -18,6 +18,9 @@ import java.io.File;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 public class VisualizePane extends Pane {
 
     public static final int BUFFER = 2048;
@@ -228,6 +231,13 @@ public class VisualizePane extends Pane {
         // Set
         this.getChildren().clear();
         this.getChildren().addAll(pane.getChildren());
+
+        /*ImageView imageViewImageImport = new ImageView(new Image(new File("D:\\圖片\\おれのしゃしん\\character.png").toURI().toString()));
+        ImageView imageViewImageClear = new ImageView(new Image(new File("D:\\圖片\\待調整\\病女.jpg").toURI().toString()));
+        imageViewImageImport.setLayoutX(100);
+        imageViewImageImport.setScaleX(2);
+        imageViewImageImport.setRotate(60);
+        this.getChildren().addAll(imageViewImageClear, imageViewImageImport);*/
     }
 
     public void animate() {
