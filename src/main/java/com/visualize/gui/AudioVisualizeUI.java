@@ -336,6 +336,12 @@ public class AudioVisualizeUI extends Pane {
             backgroundFormat.setBackgroundImagePosY(newValue.intValue());
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
+        //  └ Image
+        paramUI.imageFormatProperty.addListener(event -> {
+            visualizePane.setImageFormat(paramUI.getImageFormat());
+            preview();
+            titleProperty.setValue(TITLE + " - *" + projectName);
+        });
     }
 
     public void changeAudio (String filepath) {

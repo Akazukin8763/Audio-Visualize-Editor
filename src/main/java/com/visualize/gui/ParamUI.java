@@ -3,7 +3,6 @@ package com.visualize.gui;
 import com.visualize.file.*;
 import com.visualize.view.*;
 
-import javafx.beans.property.*;
 import javafx.stage.FileChooser;
 
 import javafx.scene.layout.GridPane;
@@ -28,8 +27,14 @@ import javafx.scene.paint.Color;
 
 import javafx.collections.FXCollections;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,12 +147,15 @@ public class ParamUI extends ScrollPane {
     //private final IntegerProperty channelsProperty = new SimpleIntegerProperty(); // 影響 Stereo
     //private final DoubleProperty frameRateProperty = new SimpleDoubleProperty(); // 影響 Frequency
 
+    public final BooleanProperty imageFormatProperty;
+
     public ParamUI(double width, double height, int rangeWidth, int rangeHeight) {
         this.width = width;
         this.height = height;
         this.rangeWidth = rangeWidth;
         this.rangeHeight = rangeHeight;
         this.images = new CustomImageListView(width, height);
+        this.imageFormatProperty = images.imageFormatProperty;
 
         paramPane = new GridPane();
         paramPane.setPrefWidth(width);
@@ -439,6 +447,13 @@ public class ParamUI extends ScrollPane {
         // Event
         // └ this
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
+        //this.setFitToWidth(true);
+        //this.addEventFilter(ScrollEvent.SCROLL, Event::consume);
+        /*this.addEventFilter(ScrollEvent.SCROLL, event -> {
+            System.out.println(event.getDeltaX() + " " + event.getDeltaY());
+            if (event.getDeltaX() != 0)
+                event.consume();
+        });*/
         this.setOnMouseEntered(event -> this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED));
         this.setOnMouseExited(event -> this.setVbarPolicy(ScrollBarPolicy.NEVER));
         // └ Equalizer
@@ -659,6 +674,7 @@ public class ParamUI extends ScrollPane {
         buttonImageImport.setOnAction(event -> {
             try {
                 List<File> files = fileChooser.showOpenMultipleDialog(null);
+                fileChooser.setInitialDirectory(new File(files.get(0).getParent()));
 
                 groupImage.getChildren().clear(); // 清空所有可能選單
 
@@ -668,8 +684,6 @@ public class ParamUI extends ScrollPane {
                 int groupRow = 0;
                 for (GridPane param: images.getGridPane())
                     groupImage.add(param, 0, groupRow++, 2, 1);
-
-                fileChooser.setInitialDirectory(new File(files.get(0).getParent()));
             } catch (NullPointerException ignored) {
                 // 不做任何事
             }
@@ -787,6 +801,9 @@ public class ParamUI extends ScrollPane {
         textFieldBackgroundImagePosX.setDisable(disable);
         sliderBackgroundImagePosY.setDisable(disable);
         textFieldBackgroundImagePosY.setDisable(disable);
+
+        buttonImageImport.setDisable(disable);
+        buttonImageClear.setDisable(disable);
     }
 
     public boolean isAdvancedEnable() {
@@ -1002,6 +1019,10 @@ public class ParamUI extends ScrollPane {
         sliderBackgroundImagePosY.setValue(backgroundImagePosY);
     }
 
+    public List<ImageFormat> getImageFormat() {
+        return images.getImageFormat();
+    }
+
     // Class
     private static class CustomSlider extends Slider {
 
@@ -1029,8 +1050,10 @@ public class ParamUI extends ScrollPane {
         private final double height;
 
         private final List<GridPane> groupImageList;
+        private final List<ImageFormat> fileList;
 
         public final BooleanProperty orderChangedProperty = new SimpleBooleanProperty(false);
+        public final BooleanProperty imageFormatProperty = new SimpleBooleanProperty(false);
 
         // Constructor
         public CustomImageListView(double width, double height) {
@@ -1038,16 +1061,15 @@ public class ParamUI extends ScrollPane {
             this.height = height;
 
             groupImageList = new ArrayList<>();
+            fileList = new ArrayList<>();
+            addEqualizer();
         }
 
         // Methods
-        public List<GridPane> getGridPane() {
-            return groupImageList;
-        }
-
         public void add(String filepath) {
             GridPane gridImages = new GridPane();
             groupImageList.add(gridImages);
+            fileList.add(new ImageFormat(filepath, 0, 0, 0, 100, 100));
 
             // Selection
             Label labelImages = new Label(new File(filepath).getName());
@@ -1070,7 +1092,7 @@ public class ParamUI extends ScrollPane {
 
             // Part
             GridPane gridImagesParam = new GridPane();
-            //gridImages.add(gridImagesParam, 0, 1, 2, 1);
+            gridImages.add(gridImagesParam, 0, 1, 2, 1);
 
             Label labelImagePosX = new Label(" └ Position X");
             Slider sliderImagePosX = new CustomSlider(0, 1920, 0);
@@ -1086,10 +1108,34 @@ public class ParamUI extends ScrollPane {
             sliderImagePosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
             textFieldImagePosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
+            Label labelImageRotation = new Label(" └ Rotation");
+            Slider sliderImageRotation = new CustomSlider(0, 360, 0);
+            TextField textFieldImageRotation = new TextField("0");
+            labelImageRotation.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+            sliderImageRotation.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+            textFieldImageRotation.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+            Label labelImageScaleX = new Label(" └ Scale X");
+            Slider sliderImageScaleX = new CustomSlider(0, 200, 100);
+            TextField textFieldImageScaleX = new TextField("100");
+            labelImageScaleX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+            sliderImageScaleX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+            textFieldImageScaleX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
+            Label labelImageScaleY = new Label(" └ Scale Y");
+            Slider sliderImageScaleY = new CustomSlider(0, 200, 100);
+            TextField textFieldImageScaleY = new TextField("100");
+            labelImageScaleY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
+            sliderImageScaleY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
+            textFieldImageScaleY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+
             // Group
             HBox groupImagePosX = new HBox(labelImagePosX, sliderImagePosX, textFieldImagePosX);
             HBox groupImagePosY = new HBox(labelImagePosY, sliderImagePosY, textFieldImagePosY);
-            HBox[] groupImageParam = new HBox[] {groupImagePosX, groupImagePosY};
+            HBox groupImageRotation = new HBox(labelImageRotation, sliderImageRotation, textFieldImageRotation);
+            HBox groupImageScaleX = new HBox(labelImageScaleX, sliderImageScaleX, textFieldImageScaleX);
+            HBox groupImageScaleY = new HBox(labelImageScaleY, sliderImageScaleY, textFieldImageScaleY);
+            HBox[] groupImageParam = new HBox[] {groupImagePosX, groupImagePosY, groupImageRotation, groupImageScaleX, groupImageScaleY};
 
             // 上下按鈕隱藏
             // └ 上按鈕
@@ -1101,20 +1147,29 @@ public class ParamUI extends ScrollPane {
                 ((HBox) groupImageList.get(groupImageList.indexOf(gridImages) - 1).getChildren().get(0)).getChildren().get(4).setVisible(true);
 
             // Event
-            /*gridImages.setOnMouseEntered(event -> {
+            // └ Param
+            gridImages.setOnMouseClicked(event -> {
+                gridImagesParam.getChildren().clear(); // 清空所有可能選單
+                labelImages.setStyle("-fx-text-fill: lightseagreen;");
+
                 int groupRow = 0;
                 for (HBox param: groupImageParam)
                     gridImagesParam.add(param, 0, groupRow++, 2, 1);
             });
-            gridImages.setOnMouseExited(event -> gridImagesParam.getChildren().clear());*/
-
+            gridImages.setOnMouseExited(event -> {
+                gridImagesParam.getChildren().clear();
+                labelImages.setStyle("");
+            });
+            // └ Order
             buttonMoveUps.setOnAction(event -> {
                 int index = groupImageList.indexOf(gridImages);
 
                 if (index != 0) {
-                    Collections.swap(groupImageList, index, index - 1);
-                    orderChangedProperty.setValue(!orderChangedProperty.getValue());
+                    Collections.swap(groupImageList, index - 1, index);
+                    Collections.swap(fileList, index - 1, index);
                     buttonShowAndHide();
+                    orderChangedProperty.setValue(!orderChangedProperty.getValue()); // Property
+                    imageFormatProperty.setValue(!imageFormatProperty.getValue());
                 }
             });
             buttonMoveDowns.setOnAction(event -> {
@@ -1122,14 +1177,126 @@ public class ParamUI extends ScrollPane {
 
                 if (index != groupImageList.size() - 1) {
                     Collections.swap(groupImageList, index, index + 1);
-                    orderChangedProperty.setValue(!orderChangedProperty.getValue());
+                    Collections.swap(fileList, index, index + 1);
                     buttonShowAndHide();
+                    orderChangedProperty.setValue(!orderChangedProperty.getValue()); // Property
+                    imageFormatProperty.setValue(!imageFormatProperty.getValue());
+                }
+            });
+            // └ Slider
+            //  └ Position X
+            sliderImagePosX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImagePosX.textProperty().setValue(String.format("%d", newValue.intValue())));
+            textFieldImagePosX.textProperty().addListener((obs, oldValue, newValue) -> {
+                int value = textFieldStringToInt(textFieldImagePosX.getText(), (int) sliderImagePosX.getMax());
+                sliderImagePosX.valueProperty().setValue(value);
+                textFieldImagePosX.textProperty().setValue(String.format("%d", value));
+
+                fileList.get(groupImageList.indexOf(gridImages)).setPosX(value);
+                imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+            });
+            //  └ Position Y
+            sliderImagePosY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImagePosY.textProperty().setValue(String.format("%d", newValue.intValue())));
+            textFieldImagePosY.textProperty().addListener((obs, oldValue, newValue) -> {
+                int value = textFieldStringToInt(textFieldImagePosY.getText(), (int) sliderImagePosY.getMax());
+                sliderImagePosY.valueProperty().setValue(value);
+                textFieldImagePosY.textProperty().setValue(String.format("%d", value));
+
+                fileList.get(groupImageList.indexOf(gridImages)).setPosY(value);
+                imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+            });
+            //  └ Rotation
+            sliderImageRotation.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImageRotation.textProperty().setValue(String.format("%d", newValue.intValue())));
+            textFieldImageRotation.textProperty().addListener((obs, oldValue, newValue) -> {
+                int value = textFieldStringToInt(textFieldImageRotation.getText(), (int) sliderImageRotation.getMax());
+                sliderImageRotation.valueProperty().setValue(value);
+                textFieldImageRotation.textProperty().setValue(String.format("%d", value));
+
+                fileList.get(groupImageList.indexOf(gridImages)).setRotation(value);
+                imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+            });
+            //  └ Scale X
+            sliderImageScaleX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImageScaleX.textProperty().setValue(String.format("%d", newValue.intValue())));
+            textFieldImageScaleX.textProperty().addListener((obs, oldValue, newValue) -> {
+                int value = textFieldStringToInt(textFieldImageScaleX.getText(), (int) sliderImageScaleX.getMax());
+                sliderImageScaleX.valueProperty().setValue(value);
+                textFieldImageScaleX.textProperty().setValue(String.format("%d", value));
+
+                fileList.get(groupImageList.indexOf(gridImages)).setScaleX(value);
+                imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+            });
+            //  └ Scale Y
+            sliderImageScaleY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImageScaleY.textProperty().setValue(String.format("%d", newValue.intValue())));
+            textFieldImageScaleY.textProperty().addListener((obs, oldValue, newValue) -> {
+                int value = textFieldStringToInt(textFieldImageScaleY.getText(), (int) sliderImageScaleY.getMax());
+                sliderImageScaleY.valueProperty().setValue(value);
+                textFieldImageScaleY.textProperty().setValue(String.format("%d", value));
+
+                fileList.get(groupImageList.indexOf(gridImages)).setScaleY(value);
+                imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+            });
+
+            // Initialize
+            imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+        }
+
+        private void addEqualizer() {
+            // Equalizer
+            GridPane gridEqualizer = new GridPane();
+            groupImageList.add(gridEqualizer);
+            fileList.add(null);
+
+            Label labelEqualizer = new Label("★ Equalizer");
+            Label labelEqualizerNull1 = new Label();
+            Label labelEqualizerNull2 = new Label();
+            Button buttonMoveUps = new Button();
+            Button buttonMoveDowns = new Button();
+            labelEqualizer.setStyle("-fx-text-fill: #999999;");
+            ImageView imageViewMoveUps = new ImageView(new Image(new File(DefaultPath.ARROW_UP_ICON_PATH).toURI().toString()));
+            ImageView imageViewMoveDowns = new ImageView(new Image(new File(DefaultPath.ARROW_DOWN_ICON_PATH).toURI().toString()));
+            buttonMoveUps.setGraphic(imageViewMoveUps);
+            buttonMoveDowns.setGraphic(imageViewMoveDowns);
+            buttonMoveUps.setVisible(false);
+            buttonMoveDowns.setVisible(false);
+            labelEqualizer.setPrefWidth(width * (WIDTH_OFFSET_LEFT + WIDTH_OFFSET_MIDDLE) - 14);
+            labelEqualizerNull1.setPrefWidth(14);
+            labelEqualizerNull2.setPrefWidth(14);
+            buttonMoveUps.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
+            buttonMoveDowns.setPrefWidth(width * WIDTH_OFFSET_RIGHT * .5 - 7);
+
+            HBox groupImages = new HBox(labelEqualizer, labelEqualizerNull1, buttonMoveUps, labelEqualizerNull2, buttonMoveDowns);
+            gridEqualizer.add(groupImages, 0, 0);
+            GridPane gridImagesParam = new GridPane(); // null
+            gridEqualizer.add(gridImagesParam, 0, 1, 2, 1);
+
+            buttonMoveUps.setOnAction(event -> {
+                int index = groupImageList.indexOf(gridEqualizer);
+
+                if (index != 0) {
+                    Collections.swap(groupImageList, index - 1, index);
+                    Collections.swap(fileList, index - 1, index);
+                    buttonShowAndHide();
+                    orderChangedProperty.setValue(!orderChangedProperty.getValue()); // Property
+                    imageFormatProperty.setValue(!imageFormatProperty.getValue());
+                }
+            });
+            buttonMoveDowns.setOnAction(event -> {
+                int index = groupImageList.indexOf(gridEqualizer);
+
+                if (index != groupImageList.size() - 1) {
+                    Collections.swap(groupImageList, index, index + 1);
+                    Collections.swap(fileList, index, index + 1);
+                    buttonShowAndHide();
+                    orderChangedProperty.setValue(!orderChangedProperty.getValue()); // Property
+                    imageFormatProperty.setValue(!imageFormatProperty.getValue());
                 }
             });
         }
 
         public void clear() {
             groupImageList.clear();
+            fileList.clear();
+            imageFormatProperty.setValue(!imageFormatProperty.getValue());
+            addEqualizer();
         }
 
         private void buttonShowAndHide() {
@@ -1142,6 +1309,23 @@ public class ParamUI extends ScrollPane {
             ((HBox) groupImageList.get(groupImageList.size() - 2).getChildren().get(0)).getChildren().get(4).setVisible(true);
         }
 
+        public List<GridPane> getGridPane() {
+            return groupImageList;
+        }
+
+        public List<ImageFormat> getImageFormat() {
+            return fileList;
+        }
+
+        private int textFieldStringToInt(String value, int max) {
+            int result;
+            try {
+                result = Math.min(Integer.parseInt(value), max);
+            } catch (NumberFormatException ignored) {
+                result = 0;
+            }
+            return result;
+        }
     }
 
 }

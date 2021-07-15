@@ -14,6 +14,8 @@ import javafx.util.Duration;
 import javafx.animation.Animation;
 
 import java.io.File;
+import java.util.List;
+import java.util.ArrayList;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -36,6 +38,7 @@ public class VisualizePane extends Pane {
     private AudioFile audioFile;
     private VisualizeFormat visualizeFormat;
     private BackgroundFormat backgroundFormat;
+    private List<ImageFormat> imageFormat = new ArrayList<>();
 
     private VisualizeMode.View view;
     private VisualizeMode.Side side;
@@ -230,14 +233,25 @@ public class VisualizePane extends Pane {
 
         // Set
         this.getChildren().clear();
-        this.getChildren().addAll(pane.getChildren());
+        if (imageFormat.size() != 0) {
+            for (int i = imageFormat.size() - 1; i >=0; i--) {
+                ImageFormat format = imageFormat.get(i);
 
-        /*ImageView imageViewImageImport = new ImageView(new Image(new File("D:\\圖片\\おれのしゃしん\\character.png").toURI().toString()));
-        ImageView imageViewImageClear = new ImageView(new Image(new File("D:\\圖片\\待調整\\病女.jpg").toURI().toString()));
-        imageViewImageImport.setLayoutX(100);
-        imageViewImageImport.setScaleX(2);
-        imageViewImageImport.setRotate(60);
-        this.getChildren().addAll(imageViewImageClear, imageViewImageImport);*/
+                if (format == null) // 視覺化矩形
+                    this.getChildren().addAll(pane.getChildren());
+                else { // 圖層
+                    ImageView imageView = new ImageView(new Image(new File(format.getFilepath()).toURI().toString()));
+                    imageView.setLayoutX(format.getPosX());
+                    imageView.setLayoutY(format.getPosY());
+                    imageView.setRotate(format.getRotation());
+                    imageView.setScaleX(format.getScaleX() / 100);
+                    imageView.setScaleY(format.getScaleY() / 100);
+                    this.getChildren().add(imageView);
+                }
+            }
+        }
+        else
+            this.getChildren().addAll(pane.getChildren());
     }
 
     public void animate() {
@@ -248,7 +262,25 @@ public class VisualizePane extends Pane {
 
         // Set Pane, Animation
         this.getChildren().clear();
-        this.getChildren().addAll(paneTimeline.getPane().getChildren());
+        if (imageFormat.size() != 0) {
+            for (int i = imageFormat.size() - 1; i >=0; i--) {
+                ImageFormat format = imageFormat.get(i);
+
+                if (format == null) // 視覺化矩形
+                    this.getChildren().addAll(paneTimeline.getPane().getChildren());
+                else { // 圖層
+                    ImageView imageView = new ImageView(new Image(new File(format.getFilepath()).toURI().toString()));
+                    imageView.setLayoutX(format.getPosX());
+                    imageView.setLayoutY(format.getPosY());
+                    imageView.setRotate(format.getRotation());
+                    imageView.setScaleX(format.getScaleX() / 100);
+                    imageView.setScaleY(format.getScaleY() / 100);
+                    this.getChildren().add(imageView);
+                }
+            }
+        }
+        else
+            this.getChildren().addAll(paneTimeline.getPane().getChildren());
         this.timeline = new Timeline();
         this.timeline.getKeyFrames().addAll(paneTimeline.getTimeline().getKeyFrames());
 
@@ -263,9 +295,8 @@ public class VisualizePane extends Pane {
         });
 
         // Play Window
-        if (autoPlay) {
+        if (autoPlay)
             timeline.play();
-        }
     }
 
     public void saveVideo(String filepath) throws java.io.IOException {
@@ -419,6 +450,14 @@ public class VisualizePane extends Pane {
         String position = "-fx-background-position: left " + backgroundImagePosX + " top " + backgroundImagePosY + ";";
 
         this.setStyle(image + color + repeat + position);
+    }
+
+    public List<ImageFormat> getImageFormat() {
+        return imageFormat;
+    }
+
+    public void setImageFormat(List<ImageFormat> imageFormat) {
+        this.imageFormat = imageFormat;
     }
 
 }
