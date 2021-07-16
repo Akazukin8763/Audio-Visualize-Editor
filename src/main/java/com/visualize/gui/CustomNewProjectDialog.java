@@ -30,6 +30,7 @@ import javafx.collections.FXCollections;
 import javafx.util.Pair;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class CustomNewProjectDialog extends Stage {
 
@@ -225,7 +226,8 @@ public class CustomNewProjectDialog extends Stage {
                         64, 2, 4, 100, 0, 0, 0,
                         Color.WHITE, Color.WHITE, 0, 0, 0, 0,
                         100, 0, 24000,
-                        colorPickerBackgroundColor.getValue(), null, 0, 0);
+                        colorPickerBackgroundColor.getValue(), null, 0, 0,
+                        new ArrayList<>());
                 this.close();
             }
         });

@@ -1,7 +1,10 @@
 package com.visualize.file;
 
 import com.visualize.view.*;
+
 import javafx.scene.paint.Color;
+
+import java.util.List;
 
 public class ProjectFormat {
 
@@ -50,13 +53,17 @@ public class ProjectFormat {
     private int backgroundImagePosX;
     private int backgroundImagePosY;
 
+    // Image
+    private List<ImageFormat> imageFormat;
+
     // Constructor
     public ProjectFormat(String projectName, int width, int height, boolean advanced,
                          VisualizeMode.View view, VisualizeMode.Side side, VisualizeMode.Direct direct, VisualizeMode.Stereo stereo, String filepath,
                          int barNum, int size, int gap, int radius, double posX, double posY, double rotation,
                          Color color, Color colorShadow, int colorShadowRadius, double colorShadowSpread, double colorShadowOffsetX, double colorShadowOffsetY,
                          double sensitivity, double minFreq, double maxFreq,
-                         Color backgroundColor, String backgroundImage, int backgroundImagePosX, int backgroundImagePosY) {
+                         Color backgroundColor, String backgroundImage, int backgroundImagePosX, int backgroundImagePosY,
+                         List<ImageFormat> imageFormat) {
         this.projectName = projectName;
 
         this.width = width;
@@ -92,6 +99,8 @@ public class ProjectFormat {
         this.backgroundImage = backgroundImage;
         this.backgroundImagePosX = backgroundImagePosX;
         this.backgroundImagePosY = backgroundImagePosY;
+
+        this.imageFormat = imageFormat;
     }
 
     public String getProjectName() {
@@ -326,4 +335,11 @@ public class ProjectFormat {
         this.backgroundImagePosY = backgroundImagePosY;
     }
 
+    public List<ImageFormat> getImageFormat() {
+        return imageFormat;
+    }
+
+    public void setImageFormat(List<ImageFormat> imageFormat) {
+        this.imageFormat = imageFormat;
+    }
 }

@@ -116,6 +116,9 @@ public class ParamUI extends ScrollPane {
     private final Button buttonImageClear;
 
     // Property
+    private final IntegerProperty rangeWidthProperty = new SimpleIntegerProperty();
+    private final IntegerProperty rangeHeightProperty = new SimpleIntegerProperty();
+
     public final StringProperty equalizerTypeProperty = new SimpleStringProperty(null);
     public final StringProperty equalizerSideProperty = new SimpleStringProperty(null);
     public final StringProperty equalizerDirectionProperty = new SimpleStringProperty(null);
@@ -154,7 +157,9 @@ public class ParamUI extends ScrollPane {
         this.height = height;
         this.rangeWidth = rangeWidth;
         this.rangeHeight = rangeHeight;
-        this.images = new CustomImageListView(width, height);
+        this.rangeWidthProperty.setValue(rangeWidth);
+        this.rangeHeightProperty.setValue(rangeHeight);
+        this.images = new CustomImageListView(width, height, rangeWidth, rangeHeight);
         this.imageFormatProperty = images.imageFormatProperty;
 
         paramPane = new GridPane();
@@ -254,11 +259,12 @@ public class ParamUI extends ScrollPane {
         textFieldGap.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
         Label labelRadius = new Label("Radius");
-        sliderRadius = new CustomSlider(0, rangeHeight, 0);
+        sliderRadius = new CustomSlider(0, rangeWidth, 0);
         textFieldRadius = new TextField("0");
         labelRadius.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderRadius.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldRadius.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderRadius.maxProperty().bind(rangeWidthProperty);
 
         Label labelPosX = new Label("Position X");
         sliderPosX = new CustomSlider(-rangeWidth, 2 * rangeWidth, -rangeWidth);
@@ -266,6 +272,8 @@ public class ParamUI extends ScrollPane {
         labelPosX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderPosX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldPosX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderPosX.minProperty().bind(rangeWidthProperty.multiply(-1));
+        sliderPosX.maxProperty().bind(rangeWidthProperty.multiply(2));
 
         Label labelPosY = new Label("Position Y");
         sliderPosY = new CustomSlider(-rangeHeight, 2 * rangeHeight, -rangeHeight);
@@ -273,6 +281,8 @@ public class ParamUI extends ScrollPane {
         labelPosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderPosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldPosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderPosY.minProperty().bind(rangeHeightProperty.multiply(-1));
+        sliderPosY.maxProperty().bind(rangeHeightProperty.multiply(2));
 
         Label labelColor = new Label("Color");
         colorPickerColor = new ColorPicker();
@@ -304,6 +314,8 @@ public class ParamUI extends ScrollPane {
         labelColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldColorShadowOffsetX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderColorShadowOffsetX.minProperty().bind(rangeWidthProperty.multiply(-1));
+        sliderColorShadowOffsetX.maxProperty().bind(rangeWidthProperty.multiply(2));
 
         Label labelColorShadowOffsetY = new Label(" └ Offset Y");
         sliderColorShadowOffsetY = new CustomSlider(-rangeHeight, 2 * rangeHeight, -rangeHeight);
@@ -311,6 +323,8 @@ public class ParamUI extends ScrollPane {
         labelColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldColorShadowOffsetY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderColorShadowOffsetY.minProperty().bind(rangeHeightProperty.multiply(-1));
+        sliderColorShadowOffsetY.maxProperty().bind(rangeHeightProperty.multiply(2));
 
         Label labelSensitivity = new Label("Sensitivity");
         sliderSensitivity = new CustomSlider(0, 100, 0);
@@ -361,6 +375,8 @@ public class ParamUI extends ScrollPane {
         labelBackgroundImagePosX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderBackgroundImagePosX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldBackgroundImagePosX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderBackgroundImagePosX.minProperty().bind(rangeWidthProperty.multiply(-1));
+        sliderBackgroundImagePosX.maxProperty().bind(rangeWidthProperty.multiply(2));
 
         Label labelBackgroundImagePosY = new Label(" └ Position Y");
         sliderBackgroundImagePosY = new CustomSlider(-rangeHeight, 2 * rangeHeight, -rangeHeight);
@@ -368,6 +384,8 @@ public class ParamUI extends ScrollPane {
         labelBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
         sliderBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
         textFieldBackgroundImagePosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+        sliderBackgroundImagePosY.minProperty().bind(rangeHeightProperty.multiply(-1));
+        sliderBackgroundImagePosY.maxProperty().bind(rangeHeightProperty.multiply(2));
 
         // └ Image
         Label labelImage = new Label("Image");
@@ -511,7 +529,7 @@ public class ParamUI extends ScrollPane {
         //   └ Bar Number
         sliderBarNum.valueProperty().addListener((obs, oldValue, newValue) -> textFieldBarNum.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldBarNum.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldBarNum.getText(), (int) sliderBarNum.getMax());
+            int value = textFieldStringToInt(textFieldBarNum.getText(), (int) sliderBarNum.getMin(), (int) sliderBarNum.getMax());
             sliderBarNum.valueProperty().setValue(value);
             textFieldBarNum.textProperty().setValue(String.format("%d", value));
             barNumberProperty.setValue(value); // Property
@@ -519,7 +537,7 @@ public class ParamUI extends ScrollPane {
         //   └ Size
         sliderSize.valueProperty().addListener((obs, oldValue, newValue) -> textFieldSize.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldSize.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldSize.getText(), (int) sliderSize.getMax());
+            int value = textFieldStringToInt(textFieldSize.getText(), (int) sliderSize.getMin(), (int) sliderSize.getMax());
             sliderSize.valueProperty().setValue(value);
             textFieldSize.textProperty().setValue(String.format("%d", value));
             sizeProperty.setValue(value); // Property
@@ -527,7 +545,7 @@ public class ParamUI extends ScrollPane {
         //   └ Rotation
         sliderRotation.valueProperty().addListener((obs, oldValue, newValue) -> textFieldRotation.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldRotation.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldRotation.getText(), (int) sliderRotation.getMax());
+            int value = textFieldStringToInt(textFieldRotation.getText(), (int) sliderRotation.getMin(), (int) sliderRotation.getMax());
             sliderRotation.valueProperty().setValue(value);
             textFieldRotation.textProperty().setValue(String.format("%d", value));
             rotationProperty.setValue(value); // Property
@@ -535,7 +553,7 @@ public class ParamUI extends ScrollPane {
         //   └ Gap
         sliderGap.valueProperty().addListener((obs, oldValue, newValue) -> textFieldGap.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldGap.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldGap.getText(), (int) sliderGap.getMax());
+            int value = textFieldStringToInt(textFieldGap.getText(), (int) sliderGap.getMin(), (int) sliderGap.getMax());
             sliderGap.valueProperty().setValue(value);
             textFieldGap.textProperty().setValue(String.format("%d", value));
             gapProperty.setValue(value); // Property
@@ -543,7 +561,7 @@ public class ParamUI extends ScrollPane {
         //   └ Radius
         sliderRadius.valueProperty().addListener((obs, oldValue, newValue) -> textFieldRadius.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldRadius.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldRadius.getText(), (int) sliderRadius.getMax());
+            int value = textFieldStringToInt(textFieldRadius.getText(), (int) sliderRadius.getMin(), (int) sliderRadius.getMax());
             sliderRadius.valueProperty().setValue(value);
             textFieldRadius.textProperty().setValue(String.format("%d", value));
             radiusProperty.setValue(value); // Property
@@ -551,7 +569,7 @@ public class ParamUI extends ScrollPane {
         //   └ Position X
         sliderPosX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldPosX.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldPosX.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldPosX.getText(), (int) sliderPosX.getMax());
+            int value = textFieldStringToInt(textFieldPosX.getText(), (int) sliderPosX.getMin(), (int) sliderPosX.getMax());
             sliderPosX.valueProperty().setValue(value);
             textFieldPosX.textProperty().setValue(String.format("%d", value));
             positionXProperty.setValue(value); // Property
@@ -559,7 +577,7 @@ public class ParamUI extends ScrollPane {
         //   └ Position Y
         sliderPosY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldPosY.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldPosY.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldPosY.getText(), (int) sliderPosY.getMax());
+            int value = textFieldStringToInt(textFieldPosY.getText(), (int) sliderPosY.getMin(), (int) sliderPosY.getMax());
             sliderPosY.valueProperty().setValue(value);
             textFieldPosY.textProperty().setValue(String.format("%d", value));
             positionYProperty.setValue(value); // Property
@@ -567,7 +585,7 @@ public class ParamUI extends ScrollPane {
         //   └ Sensitivity
         sliderSensitivity.valueProperty().addListener((obs, oldValue, newValue) -> textFieldSensitivity.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldSensitivity.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldSensitivity.getText(), (int) sliderSensitivity.getMax());
+            int value = textFieldStringToInt(textFieldSensitivity.getText(), (int) sliderSensitivity.getMin(), (int) sliderSensitivity.getMax());
             sliderSensitivity.valueProperty().setValue(value);
             textFieldSensitivity.textProperty().setValue(String.format("%d", value));
             sensitivityProperty.setValue(value); // Property
@@ -576,13 +594,13 @@ public class ParamUI extends ScrollPane {
         rangeSliderFreq.lowValueProperty().addListener((obs, oldValue, newValue) -> textFieldMinFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
         rangeSliderFreq.highValueProperty().addListener((obs, oldValue, newValue) -> textFieldMaxFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldMinFreq.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldMinFreq.getText(), (int) rangeSliderFreq.getMax());
+            int value = textFieldStringToInt(textFieldMinFreq.getText(), (int) rangeSliderFreq.getMin(), (int) rangeSliderFreq.getMax());
             rangeSliderFreq.lowValueProperty().setValue(value);
             textFieldMinFreq.textProperty().setValue(String.format("%d", value));
             minFrequencyProperty.setValue(value); // Property
         });
         textFieldMaxFreq.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldMaxFreq.getText(), (int) rangeSliderFreq.getMax());
+            int value = textFieldStringToInt(textFieldMaxFreq.getText(), (int) rangeSliderFreq.getMin(), (int) rangeSliderFreq.getMax());
             rangeSliderFreq.highValueProperty().setValue(value);
             textFieldMaxFreq.textProperty().setValue(String.format("%d", value));
             maxFrequencyProperty.setValue(value); // Property
@@ -590,7 +608,7 @@ public class ParamUI extends ScrollPane {
         //   └ Color Shadow Radius
         sliderColorShadowRadius.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowRadius.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowRadius.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldColorShadowRadius.getText(), (int) sliderColorShadowRadius.getMax());
+            int value = textFieldStringToInt(textFieldColorShadowRadius.getText(), (int) sliderColorShadowRadius.getMin(), (int) sliderColorShadowRadius.getMax());
             sliderColorShadowRadius.valueProperty().setValue(value);
             textFieldColorShadowRadius.textProperty().setValue(String.format("%d", value));
             colorShadowRadiusProperty.setValue(value); // Property
@@ -598,7 +616,7 @@ public class ParamUI extends ScrollPane {
         //   └ Color Shadow Spread
         sliderColorShadowSpread.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowSpread.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowSpread.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldColorShadowSpread.getText(), (int) sliderColorShadowSpread.getMax());
+            int value = textFieldStringToInt(textFieldColorShadowSpread.getText(), (int) sliderColorShadowSpread.getMin(), (int) sliderColorShadowSpread.getMax());
             sliderColorShadowSpread.valueProperty().setValue(value);
             textFieldColorShadowSpread.textProperty().setValue(String.format("%d", value));
             colorShadowSpreadProperty.setValue(value); // Property
@@ -606,7 +624,7 @@ public class ParamUI extends ScrollPane {
         //   └ Color Shadow Offset X
         sliderColorShadowOffsetX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowOffsetX.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldColorShadowOffsetX.getText(), (int) sliderColorShadowOffsetX.getMax());
+            int value = textFieldStringToInt(textFieldColorShadowOffsetX.getText(), (int) sliderColorShadowOffsetX.getMin(), (int) sliderColorShadowOffsetX.getMax());
             sliderColorShadowOffsetX.valueProperty().setValue(value);
             textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", value));
             colorShadowOffsetXProperty.setValue(value); // Property
@@ -614,7 +632,7 @@ public class ParamUI extends ScrollPane {
         //   └ Color Shadow Offset Y
         sliderColorShadowOffsetY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowOffsetY.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldColorShadowOffsetY.getText(), (int) sliderColorShadowOffsetY.getMax());
+            int value = textFieldStringToInt(textFieldColorShadowOffsetY.getText(), (int) sliderColorShadowOffsetY.getMin(), (int) sliderColorShadowOffsetY.getMax());
             sliderColorShadowOffsetY.valueProperty().setValue(value);
             textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", value));
             colorShadowOffsetYProperty.setValue(value); // Property
@@ -652,7 +670,7 @@ public class ParamUI extends ScrollPane {
         //   └ Position X
         sliderBackgroundImagePosX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldBackgroundImagePosX.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldBackgroundImagePosX.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldBackgroundImagePosX.getText(), (int) sliderBackgroundImagePosX.getMax());
+            int value = textFieldStringToInt(textFieldBackgroundImagePosX.getText(), (int) sliderBackgroundImagePosX.getMin(), (int) sliderBackgroundImagePosX.getMax());
             sliderBackgroundImagePosX.valueProperty().setValue(value);
             textFieldBackgroundImagePosX.textProperty().setValue(String.format("%d", value));
             backgroundImagePositionXProperty.setValue(value); // Property
@@ -660,7 +678,7 @@ public class ParamUI extends ScrollPane {
         //   └ Position Y
         sliderBackgroundImagePosY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldBackgroundImagePosY.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldBackgroundImagePosY.textProperty().addListener((obs, oldValue, newValue) -> {
-            int value = textFieldStringToInt(textFieldBackgroundImagePosY.getText(), (int) sliderBackgroundImagePosY.getMax());
+            int value = textFieldStringToInt(textFieldBackgroundImagePosY.getText(), (int) sliderBackgroundImagePosY.getMin(), (int) sliderBackgroundImagePosY.getMax());
             sliderBackgroundImagePosY.valueProperty().setValue(value);
             textFieldBackgroundImagePosY.textProperty().setValue(String.format("%d", value));
             backgroundImagePositionYProperty.setValue(value); // Property
@@ -678,8 +696,11 @@ public class ParamUI extends ScrollPane {
 
                 groupImage.getChildren().clear(); // 清空所有可能選單
 
+                if (images.getImageFormat().size() == 0)
+                    images.addEqualizer();
+
                 for (File file: files)
-                    images.add(file.getAbsolutePath());
+                    images.add(file.getAbsolutePath(), 0, 0, 0, 100, 100);
 
                 int groupRow = 0;
                 for (GridPane param: images.getGridPane())
@@ -709,10 +730,10 @@ public class ParamUI extends ScrollPane {
     }
 
     // Methods
-    private int textFieldStringToInt(String value, int max) {
+    private int textFieldStringToInt(String value, int min, int max) {
         int result;
         try {
-            result = Math.min(Integer.parseInt(value), max);
+            result = Math.max(Math.min(Integer.parseInt(value), max), min);
         } catch (NumberFormatException ignored) {
             result = 0;
         }
@@ -734,25 +755,15 @@ public class ParamUI extends ScrollPane {
     public void setRangeWidth(int width) {
         this.rangeWidth = width;
 
-        sliderRadius.setMax(width);
-        sliderPosX.setMin(-width);
-        sliderPosX.setMax(2 * width);
-        sliderColorShadowOffsetX.setMin(-width);
-        sliderColorShadowOffsetX.setMax(2 * width);
-        sliderBackgroundImagePosX.setMin(-width);
-        sliderBackgroundImagePosX.setMax(2 * width);
-
+        rangeWidthProperty.setValue(width);
+        images.setRangeWidth(width);
     }
 
     public void setRangeHeight(int height) {
         this.rangeHeight = height;
 
-        sliderPosY.setMin(-height);
-        sliderPosY.setMax(2 * height);
-        sliderColorShadowOffsetY.setMin(-height);
-        sliderColorShadowOffsetY.setMax(2 * height);
-        sliderBackgroundImagePosY.setMin(-height);
-        sliderBackgroundImagePosY.setMax(2 * height);
+        rangeHeightProperty.setValue(height);
+        images.setRangeHeight(height);
     }
 
     public void setEnable(boolean enable) {
@@ -1023,6 +1034,22 @@ public class ParamUI extends ScrollPane {
         return images.getImageFormat();
     }
 
+    public void setImageFormat(List<ImageFormat> imageFormat) {
+        images.clear();
+        groupImage.getChildren().clear();
+
+        for (ImageFormat format: imageFormat) {
+            if (format == null)
+                images.addEqualizer();
+            else
+                images.add(format.getFilepath(), format.getPosX(), format.getPosY(), format.getRotation(), format.getScaleX(), format.getScaleY());
+        }
+
+        int groupRow = 0;
+        for (GridPane param: images.getGridPane())
+            groupImage.add(param, 0, groupRow++, 2, 1);
+    }
+
     // Class
     private static class CustomSlider extends Slider {
 
@@ -1048,28 +1075,37 @@ public class ParamUI extends ScrollPane {
 
         private final double width;
         private final double height;
+        private int rangeWidth;
+        private int rangeHeight;
 
         private final List<GridPane> groupImageList;
         private final List<ImageFormat> fileList;
+
+        // Property
+        private final IntegerProperty rangeWidthProperty = new SimpleIntegerProperty();
+        private final IntegerProperty rangeHeightProperty = new SimpleIntegerProperty();
 
         public final BooleanProperty orderChangedProperty = new SimpleBooleanProperty(false);
         public final BooleanProperty imageFormatProperty = new SimpleBooleanProperty(false);
 
         // Constructor
-        public CustomImageListView(double width, double height) {
+        public CustomImageListView(double width, double height, int rangeWidth, int rangeHeight) {
             this.width = width;
             this.height = height;
+            this.rangeWidth = rangeWidth;
+            this.rangeHeight = rangeHeight;
+            this.rangeWidthProperty.setValue(rangeWidth);
+            this.rangeHeightProperty.setValue(rangeHeight);
 
             groupImageList = new ArrayList<>();
             fileList = new ArrayList<>();
-            addEqualizer();
         }
 
         // Methods
-        public void add(String filepath) {
+        public void add(String filepath, double posX, double posY, double rotation, double scaleX, double scaleY) {
             GridPane gridImages = new GridPane();
             groupImageList.add(gridImages);
-            fileList.add(new ImageFormat(filepath, 0, 0, 0, 100, 100));
+            fileList.add(new ImageFormat(filepath, posX, posY, rotation, scaleX, scaleY));
 
             // Selection
             Label labelImages = new Label(new File(filepath).getName());
@@ -1095,36 +1131,40 @@ public class ParamUI extends ScrollPane {
             gridImages.add(gridImagesParam, 0, 1, 2, 1);
 
             Label labelImagePosX = new Label(" └ Position X");
-            Slider sliderImagePosX = new CustomSlider(0, 1920, 0);
-            TextField textFieldImagePosX = new TextField(String.format("%d", 0));
+            Slider sliderImagePosX = new CustomSlider(-rangeWidth, 2 * rangeWidth, (int) posX);
+            TextField textFieldImagePosX = new TextField(String.format("%d", (int) posX));
             labelImagePosX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
             sliderImagePosX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
             textFieldImagePosX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+            sliderImagePosX.minProperty().bind(rangeWidthProperty.multiply(-1));
+            sliderImagePosX.maxProperty().bind(rangeWidthProperty.multiply(2));
 
             Label labelImagePosY = new Label(" └ Position Y");
-            Slider sliderImagePosY = new CustomSlider(0, 1920, 0);
-            TextField textFieldImagePosY = new TextField(String.format("%d", 0));
+            Slider sliderImagePosY = new CustomSlider(-rangeHeight, 2 * rangeHeight, (int) posY);
+            TextField textFieldImagePosY = new TextField(String.format("%d", (int) posY));
             labelImagePosY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
             sliderImagePosY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
             textFieldImagePosY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
+            sliderImagePosY.minProperty().bind(rangeHeightProperty.multiply(-1));
+            sliderImagePosY.maxProperty().bind(rangeHeightProperty.multiply(2));
 
             Label labelImageRotation = new Label(" └ Rotation");
-            Slider sliderImageRotation = new CustomSlider(0, 360, 0);
-            TextField textFieldImageRotation = new TextField("0");
+            Slider sliderImageRotation = new CustomSlider(0, 360, (int) rotation);
+            TextField textFieldImageRotation = new TextField(String.format("%d", (int) rotation));
             labelImageRotation.setPrefWidth(width * WIDTH_OFFSET_LEFT);
             sliderImageRotation.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
             textFieldImageRotation.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
             Label labelImageScaleX = new Label(" └ Scale X");
-            Slider sliderImageScaleX = new CustomSlider(0, 200, 100);
-            TextField textFieldImageScaleX = new TextField("100");
+            Slider sliderImageScaleX = new CustomSlider(0, 200, (int) scaleX);
+            TextField textFieldImageScaleX = new TextField(String.format("%d", (int) scaleX));
             labelImageScaleX.setPrefWidth(width * WIDTH_OFFSET_LEFT);
             sliderImageScaleX.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
             textFieldImageScaleX.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
 
             Label labelImageScaleY = new Label(" └ Scale Y");
-            Slider sliderImageScaleY = new CustomSlider(0, 200, 100);
-            TextField textFieldImageScaleY = new TextField("100");
+            Slider sliderImageScaleY = new CustomSlider(0, 200, (int) scaleY);
+            TextField textFieldImageScaleY = new TextField(String.format("%d", (int) scaleY));
             labelImageScaleY.setPrefWidth(width * WIDTH_OFFSET_LEFT);
             sliderImageScaleY.setPrefWidth(width * WIDTH_OFFSET_MIDDLE);
             textFieldImageScaleY.setPrefWidth(width * WIDTH_OFFSET_RIGHT);
@@ -1136,15 +1176,6 @@ public class ParamUI extends ScrollPane {
             HBox groupImageScaleX = new HBox(labelImageScaleX, sliderImageScaleX, textFieldImageScaleX);
             HBox groupImageScaleY = new HBox(labelImageScaleY, sliderImageScaleY, textFieldImageScaleY);
             HBox[] groupImageParam = new HBox[] {groupImagePosX, groupImagePosY, groupImageRotation, groupImageScaleX, groupImageScaleY};
-
-            // 上下按鈕隱藏
-            // └ 上按鈕
-            if (groupImageList.size() == 1) // 只有當是第一個的時候才隱藏
-                buttonMoveUps.setVisible(false);
-            // └ 下按鈕
-            buttonMoveDowns.setVisible(false); // 新加入的必定隱藏，前一個則顯示出來
-            if (groupImageList.size() != 1)
-                ((HBox) groupImageList.get(groupImageList.indexOf(gridImages) - 1).getChildren().get(0)).getChildren().get(4).setVisible(true);
 
             // Event
             // └ Param
@@ -1187,7 +1218,7 @@ public class ParamUI extends ScrollPane {
             //  └ Position X
             sliderImagePosX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImagePosX.textProperty().setValue(String.format("%d", newValue.intValue())));
             textFieldImagePosX.textProperty().addListener((obs, oldValue, newValue) -> {
-                int value = textFieldStringToInt(textFieldImagePosX.getText(), (int) sliderImagePosX.getMax());
+                int value = textFieldStringToInt(textFieldImagePosX.getText(), (int) sliderImagePosX.getMin(), (int) sliderImagePosX.getMax());
                 sliderImagePosX.valueProperty().setValue(value);
                 textFieldImagePosX.textProperty().setValue(String.format("%d", value));
 
@@ -1197,7 +1228,7 @@ public class ParamUI extends ScrollPane {
             //  └ Position Y
             sliderImagePosY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImagePosY.textProperty().setValue(String.format("%d", newValue.intValue())));
             textFieldImagePosY.textProperty().addListener((obs, oldValue, newValue) -> {
-                int value = textFieldStringToInt(textFieldImagePosY.getText(), (int) sliderImagePosY.getMax());
+                int value = textFieldStringToInt(textFieldImagePosY.getText(), (int) sliderImagePosY.getMin(), (int) sliderImagePosY.getMax());
                 sliderImagePosY.valueProperty().setValue(value);
                 textFieldImagePosY.textProperty().setValue(String.format("%d", value));
 
@@ -1207,7 +1238,7 @@ public class ParamUI extends ScrollPane {
             //  └ Rotation
             sliderImageRotation.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImageRotation.textProperty().setValue(String.format("%d", newValue.intValue())));
             textFieldImageRotation.textProperty().addListener((obs, oldValue, newValue) -> {
-                int value = textFieldStringToInt(textFieldImageRotation.getText(), (int) sliderImageRotation.getMax());
+                int value = textFieldStringToInt(textFieldImageRotation.getText(), (int) sliderImageRotation.getMin(), (int) sliderImageRotation.getMax());
                 sliderImageRotation.valueProperty().setValue(value);
                 textFieldImageRotation.textProperty().setValue(String.format("%d", value));
 
@@ -1217,7 +1248,7 @@ public class ParamUI extends ScrollPane {
             //  └ Scale X
             sliderImageScaleX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImageScaleX.textProperty().setValue(String.format("%d", newValue.intValue())));
             textFieldImageScaleX.textProperty().addListener((obs, oldValue, newValue) -> {
-                int value = textFieldStringToInt(textFieldImageScaleX.getText(), (int) sliderImageScaleX.getMax());
+                int value = textFieldStringToInt(textFieldImageScaleX.getText(), (int) sliderImageScaleX.getMin(), (int) sliderImageScaleX.getMax());
                 sliderImageScaleX.valueProperty().setValue(value);
                 textFieldImageScaleX.textProperty().setValue(String.format("%d", value));
 
@@ -1227,7 +1258,7 @@ public class ParamUI extends ScrollPane {
             //  └ Scale Y
             sliderImageScaleY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldImageScaleY.textProperty().setValue(String.format("%d", newValue.intValue())));
             textFieldImageScaleY.textProperty().addListener((obs, oldValue, newValue) -> {
-                int value = textFieldStringToInt(textFieldImageScaleY.getText(), (int) sliderImageScaleY.getMax());
+                int value = textFieldStringToInt(textFieldImageScaleY.getText(), (int) sliderImageScaleY.getMin(), (int) sliderImageScaleY.getMax());
                 sliderImageScaleY.valueProperty().setValue(value);
                 textFieldImageScaleY.textProperty().setValue(String.format("%d", value));
 
@@ -1237,9 +1268,10 @@ public class ParamUI extends ScrollPane {
 
             // Initialize
             imageFormatProperty.setValue(!imageFormatProperty.getValue()); // Property
+            buttonShowAndHide();
         }
 
-        private void addEqualizer() {
+        public void addEqualizer() {
             // Equalizer
             GridPane gridEqualizer = new GridPane();
             groupImageList.add(gridEqualizer);
@@ -1290,16 +1322,21 @@ public class ParamUI extends ScrollPane {
                     imageFormatProperty.setValue(!imageFormatProperty.getValue());
                 }
             });
+
+            // Initialize
+            buttonShowAndHide();
         }
 
         public void clear() {
             groupImageList.clear();
             fileList.clear();
             imageFormatProperty.setValue(!imageFormatProperty.getValue());
-            addEqualizer();
         }
 
         private void buttonShowAndHide() {
+            if (fileList.size() < 2)
+                return;
+
             // 上按鈕，無論如何第一一定隱藏，之後一定顯示
             ((HBox) groupImageList.get(0).getChildren().get(0)).getChildren().get(2).setVisible(false);
             ((HBox) groupImageList.get(1).getChildren().get(0)).getChildren().get(2).setVisible(true);
@@ -1317,15 +1354,26 @@ public class ParamUI extends ScrollPane {
             return fileList;
         }
 
-        private int textFieldStringToInt(String value, int max) {
+        public void setRangeWidth(int width) {
+            this.rangeWidth = width;
+            this.rangeWidthProperty.setValue(width);
+        }
+
+        public void setRangeHeight(int height) {
+            this.rangeHeight = height;
+            this.rangeHeightProperty.setValue(height);
+        }
+
+        private int textFieldStringToInt(String value, int min, int max) {
             int result;
             try {
-                result = Math.min(Integer.parseInt(value), max);
+                result = Math.max(Math.min(Integer.parseInt(value), max), min);
             } catch (NumberFormatException ignored) {
                 result = 0;
             }
             return result;
         }
+
     }
 
 }

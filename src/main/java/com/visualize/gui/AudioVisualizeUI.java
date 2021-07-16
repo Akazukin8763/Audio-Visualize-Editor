@@ -145,7 +145,8 @@ public class AudioVisualizeUI extends Pane {
                                 paramUI.getBarNum(), paramUI.getSize(), paramUI.getGap(), paramUI.getRadius(), paramUI.getPosX(), paramUI.getPosY(), paramUI.getRotation(),
                                 paramUI.getColor(), paramUI.getColorShadow(), paramUI.getColorShadowRadius(), paramUI.getColorShadowSpread(), paramUI.getColorShadowOffsetX(), paramUI.getColorShadowOffsetY(),
                                 paramUI.getSensitivity(), paramUI.getMinFreq(), paramUI.getMaxFreq(),
-                                paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY()),
+                                paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY(),
+                                paramUI.getImageFormat()),
                         projectPath);
                 titleProperty.setValue(TITLE + " - " + projectName);
             } catch (IOException e) {
@@ -165,7 +166,8 @@ public class AudioVisualizeUI extends Pane {
                                 paramUI.getBarNum(), paramUI.getSize(), paramUI.getGap(), paramUI.getRadius(), paramUI.getPosX(), paramUI.getPosY(), paramUI.getRotation(),
                                 paramUI.getColor(), paramUI.getColorShadow(), paramUI.getColorShadowRadius(), paramUI.getColorShadowSpread(), paramUI.getColorShadowOffsetX(), paramUI.getColorShadowOffsetY(),
                                 paramUI.getSensitivity(), paramUI.getMinFreq(), paramUI.getMaxFreq(),
-                                paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY()),
+                                paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY(),
+                                paramUI.getImageFormat()),
                         projectPath);
                 menuUI.setMenuEnable(true); // Save as 完啟用 Save
                 titleProperty.setValue(TITLE + " - " + projectName);
@@ -446,6 +448,9 @@ public class AudioVisualizeUI extends Pane {
         paramUI.setBackgroundImage(format.getBackgroundImage());
         paramUI.setBackgroundImagePosX(format.getBackgroundImagePosX());
         paramUI.setBackgroundImagePosY(format.getBackgroundImagePosY());
+
+        // └ Image
+        paramUI.setImageFormat(format.getImageFormat());
     }
 
     public void preview() {
