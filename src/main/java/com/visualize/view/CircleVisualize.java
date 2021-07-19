@@ -85,7 +85,7 @@ public class CircleVisualize extends AudioVisualize{
         dropShadow.setOffsetX(dropShadowColorOffsetX);
         dropShadow.setOffsetY(dropShadowColorOffsetY);
 
-        Group group = new Group();
+        Group visualize = new Group();
         for (int i = 0; i < barNum; i++) {
             double initHeight = getInitHeight(directModes[direct.value()].direct(i, barNum));
 
@@ -97,11 +97,12 @@ public class CircleVisualize extends AudioVisualize{
             rectangle.getTransforms().add(new Rotate(angle * i - 90 + rotateAngle, x, y)); // 依照 bar 正中心點旋轉
             rectangle.setFill(barColor);
 
-            group.getChildren().add(rectangle);
+            visualize.getChildren().add(rectangle);
         }
 
-        group.setEffect(dropShadow);
-        pane.getChildren().add(group);
+        visualize.setEffect(dropShadow);
+        this.setVisualize(visualize);
+        //pane.getChildren().add(visualize);
 
         return pane;
     }
@@ -125,14 +126,14 @@ public class CircleVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        Group group = null;
+        Group visualize = null;
         for (Node node: pane.getChildren())
             if (node instanceof Group)
-                group = (Group) node;
-        if (group == null)
+                visualize = (Group) node;
+        if (visualize == null)
             return null;
 
-        for (Node node: group.getChildren()) {
+        for (Node node: visualize.getChildren()) {
             if (node instanceof Rectangle) // 確保物件為 Rectangle
                 rect = (Rectangle) node;
             else
@@ -194,15 +195,15 @@ public class CircleVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        Group group = null;
+        Group visualize = null;
         for (Node node: pane.getChildren())
             if (node instanceof Group)
-                group = (Group) node;
-        if (group == null)
+                visualize = (Group) node;
+        if (visualize == null)
             return;
 
         int bar = 0;
-        for (Node node: group.getChildren()) {
+        for (Node node: visualize.getChildren()) {
             if (node instanceof Rectangle) // 確保物件為 Rectangle
                 rectangles[bar++] = (Rectangle) node;
         }
@@ -228,18 +229,19 @@ public class CircleVisualize extends AudioVisualize{
                 BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
                 recorder.record(converter.getFrame(bufferedImage), avutil.AV_PIX_FMT_ARGB);
             }
+
+            for (bar = 0; bar < barNum; bar++) { // 將視覺化矩形高度重製
+                rectangles[bar].setHeight(heightModes[side.value()].height(1));
+                rectangles[bar].setY(yModes[side.value()].y(y[bar], 1));
+            }
+            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
+            recorder.record(converter.getFrame(bufferedImage), avutil.AV_PIX_FMT_ARGB);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             recorder.stop();
             recorder.release();
         }
-
-        /*for (bar = 0; bar < barNum; bar++) { // 將視覺化矩形高度重製
-            rectangles[bar].setHeight(1);
-            rectangles[bar].setY(yModes[side.value()].y(y[bar], 1));
-        }
-        snapshot(SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage((int)pane.getWidth(), (int)pane.getHeight(), BufferedImage.TYPE_INT_RGB)), lengths + 1);*/
     }
 
 }

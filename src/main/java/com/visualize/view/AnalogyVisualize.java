@@ -113,9 +113,10 @@ public class AnalogyVisualize extends AudioVisualize{
         polyline.setStroke(barColor);
         polyline.setEffect(dropShadow);
 
-        Group group = new Group(polyline);
+        Group visualize = new Group(polyline);
         //group.setEffect(dropShadow);
-        pane.getChildren().add(group);
+        this.setVisualize(visualize);
+        //pane.getChildren().add(visualize);
 
         return pane;
     }
@@ -132,14 +133,14 @@ public class AnalogyVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        Group group = null;
+        Group visualize = null;
         for (Node node: pane.getChildren())
             if (node instanceof Group)
-                group = (Group) node;
-        if (group == null)
+                visualize = (Group) node;
+        if (visualize == null)
             return null;
 
-        for (Node node: group.getChildren()) { // 基本上只有一個 Polyline
+        for (Node node: visualize.getChildren()) { // 基本上只有一個 Polyline
             Polyline polyline; // 要動畫化的 Polyline
 
             if (node instanceof Polyline) // 確保物件為 Polyline
@@ -253,14 +254,14 @@ public class AnalogyVisualize extends AudioVisualize{
         setSensitivity(visualizeFormat.getSensitivity());
         setOffset(visualizeFormat.getBarNum());
 
-        Group group = null;
+        Group visualize = null;
         for (Node node: pane.getChildren())
             if (node instanceof Group)
-                group = (Group) node;
-        if (group == null)
+                visualize = (Group) node;
+        if (visualize == null)
             return;
 
-        for (Node node: group.getChildren()) { // 基本上只有一個 Polyline
+        for (Node node: visualize.getChildren()) { // 基本上只有一個 Polyline
             if (node instanceof Polyline) // 確保物件為 Polyline
                 polyline = (Polyline) node;
         }
@@ -283,17 +284,17 @@ public class AnalogyVisualize extends AudioVisualize{
                 BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
                 recorder.record(converter.getFrame(bufferedImage), avutil.AV_PIX_FMT_ARGB);
             }
+
+            for (int i = 2; i < polyline.getPoints().size() - 2; i += 2) // 排除起端與末端
+                polyline.getPoints().set(i + 1, yModes[side.value()].y(visualizeFormat.getPosY(), 1));
+            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB));
+            recorder.record(converter.getFrame(bufferedImage), avutil.AV_PIX_FMT_ARGB);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             recorder.stop();
             recorder.release();
         }
-
-        /*for (int i = 2; i < polyline.getPoints().size() - 2; i += 2) { // 排除起端與末端
-            polyline.getPoints().set(i + 1, yModes[side.value()].y(visualizeFormat.getPosY(), 1));
-        }
-        snapshot(SwingFXUtils.fromFXImage(pane.snapshot(snapshotParameters, writableImage), new BufferedImage((int)pane.getWidth(), (int)pane.getHeight(), BufferedImage.TYPE_INT_RGB)), lengths + 1);*/
     }
 
 }

@@ -229,29 +229,13 @@ public class VisualizePane extends Pane {
         audioVisualize.setSide(side);
         audioVisualize.setDirect(direct);
         audioVisualize.setStereo(stereo);
+        audioVisualize.setBackgroundFormat(backgroundFormat);
+        audioVisualize.setImageFormat(imageFormat);
         Pane pane = audioVisualize.preview(visualizeFormat);
 
         // Set
         this.getChildren().clear();
-        if (imageFormat.size() != 0) {
-            for (int i = imageFormat.size() - 1; i >=0; i--) {
-                ImageFormat format = imageFormat.get(i);
-
-                if (format == null) // 視覺化矩形
-                    this.getChildren().addAll(pane.getChildren());
-                else { // 圖層
-                    ImageView imageView = new ImageView(new Image(new File(format.getFilepath()).toURI().toString()));
-                    imageView.setLayoutX(format.getPosX());
-                    imageView.setLayoutY(format.getPosY());
-                    imageView.setRotate(format.getRotation());
-                    imageView.setScaleX(format.getScaleX() / 100);
-                    imageView.setScaleY(format.getScaleY() / 100);
-                    this.getChildren().add(imageView);
-                }
-            }
-        }
-        else
-            this.getChildren().addAll(pane.getChildren());
+        this.getChildren().addAll(pane.getChildren());
     }
 
     public void animate() {
@@ -262,25 +246,7 @@ public class VisualizePane extends Pane {
 
         // Set Pane, Animation
         this.getChildren().clear();
-        if (imageFormat.size() != 0) {
-            for (int i = imageFormat.size() - 1; i >=0; i--) {
-                ImageFormat format = imageFormat.get(i);
-
-                if (format == null) // 視覺化矩形
-                    this.getChildren().addAll(paneTimeline.getPane().getChildren());
-                else { // 圖層
-                    ImageView imageView = new ImageView(new Image(new File(format.getFilepath()).toURI().toString()));
-                    imageView.setLayoutX(format.getPosX());
-                    imageView.setLayoutY(format.getPosY());
-                    imageView.setRotate(format.getRotation());
-                    imageView.setScaleX(format.getScaleX() / 100);
-                    imageView.setScaleY(format.getScaleY() / 100);
-                    this.getChildren().add(imageView);
-                }
-            }
-        }
-        else
-            this.getChildren().addAll(paneTimeline.getPane().getChildren());
+        this.getChildren().addAll(paneTimeline.getPane().getChildren());
         this.timeline = new Timeline();
         this.timeline.getKeyFrames().addAll(paneTimeline.getTimeline().getKeyFrames());
 

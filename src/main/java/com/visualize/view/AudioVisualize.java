@@ -2,8 +2,15 @@ package com.visualize.view;
 
 //import com.visualize.Jar;
 
+import javafx.scene.Group;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.animation.Timeline;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AudioVisualize implements Drawable{
 
@@ -12,6 +19,9 @@ public abstract class AudioVisualize implements Drawable{
 
     protected final int width;
     protected final int height;
+
+    protected BackgroundFormat backgroundFormat;
+    protected List<ImageFormat> imageFormat = new ArrayList<>();
 
     protected VisualizeMode.Side side;
     protected VisualizeMode.Direct direct;
@@ -58,7 +68,7 @@ public abstract class AudioVisualize implements Drawable{
     }
 
     protected void setSensitivity(double sensitivity) { // 調整靈敏度
-        this.sensitivity = sensitivity;
+        this.sensitivity = sensitivity * 2;
     }
 
     protected void setOffset(int barNum) {
@@ -77,8 +87,53 @@ public abstract class AudioVisualize implements Drawable{
         this.stereo = stereo;
     }
 
-    public void setBackgroundStyle(String backgroundStyle) {
-        pane.setStyle(backgroundStyle);
+    public void setBackgroundFormat(BackgroundFormat backgroundFormat) {
+        this.backgroundFormat = backgroundFormat;
+    }
+
+    public void setImageFormat(List<ImageFormat> imageFormat) {
+        this.imageFormat = imageFormat;
+    }
+
+    protected void setVisualize(Group visualize) {
+        setBackground();
+        setImage(visualize);
+    }
+
+    private void setBackground() {
+        String backgroundColor = "#" + backgroundFormat.getBackgroundColor().toString().subSequence(2, 8);
+        String backgroundImage = backgroundFormat.getBackgroundImage();
+        int backgroundImagePosX = backgroundFormat.getBackgroundImagePosX();
+        int backgroundImagePosY = backgroundFormat.getBackgroundImagePosY();
+
+        String image = (backgroundImage != null ? "-fx-background-image: url(\"" + new File(backgroundImage).toURI() + "\");" : "");
+        String color = "-fx-background-color: " + backgroundColor + ";";
+        String repeat = "-fx-background-repeat: no-repeat;";
+        String position = "-fx-background-position: left " + backgroundImagePosX + " top " + backgroundImagePosY + ";";
+
+        pane.setStyle(image + color + repeat + position);
+    }
+
+    private void setImage(Group visualize) {
+        if (imageFormat.size() != 0) {
+            for (int i = imageFormat.size() - 1; i >=0; i--) {
+                ImageFormat format = imageFormat.get(i);
+
+                if (format == null) // 視覺化矩形
+                    pane.getChildren().addAll(visualize);
+                else { // 圖層
+                    ImageView imageView = new ImageView(new Image(new File(format.getFilepath()).toURI().toString()));
+                    imageView.setLayoutX(format.getPosX());
+                    imageView.setLayoutY(format.getPosY());
+                    imageView.setRotate(format.getRotation());
+                    imageView.setScaleX(format.getScaleX() / 100);
+                    imageView.setScaleY(format.getScaleY() / 100);
+                    pane.getChildren().add(imageView);
+                }
+            }
+        }
+        else
+            pane.getChildren().addAll(visualize);
     }
 
 }

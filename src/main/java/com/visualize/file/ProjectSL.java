@@ -42,20 +42,20 @@ public class ProjectSL {
         // Equalizer
         properties.setProperty("Bar_Number", String.format("%d", format.getBarNum()));
         properties.setProperty("Size", String.format("%d", format.getSize()));
-        properties.setProperty("Rotation", String.format("%f", format.getRotation()));
+        properties.setProperty("Rotation", String.format("%d", (int) format.getRotation()));
         properties.setProperty("Gap", String.format("%d", format.getGap()));
         properties.setProperty("Radius", String.format("%d", format.getRadius()));
-        properties.setProperty("Position_X", String.format("%f", format.getPosX()));
-        properties.setProperty("Position_Y", String.format("%f", format.getPosY()));
+        properties.setProperty("Position_X", String.format("%d", (int) format.getPosX()));
+        properties.setProperty("Position_Y", String.format("%d", (int) format.getPosY()));
         properties.setProperty("Color", format.getColor().toString());
         properties.setProperty("Color_Shadow", format.getColorShadow().toString());
         properties.setProperty("Color_Shadow_Radius", String.format("%d", format.getColorShadowRadius()));
-        properties.setProperty("Color_Shadow_Spread", String.format("%f", format.getColorShadowSpread()));
-        properties.setProperty("Color_Shadow_Offset_X", String.format("%f", format.getColorShadowOffsetX()));
-        properties.setProperty("Color_Shadow_Offset_Y", String.format("%f", format.getColorShadowOffsetY()));
-        properties.setProperty("Sensitivity", String.format("%f", format.getSensitivity()));
-        properties.setProperty("Min_Frequency", String.format("%f", format.getMinFreq()));
-        properties.setProperty("Max_Frequency", String.format("%f", format.getMaxFreq()));
+        properties.setProperty("Color_Shadow_Spread", String.format("%d", (int) format.getColorShadowSpread()));
+        properties.setProperty("Color_Shadow_Offset_X", String.format("%d", (int) format.getColorShadowOffsetX()));
+        properties.setProperty("Color_Shadow_Offset_Y", String.format("%d", (int) format.getColorShadowOffsetY()));
+        properties.setProperty("Sensitivity", String.format("%d", (int) format.getSensitivity()));
+        properties.setProperty("Min_Frequency", String.format("%d", (int) format.getMinFreq()));
+        properties.setProperty("Max_Frequency", String.format("%d", (int) format.getMaxFreq()));
 
         // Background
         properties.setProperty("Background_Color", format.getBackgroundColor().toString());
@@ -73,11 +73,11 @@ public class ProjectSL {
                 properties.setProperty("Image_Equalizer", String.format("%d", i));
             else {
                 properties.setProperty("Image_Path_" + i, imageFormat.getFilepath());
-                properties.setProperty("Image_Position_X_" + i, String.format("%f", imageFormat.getPosX()));
-                properties.setProperty("Image_Position_Y_" + i, String.format("%f", imageFormat.getPosY()));
-                properties.setProperty("Image_Rotation_" + i, String.format("%f", imageFormat.getRotation()));
-                properties.setProperty("Image_Scale_X_" + i, String.format("%f", imageFormat.getScaleX()));
-                properties.setProperty("Image_Scale_Y_" + i, String.format("%f", imageFormat.getScaleY()));
+                properties.setProperty("Image_Position_X_" + i, String.format("%d", (int) imageFormat.getPosX()));
+                properties.setProperty("Image_Position_Y_" + i, String.format("%d", (int) imageFormat.getPosY()));
+                properties.setProperty("Image_Rotation_" + i, String.format("%d", (int) imageFormat.getRotation()));
+                properties.setProperty("Image_Scale_X_" + i, String.format("%d", (int) imageFormat.getScaleX()));
+                properties.setProperty("Image_Scale_Y_" + i, String.format("%d", (int) imageFormat.getScaleY()));
             }
         }
         if (nums == 0)
@@ -114,20 +114,20 @@ public class ProjectSL {
             // Equalizer
             int barNum = Integer.parseInt(properties.getProperty("Bar_Number"));
             int size = Integer.parseInt(properties.getProperty("Size"));
-            double rotation = Double.parseDouble(properties.getProperty("Rotation"));
+            double rotation = Integer.parseInt(properties.getProperty("Rotation"));
             int gap = Integer.parseInt(properties.getProperty("Gap"));
             int radius = Integer.parseInt(properties.getProperty("Radius"));
-            double posX = Double.parseDouble(properties.getProperty("Position_X"));
-            double posY = Double.parseDouble(properties.getProperty("Position_Y"));
+            double posX = Integer.parseInt(properties.getProperty("Position_X"));
+            double posY = Integer.parseInt(properties.getProperty("Position_Y"));
             Color color = Color.web(properties.getProperty("Color"));
             Color colorShadow = Color.web(properties.getProperty("Color_Shadow"));
             int colorShadowRadius = Integer.parseInt(properties.getProperty("Color_Shadow_Radius"));
-            double colorShadowSpread = Double.parseDouble(properties.getProperty("Color_Shadow_Spread"));
-            double colorShadowOffsetX = Double.parseDouble(properties.getProperty("Color_Shadow_Offset_X"));
-            double colorShadowOffsetY = Double.parseDouble(properties.getProperty("Color_Shadow_Offset_Y"));
-            double sensitivity = Double.parseDouble(properties.getProperty("Sensitivity"));
-            double minFreq = Double.parseDouble(properties.getProperty("Min_Frequency"));
-            double maxFreq = Double.parseDouble(properties.getProperty("Max_Frequency"));
+            double colorShadowSpread = Integer.parseInt(properties.getProperty("Color_Shadow_Spread"));
+            double colorShadowOffsetX = Integer.parseInt(properties.getProperty("Color_Shadow_Offset_X"));
+            double colorShadowOffsetY = Integer.parseInt(properties.getProperty("Color_Shadow_Offset_Y"));
+            double sensitivity = Integer.parseInt(properties.getProperty("Sensitivity"));
+            double minFreq = Integer.parseInt(properties.getProperty("Min_Frequency"));
+            double maxFreq = Integer.parseInt(properties.getProperty("Max_Frequency"));
 
             // Background
             Color backgroundColor = Color.web(properties.getProperty("Background_Color"));
@@ -144,11 +144,11 @@ public class ProjectSL {
                     imageFormat.add(null);
                 else {
                     String imagepath = properties.getProperty("Image_Path_" + i);
-                    double imagePosX = Double.parseDouble(properties.getProperty("Image_Position_X_" + i));
-                    double imagePosY = Double.parseDouble(properties.getProperty("Image_Position_Y_" + i));
-                    double imageRotation = Double.parseDouble(properties.getProperty("Image_Rotation_" + i));
-                    double imageScaleX = Double.parseDouble(properties.getProperty("Image_Scale_X_" + i));
-                    double imageScaleY = Double.parseDouble(properties.getProperty("Image_Scale_Y_" + i));
+                    double imagePosX = Integer.parseInt(properties.getProperty("Image_Position_X_" + i));
+                    double imagePosY = Integer.parseInt(properties.getProperty("Image_Position_Y_" + i));
+                    double imageRotation = Integer.parseInt(properties.getProperty("Image_Rotation_" + i));
+                    double imageScaleX = Integer.parseInt(properties.getProperty("Image_Scale_X_" + i));
+                    double imageScaleY = Integer.parseInt(properties.getProperty("Image_Scale_Y_" + i));
 
                     imageFormat.add(new ImageFormat(imagepath, imagePosX, imagePosY, imageRotation, imageScaleX, imageScaleY));
                 }

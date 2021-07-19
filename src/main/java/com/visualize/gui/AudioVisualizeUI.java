@@ -47,7 +47,8 @@ public class AudioVisualizeUI extends Pane {
 
     private ScrollPane fitPane;
 
-    private final FileChooser fileChooser;
+    private final FileChooser projectChooser;
+    private final FileChooser videoChooser;
 
     // Constructor
     public AudioVisualizeUI(double width, double height) throws Exception {
@@ -56,8 +57,10 @@ public class AudioVisualizeUI extends Pane {
         setPrefSize(width, height);
         titleProperty.setValue(TITLE);
 
-        fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Project", "*.xml"));
+        projectChooser = new FileChooser();
+        projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Project", "*.xml"));
+        videoChooser = new FileChooser();
+        videoChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Video", "*.mp4"));
 
         menuUI = new MenuUI(width, height * .01);
         fileUI = new FileUI(width * .12, height * .65);
@@ -119,7 +122,7 @@ public class AudioVisualizeUI extends Pane {
         });
         menuUI.fileOpenClickProperty.addListener(event -> {
             try {
-                projectPath = fileChooser.showOpenDialog(null).getAbsolutePath();
+                projectPath = projectChooser.showOpenDialog(null).getAbsolutePath();
                 ProjectFormat format = project.load(projectPath);
 
                 this.projectName = format.getProjectName();
@@ -155,8 +158,8 @@ public class AudioVisualizeUI extends Pane {
         });
         menuUI.fileSaveAsClickProperty.addListener(event -> {
             try {
-                fileChooser.setInitialFileName(projectName);
-                projectPath = fileChooser.showSaveDialog(null).getPath();
+                projectChooser.setInitialFileName(projectName);
+                projectPath = projectChooser.showSaveDialog(null).getPath();
                 projectName = new File(projectPath).getName();
                 projectName = projectName.substring(0, projectName.length() - 4); // 去除 .xml
 
@@ -177,6 +180,8 @@ public class AudioVisualizeUI extends Pane {
                 e.printStackTrace();
             }
         });
+        menuUI.fileImportClickProperty.addListener(event -> System.out.println("Import"));
+        menuUI.fileExportClickProperty.addListener(event -> export());
         //  └ Edit
         menuUI.editUndoClickProperty.addListener(event -> {
             System.out.println("Undo");
@@ -465,6 +470,24 @@ public class AudioVisualizeUI extends Pane {
             stop();
         visualizePane.clearAnimation();
         visualizePane.animate();
+    }
+
+    public void export() {
+        if (visualizePane.isRunning())
+            stop();
+
+        try {
+            videoChooser.setInitialFileName(projectName);
+            String path = videoChooser.showSaveDialog(null).getPath();
+
+            //EventLog.eventLog.encode("Video Fetching...");
+            visualizePane.saveVideo(path);
+            //EventLog.eventLog.encode("Video Encoding...");
+        } catch (NullPointerException ignored) {
+            // 不做任何事
+        } catch (java.io.IOException e) {
+            //EventLog.eventLog.warning("The file can not be exported correctly.");
+        }
     }
 
     public void stop() {

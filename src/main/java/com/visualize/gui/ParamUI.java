@@ -520,7 +520,7 @@ public class ParamUI extends ScrollPane {
             else { // 保留內部資料，重製音波資料，因為處於未啟用狀態
                 // 預設值
                 colorShadowProperty.setValue(Color.rgb(0, 0, 0, 0).toString());
-                sensitivityProperty.setValue(100);
+                sensitivityProperty.setValue(50);
                 minFrequencyProperty.setValue(0);
                 maxFrequencyProperty.setValue(24000);
             }

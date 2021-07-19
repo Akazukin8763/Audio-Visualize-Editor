@@ -26,6 +26,7 @@ public class MenuUI extends BorderPane {
     private final MenuItem fileSave;
     private final MenuItem fileSaveAs;
     private final MenuItem fileImport;
+    private final MenuItem fileExport;
     private final MenuItem fileExit;
 
     private final MenuItem editUndo;
@@ -39,6 +40,8 @@ public class MenuUI extends BorderPane {
     public BooleanProperty fileOpenClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty fileSaveClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty fileSaveAsClickProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty fileImportClickProperty = new SimpleBooleanProperty(false);
+    public BooleanProperty fileExportClickProperty = new SimpleBooleanProperty(false);
 
     public BooleanProperty editUndoClickProperty = new SimpleBooleanProperty(false);
     public BooleanProperty editRedoClickProperty = new SimpleBooleanProperty(false);
@@ -57,11 +60,12 @@ public class MenuUI extends BorderPane {
         fileSave = new MenuItem("Save");
         fileSaveAs = new MenuItem("Save As...");
         fileImport = new MenuItem("Import");
+        fileExport = new MenuItem("Export");
         fileExit = new MenuItem("Exit");
 
         menuFile.getItems().addAll(fileNew, fileOpen, fileSave, fileSaveAs);
         menuFile.getItems().add(new SeparatorMenuItem()); // 分隔線
-        menuFile.getItems().addAll(fileImport);
+        menuFile.getItems().addAll(fileImport, fileExport);
         menuFile.getItems().add(new SeparatorMenuItem()); // 分隔線
         menuFile.getItems().addAll(fileExit);
 
@@ -95,6 +99,8 @@ public class MenuUI extends BorderPane {
         fileSave.setOnAction(event -> fileSaveClickProperty.setValue(!fileSaveClickProperty.getValue()));
         fileSaveAs.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN)); // ctrl + shift + s
         fileSaveAs.setOnAction(event -> fileSaveAsClickProperty.setValue(!fileSaveAsClickProperty.getValue()));
+        fileImport.setOnAction(event -> fileImportClickProperty.setValue(!fileImportClickProperty.getValue()));
+        fileExport.setOnAction(event -> fileExportClickProperty.setValue(!fileExportClickProperty.getValue()));
         fileExit.setOnAction(event -> Platform.exit());
         // └ Edit
         editUndo.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.SHORTCUT_DOWN)); // ctrl + z
@@ -121,6 +127,7 @@ public class MenuUI extends BorderPane {
         fileSave.setDisable(disable | !save);
         fileSaveAs.setDisable(disable);
         fileImport.setDisable(disable);
+        fileExport.setDisable(disable);
         //fileExit.setDisable(disable);
 
         editUndo.setDisable(disable);

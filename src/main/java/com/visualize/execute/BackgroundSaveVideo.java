@@ -44,7 +44,7 @@ public class BackgroundSaveVideo implements Runnable {
             } catch (Exception e) {
                 System.out.println("error");
                 e.printStackTrace();
-            }finally {
+            } finally {
                 boolean result = new File(DefaultPath.TEMP_VIDEO_PATH).delete();
                 System.out.println(result);
             }

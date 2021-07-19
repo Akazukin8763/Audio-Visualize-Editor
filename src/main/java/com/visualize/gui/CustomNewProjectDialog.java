@@ -225,7 +225,7 @@ public class CustomNewProjectDialog extends Stage {
                         choiceBoxEqualizerType.getValue(), choiceBoxEqualizerSide.getValue(), choiceBoxEqualizerDirection.getValue(), VisualizeMode.Stereo.BOTH, DefaultPath.DEFAULT_MUSIC_PATH,
                         64, 2, 4, 100, 0, 0, 0,
                         Color.WHITE, Color.WHITE, 0, 0, 0, 0,
-                        100, 0, 24000,
+                        50, 0, 24000,
                         colorPickerBackgroundColor.getValue(), null, 0, 0,
                         new ArrayList<>());
                 this.close();
