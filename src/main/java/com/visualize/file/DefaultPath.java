@@ -16,6 +16,11 @@ public final class DefaultPath {
     public static final String CANCEL_ICON_PATH = new File("src/main/resources/icon/cancel-16.png").getAbsolutePath();
     public static final String ARROW_UP_ICON_PATH = new File("src/main/resources/icon/arrow_up-16.png").getAbsolutePath();
     public static final String ARROW_DOWN_ICON_PATH = new File("src/main/resources/icon/arrow_down-16.png").getAbsolutePath();
+    public static final String PLAY_ICON_PATH = new File("src/main/resources/icon/play-16.png").getAbsolutePath();
+    public static final String PAUSE_ICON_PATH = new File("src/main/resources/icon/pause-16.png").getAbsolutePath();
+    public static final String REPLAY_ICON_PATH = new File("src/main/resources/icon/replay-16.png").getAbsolutePath();
+    public static final String SOUND_ON_ICON_PATH = new File("src/main/resources/icon/sound_on-16.png").getAbsolutePath();
+    public static final String SOUND_OFF_ICON_PATH = new File("src/main/resources/icon/sound_off-16.png").getAbsolutePath();
 
     public static final String PROJECT_PATH = new File("src/main/resources/project").getAbsolutePath();
 

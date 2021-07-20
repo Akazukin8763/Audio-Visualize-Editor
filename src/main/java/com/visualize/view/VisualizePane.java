@@ -17,8 +17,8 @@ import java.io.File;
 import java.util.List;
 import java.util.ArrayList;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -32,8 +32,7 @@ public class VisualizePane extends Pane {
     private AudioVisualize audioVisualize;
 
     private Timeline timeline;
-    public BooleanProperty timeChangeProperty;
-    public double currentTime;
+    public final DoubleProperty timeProperty = new SimpleDoubleProperty();
 
     private AudioFile audioFile;
     private VisualizeFormat visualizeFormat;
@@ -58,8 +57,6 @@ public class VisualizePane extends Pane {
 
     // Constructor
     public VisualizePane(AudioFile audioFile, VisualizeFormat visualizeFormat, BackgroundFormat backgroundFormat, int width, int height) {
-        timeChangeProperty = new SimpleBooleanProperty(false);
-
         this.audioFile = audioFile;
         this.visualizeFormat = visualizeFormat;
         this.backgroundFormat = backgroundFormat;
@@ -255,10 +252,7 @@ public class VisualizePane extends Pane {
         timeline.getKeyFrames().add(new KeyFrame(new Duration(audioFile.getDuration() * 1000), audioFile.getStopEvent()));
 
         // Set Property
-        timeline.currentTimeProperty().addListener((obs, oldValue, newValue) -> {
-            currentTime = newValue.toSeconds();
-            timeChangeProperty.setValue(true);
-        });
+        timeline.currentTimeProperty().addListener((obs, oldValue, newValue) -> timeProperty.setValue( newValue.toSeconds()));
 
         // Play Window
         if (autoPlay)

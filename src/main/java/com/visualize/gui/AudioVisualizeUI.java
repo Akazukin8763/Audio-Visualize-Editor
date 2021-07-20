@@ -39,6 +39,7 @@ public class AudioVisualizeUI extends Pane {
     private final MenuUI menuUI;
     private final FileUI fileUI;
     private final ParamUI paramUI;
+    private final TimelineUI timelineUI;
 
     private AudioFile audioFile;
     private VisualizeFormat visualizeFormat;
@@ -54,7 +55,7 @@ public class AudioVisualizeUI extends Pane {
     public AudioVisualizeUI(double width, double height) throws Exception {
         this.width = width;
         this.height = height;
-        setPrefSize(width, height);
+        this.setPrefSize(width, height);
         titleProperty.setValue(TITLE);
 
         projectChooser = new FileChooser();
@@ -62,9 +63,10 @@ public class AudioVisualizeUI extends Pane {
         videoChooser = new FileChooser();
         videoChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Video", "*.mp4"));
 
-        menuUI = new MenuUI(width, height * .01);
+        menuUI = new MenuUI(width, height * .03);
         fileUI = new FileUI(width * .12, height * .65);
         paramUI = new ParamUI(width * .20, height * .94, rangeWidth, rangeHeight);
+        timelineUI = new TimelineUI(width * .80, height * .03);
         menuUI.setMenuEnable(false);
         paramUI.setEnable(false);
 
@@ -78,7 +80,7 @@ public class AudioVisualizeUI extends Pane {
         fitPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         fitPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         fitPane.addEventFilter(ScrollEvent.SCROLL, Event::consume);
-        fitPane.setStyle("-fx-background-color: #2B2B2B; -fx-border-color: #444444; -fx-border-width: 0 2 2 2;");
+        fitPane.setStyle("-fx-background-color: #2B2B2B; -fx-border-color: #444444; -fx-border-width: 0 2 0 2;");
 
         // |----------------------------------------------------------------|
         // |                              Menu                              |
@@ -93,7 +95,7 @@ public class AudioVisualizeUI extends Pane {
         // |----------------------------------------------------|-----------|
 
         HBox hBox1 = new HBox(fileUI, fitPane);
-        VBox vBox1 = new VBox(hBox1, new Pane());
+        VBox vBox1 = new VBox(hBox1, timelineUI);
         HBox hBox2 = new HBox(vBox1, paramUI);
         VBox vBox2 = new VBox(menuUI, hBox2);
         getChildren().add(vBox2);
@@ -349,6 +351,10 @@ public class AudioVisualizeUI extends Pane {
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
+        // └ Timeline UI
+        //  └ Volume
+        timelineUI.volumeProperty.addListener((obs, oldValue, newValue) -> audioFile.setVolume(newValue.doubleValue() / 100));
+
     }
 
     public void changeAudio (String filepath) {
@@ -364,8 +370,16 @@ public class AudioVisualizeUI extends Pane {
             else
                 throw new javax.sound.sampled.UnsupportedAudioFileException();
 
+            String filename = new File(filepath).getName();
+
             visualizePane.setAudioFile(audioFile);
             paramUI.setChannels(audioFile.getChannels());
+
+            audioFile.setVolume(timelineUI.volumeProperty.doubleValue() / 100);
+
+            timelineUI.setFilename(filename.substring(0, filename.length() - 4)); // 去除 .wav / .mp3
+            timelineUI.setTotalDuration(audioFile.getDuration());
+
             //paramUI.setFrameRate(audioFile.getFrameRate());
 
             //audioFile.setVolume(paneFile.getVolume() / 100.0);
@@ -456,6 +470,14 @@ public class AudioVisualizeUI extends Pane {
 
         // └ Image
         paramUI.setImageFormat(format.getImageFormat());
+
+        // Event
+        // └ VisualizePane
+        visualizePane.timeProperty.addListener((obs, oldValue, newValue) -> {
+            double duration = newValue.doubleValue();
+
+            timelineUI.setCurrentVolume(duration);
+        });
     }
 
     public void preview() {
