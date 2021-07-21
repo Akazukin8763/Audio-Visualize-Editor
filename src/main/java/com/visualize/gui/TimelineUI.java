@@ -21,6 +21,8 @@ import java.io.File;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 public class TimelineUI extends Pane {
 
@@ -37,9 +39,6 @@ public class TimelineUI extends Pane {
 
     private final HBox groupTimeline;
 
-    // Property
-    public final DoubleProperty volumeProperty = new SimpleDoubleProperty();
-
     // Object
     private final Label labelVideoName;
 
@@ -50,6 +49,10 @@ public class TimelineUI extends Pane {
 
     private final Slider sliderTimeline;
     private final Label labelTimeline;
+
+    // Property
+    private final DoubleProperty volumeProperty = new SimpleDoubleProperty();
+    private final ObjectProperty<PlayStatus.Play> playStatusProperty = new SimpleObjectProperty<>();
 
     // Constructor
     public TimelineUI (double width, double height) {
@@ -110,17 +113,52 @@ public class TimelineUI extends Pane {
         groupTimeline.getChildren().addAll(sliderTimeline, labelTimeline);
 
         // Event
+        // └ Slider
+        //sliderTimeline.isM
+        sliderTimeline.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue.doubleValue() == sliderTimeline.getMax()) {
+                play = PlayStatus.Play.STOP;
+                //playStatusProperty.setValue(play);
+                buttonPlayPause.setGraphic(imageViewPlay); // 轉暫停
+            }
+        });
+        sliderTimeline.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) {
+                play = PlayStatus.Play.PAUSE;
+                playStatusProperty.setValue(play);
+                buttonPlayPause.setGraphic(imageViewPlay); // 轉暫停
+            }
+            else {
+                play = PlayStatus.Play.RESUME;
+                playStatusProperty.setValue(play);
+                buttonPlayPause.setGraphic(imageViewPause); // 轉撥放
+            }
+        });
+        /*sliderTimeline.setOnMouseReleased(event -> {
+            System.out.println(sliderTimeline.getValue());
+        });*/
+        sliderTimeline.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderTimeline.setValueChanging(true));
+        sliderTimeline.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderTimeline.setValueChanging(false));
         // └ Button
-        //  └ Play / Pause
+        //  └ Replay
+        buttonReplay.setOnAction(event -> {
+            playStatusProperty.setValue(PlayStatus.Play.STOP);
+            playStatusProperty.setValue(PlayStatus.Play.PLAY);
+
+            buttonPlayPause.setGraphic(imageViewPause); // 轉撥放
+            play = PlayStatus.Play.PLAY;
+        });
+        //  └ Play Status
         buttonPlayPause.setOnAction(event -> {
-            if (play == PlayStatus.Play.PLAY) {
+            if (play == PlayStatus.Play.PLAY || play == PlayStatus.Play.RESUME) {
                 buttonPlayPause.setGraphic(imageViewPlay); // 轉暫停
                 play = PlayStatus.Play.PAUSE;
             }
             else {
                 buttonPlayPause.setGraphic(imageViewPause); // 轉撥放
-                play = PlayStatus.Play.PLAY;
+                play = sliderTimeline.getValue() == sliderTimeline.getMax() ? PlayStatus.Play.PLAY : PlayStatus.Play.RESUME;
             }
+            playStatusProperty.setValue(play);
         });
         //  └ Volume
         buttonSound.setOnAction(event -> {
@@ -137,9 +175,6 @@ public class TimelineUI extends Pane {
 
                 sliderVolume.setValue(oldVolume); // 回復至禁音前的值
             }
-        });
-        buttonSound.hoverProperty().addListener(event -> {
-
         });
         sliderVolume.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (sound == PlayStatus.Sound.ON)
@@ -165,6 +200,16 @@ public class TimelineUI extends Pane {
     }
 
     // Methods
+    public void setEnable(boolean enable) {
+        boolean disable = !enable;
+
+        buttonReplay.setDisable(disable);
+        buttonPlayPause.setDisable(disable);
+        //buttonSound.setDisable(disable);
+        //sliderVolume.setDisable(disable);
+        sliderTimeline.setDisable(disable);
+    }
+
     public void setFilename(String filename) {
         labelVideoName.setText("Selected: " + filename);
     }
@@ -175,10 +220,21 @@ public class TimelineUI extends Pane {
         labelTimeline.setText(timeFormat(0, totalDuration));
     }
 
-    public void setCurrentVolume(double duration) {
+    public void setCurrentDuration(double duration) {
         this.currentDuration = duration;
         sliderTimeline.setValue(duration);
         labelTimeline.setText(timeFormat(currentDuration, totalDuration));
+    }
+
+    public double getCurrentDuration() {
+        return sliderTimeline.getValue();
+    }
+
+    public void initPlayer() {
+        playStatusProperty.setValue(PlayStatus.Play.STOP);
+        playStatusProperty.setValue(PlayStatus.Play.PLAY);
+        play = PlayStatus.Play.PLAY;
+        buttonPlayPause.setGraphic(new ImageView(new Image(new File(DefaultPath.PAUSE_ICON_PATH).toURI().toString()))); // 轉撥放
     }
 
     private String timeFormat(double startTime, double finishTime) {
@@ -193,6 +249,15 @@ public class TimelineUI extends Pane {
         String finish = String.format("%02d:%02d:%02d", finishHour, finishMin, finishSec);
 
         return "   " + start + " / " + finish;
+    }
+
+    // Property
+    public DoubleProperty volumeProperty() {
+        return volumeProperty;
+    }
+
+    public ObjectProperty<PlayStatus.Play> playStatusProperty() {
+        return playStatusProperty;
     }
 
 }

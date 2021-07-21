@@ -7,6 +7,7 @@ public interface Player {
 
     void play();
     void playFrom(double sec);
+    void pause();
     void stop();
     double getVolume();
     void setVolume(double volume);

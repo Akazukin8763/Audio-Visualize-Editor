@@ -272,10 +272,10 @@ public class VisualizePane extends Pane {
     public void play() {
         if (timeline != null) {
             timeline.play();
+            audioFile.play();
         }
-        else {
+        else
             throw new NullPointerException("There is no animation in this panel.");
-        }
     }
 
     public void playFrom(double sec) {
@@ -283,9 +283,17 @@ public class VisualizePane extends Pane {
             timeline.playFrom(new Duration(sec * 1000));
             audioFile.playFrom(sec);
         }
-        else {
+        else
             throw new NullPointerException("There is no animation in this panel.");
+    }
+
+    public void pause() {
+        if (timeline != null) {
+            timeline.pause();
+            audioFile.pause();
         }
+        else
+            throw new NullPointerException("There is no animation in this panel.");
     }
 
     public void stop() {
@@ -293,9 +301,8 @@ public class VisualizePane extends Pane {
             timeline.stop();
             audioFile.stop();
         }
-        else {
+        else
             throw new NullPointerException("There is no animation in this panel.");
-        }
     }
 
     public void clear() {

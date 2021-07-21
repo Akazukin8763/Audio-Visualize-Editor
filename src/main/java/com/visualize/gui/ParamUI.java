@@ -34,6 +34,8 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
 import java.util.List;
@@ -120,38 +122,38 @@ public class ParamUI extends ScrollPane {
     private final IntegerProperty rangeWidthProperty = new SimpleIntegerProperty();
     private final IntegerProperty rangeHeightProperty = new SimpleIntegerProperty();
 
-    public final StringProperty equalizerTypeProperty = new SimpleStringProperty(null);
-    public final StringProperty equalizerSideProperty = new SimpleStringProperty(null);
-    public final StringProperty equalizerDirectionProperty = new SimpleStringProperty(null);
-    public final StringProperty equalizerStereoProperty = new SimpleStringProperty(null);
+    private final ObjectProperty<VisualizeMode.View> equalizerTypeProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<VisualizeMode.Side> equalizerSideProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<VisualizeMode.Direct> equalizerDirectionProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<VisualizeMode.Stereo> equalizerStereoProperty = new SimpleObjectProperty<>();
 
-    public final IntegerProperty barNumberProperty = new SimpleIntegerProperty();
-    public final IntegerProperty sizeProperty = new SimpleIntegerProperty();
-    public final IntegerProperty rotationProperty = new SimpleIntegerProperty();
-    public final IntegerProperty gapProperty = new SimpleIntegerProperty();
-    public final IntegerProperty radiusProperty = new SimpleIntegerProperty();
-    public final IntegerProperty positionXProperty = new SimpleIntegerProperty();
-    public final IntegerProperty positionYProperty = new SimpleIntegerProperty();
-    public final IntegerProperty sensitivityProperty = new SimpleIntegerProperty();
-    public final IntegerProperty minFrequencyProperty = new SimpleIntegerProperty();
-    public final IntegerProperty maxFrequencyProperty = new SimpleIntegerProperty();
+    private final IntegerProperty barNumberProperty = new SimpleIntegerProperty();
+    private final IntegerProperty sizeProperty = new SimpleIntegerProperty();
+    private final IntegerProperty rotationProperty = new SimpleIntegerProperty();
+    private final IntegerProperty gapProperty = new SimpleIntegerProperty();
+    private final IntegerProperty radiusProperty = new SimpleIntegerProperty();
+    private final IntegerProperty positionXProperty = new SimpleIntegerProperty();
+    private final IntegerProperty positionYProperty = new SimpleIntegerProperty();
+    private final IntegerProperty sensitivityProperty = new SimpleIntegerProperty();
+    private final IntegerProperty minFrequencyProperty = new SimpleIntegerProperty();
+    private final IntegerProperty maxFrequencyProperty = new SimpleIntegerProperty();
 
-    public final StringProperty colorProperty = new SimpleStringProperty(null);
-    public final StringProperty colorShadowProperty = new SimpleStringProperty(null);
-    public final IntegerProperty colorShadowRadiusProperty = new SimpleIntegerProperty();
-    public final IntegerProperty colorShadowSpreadProperty = new SimpleIntegerProperty();
-    public final IntegerProperty colorShadowOffsetXProperty = new SimpleIntegerProperty();
-    public final IntegerProperty colorShadowOffsetYProperty = new SimpleIntegerProperty();
+    private final StringProperty colorProperty = new SimpleStringProperty(null);
+    private final StringProperty colorShadowProperty = new SimpleStringProperty(null);
+    private final IntegerProperty colorShadowRadiusProperty = new SimpleIntegerProperty();
+    private final IntegerProperty colorShadowSpreadProperty = new SimpleIntegerProperty();
+    private final IntegerProperty colorShadowOffsetXProperty = new SimpleIntegerProperty();
+    private final IntegerProperty colorShadowOffsetYProperty = new SimpleIntegerProperty();
 
-    public final StringProperty backgroundColorProperty = new SimpleStringProperty(null);
-    public final StringProperty backgroundImageProperty = new SimpleStringProperty(null);
-    public final IntegerProperty backgroundImagePositionXProperty = new SimpleIntegerProperty();
-    public final IntegerProperty backgroundImagePositionYProperty = new SimpleIntegerProperty();
+    private final StringProperty backgroundColorProperty = new SimpleStringProperty(null);
+    private final StringProperty backgroundImageProperty = new SimpleStringProperty(null);
+    private final IntegerProperty backgroundImagePositionXProperty = new SimpleIntegerProperty();
+    private final IntegerProperty backgroundImagePositionYProperty = new SimpleIntegerProperty();
 
     //private final IntegerProperty channelsProperty = new SimpleIntegerProperty(); // 影響 Stereo
     //private final DoubleProperty frameRateProperty = new SimpleDoubleProperty(); // 影響 Frequency
 
-    public final BooleanProperty imageFormatProperty;
+    private final BooleanProperty imageFormatProperty;
 
     public ParamUI(double width, double height, int rangeWidth, int rangeHeight) {
         this.width = width;
@@ -480,7 +482,7 @@ public class ParamUI extends ScrollPane {
         //   └ Equalizer Type
         choiceBoxEqualizerType.setOnAction(event -> {
             VisualizeMode.View type = choiceBoxEqualizerType.getValue();
-            equalizerTypeProperty.setValue(type.toString()); // Property
+            equalizerTypeProperty.setValue(type); // Property
 
             groupEqualizer.getChildren().clear(); // 清空所有可能選單
             int groupRow = 0;
@@ -490,17 +492,17 @@ public class ParamUI extends ScrollPane {
         //   └ Equalizer Side
         choiceBoxEqualizerSide.setOnAction(event -> {
             VisualizeMode.Side type = choiceBoxEqualizerSide.getValue();
-            equalizerSideProperty.setValue(type.toString()); // Property
+            equalizerSideProperty.setValue(type); // Property
         });
         //   └ Equalizer Direction
         choiceBoxEqualizerDirection.setOnAction(event -> {
             VisualizeMode.Direct type = choiceBoxEqualizerDirection.getValue();
-            equalizerDirectionProperty.setValue(type.toString()); // Property
+            equalizerDirectionProperty.setValue(type); // Property
         });
         //   └ Equalizer Stereo
         choiceBoxEqualizerStereo.valueProperty().addListener((obs, oldValue, newValue) -> {
             VisualizeMode.Stereo type = (newValue == null ? oldValue : newValue);
-            equalizerStereoProperty.setValue(type.toString()); // Property
+            equalizerStereoProperty.setValue(type); // Property
         });
         //  └ Check Box
         //   └ Advance
@@ -1049,6 +1051,107 @@ public class ParamUI extends ScrollPane {
         int groupRow = 0;
         for (GridPane param: images.getGridPane())
             groupImage.add(param, 0, groupRow++, 2, 1);
+    }
+
+    // Property
+    public ObjectProperty<VisualizeMode.View> equalizerTypeProperty() {
+        return equalizerTypeProperty;
+    }
+
+    public ObjectProperty<VisualizeMode.Side> equalizerSideProperty() {
+        return equalizerSideProperty;
+    }
+
+    public ObjectProperty<VisualizeMode.Direct> equalizerDirectionProperty() {
+        return equalizerDirectionProperty;
+    }
+
+    public ObjectProperty<VisualizeMode.Stereo> equalizerStereoProperty() {
+        return equalizerStereoProperty;
+    }
+
+    public IntegerProperty barNumberProperty() {
+        return barNumberProperty;
+    }
+
+    public IntegerProperty sizeProperty() {
+        return sizeProperty;
+    }
+
+    public IntegerProperty rotationProperty() {
+        return rotationProperty;
+    }
+
+    public IntegerProperty gapProperty() {
+        return gapProperty;
+    }
+
+    public IntegerProperty radiusProperty() {
+        return radiusProperty;
+    }
+
+    public IntegerProperty positionXProperty() {
+        return positionXProperty;
+    }
+
+    public IntegerProperty positionYProperty() {
+        return positionYProperty;
+    }
+
+    public IntegerProperty sensitivityProperty() {
+        return sensitivityProperty;
+    }
+
+    public IntegerProperty minFrequencyProperty() {
+        return minFrequencyProperty;
+    }
+
+    public IntegerProperty maxFrequencyProperty() {
+        return maxFrequencyProperty;
+    }
+
+    public StringProperty colorProperty() {
+        return colorProperty;
+    }
+
+    public StringProperty colorShadowProperty() {
+        return colorShadowProperty;
+    }
+
+    public IntegerProperty colorShadowRadiusProperty() {
+        return colorShadowRadiusProperty;
+    }
+
+    public IntegerProperty colorShadowSpreadProperty() {
+        return colorShadowSpreadProperty;
+    }
+
+    public IntegerProperty colorShadowOffsetXProperty() {
+        return colorShadowOffsetXProperty;
+    }
+
+    public IntegerProperty colorShadowOffsetYProperty() {
+        return colorShadowOffsetYProperty;
+    }
+
+    public StringProperty backgroundColorProperty() {
+        return backgroundColorProperty;
+    }
+
+    public StringProperty backgroundImageProperty() {
+        return backgroundImageProperty;
+    }
+
+    public IntegerProperty backgroundImagePositionXProperty() {
+        return backgroundImagePositionXProperty;
+    }
+
+    public IntegerProperty backgroundImagePositionYProperty() {
+        return backgroundImagePositionYProperty;
+    }
+
+    public BooleanProperty imageFormatProperty() {
+        return imageFormatProperty;
     }
 
 }

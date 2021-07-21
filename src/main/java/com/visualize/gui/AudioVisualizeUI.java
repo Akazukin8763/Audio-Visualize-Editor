@@ -3,8 +3,6 @@ package com.visualize.gui;
 import com.visualize.file.*;
 import com.visualize.view.*;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
@@ -19,8 +17,8 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 public class AudioVisualizeUI extends Pane {
 
@@ -69,6 +67,7 @@ public class AudioVisualizeUI extends Pane {
         timelineUI = new TimelineUI(width * .80, height * .03);
         menuUI.setMenuEnable(false);
         paramUI.setEnable(false);
+        timelineUI.setEnable(false);
 
         audioFile = new WavFile(DefaultPath.DEFAULT_MUSIC_PATH);
         visualizeFormat = new VisualizeFormat();
@@ -119,6 +118,7 @@ public class AudioVisualizeUI extends Pane {
 
                 menuUI.setMenuEnable(true, false); // 不啟用 Save, 只啟用 Save as
                 paramUI.setEnable(true);
+                timelineUI.setEnable(true);
                 titleProperty.setValue(TITLE + " - *" + projectName);
             }
         });
@@ -135,6 +135,7 @@ public class AudioVisualizeUI extends Pane {
 
                 menuUI.setMenuEnable(true); // 全啟用
                 paramUI.setEnable(true);
+                timelineUI.setEnable(true);
                 titleProperty.setValue(TITLE + " - " + projectName);
             } catch (NullPointerException ignored) {
                 // 不做任何事
@@ -197,163 +198,174 @@ public class AudioVisualizeUI extends Pane {
         // └ Param UI
         //  └ Equalizer
         //   └ Equalizer Type
-        paramUI.equalizerTypeProperty.addListener((obs, oldValue, newValue) -> {
-            for (VisualizeMode.View view: VisualizeMode.View.values())
-                if (newValue.equals(view.toString()))
-                    visualizePane.setView(view);
+        paramUI.equalizerTypeProperty().addListener((obs, oldValue, newValue) -> {
+            visualizePane.setView(newValue);
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Side
-        paramUI.equalizerSideProperty.addListener((obs, oldValue, newValue) -> {
-            for (VisualizeMode.Side side: VisualizeMode.Side.values())
-                if (newValue.equals(side.toString()))
-                    visualizePane.setSide(side);
+        paramUI.equalizerSideProperty().addListener((obs, oldValue, newValue) -> {
+            visualizePane.setSide(newValue);
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Direction
-        paramUI.equalizerDirectionProperty.addListener((obs, oldValue, newValue) -> {
-            for (VisualizeMode.Direct direct: VisualizeMode.Direct.values())
-                if (newValue.equals(direct.toString()))
-                    visualizePane.setDirect(direct);
+        paramUI.equalizerDirectionProperty().addListener((obs, oldValue, newValue) -> {
+            visualizePane.setDirect(newValue);
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Stereo
-        paramUI.equalizerStereoProperty.addListener((obs, oldValue, newValue) -> {
-            for (VisualizeMode.Stereo stereo: VisualizeMode.Stereo.values())
-                if (newValue.equals(stereo.toString()))
-                    visualizePane.setStereo(stereo);
+        paramUI.equalizerStereoProperty().addListener((obs, oldValue, newValue) -> {
+            visualizePane.setStereo(newValue);
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Bar Number
-        paramUI.barNumberProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.barNumberProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarNum(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Size
-        paramUI.sizeProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.sizeProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarSize(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Rotation
-        paramUI.rotationProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.rotationProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setRotation(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Gap
-        paramUI.gapProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.gapProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarGap(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Radius
-        paramUI.radiusProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.radiusProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setRadius(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Position X
-        paramUI.positionXProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.positionXProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setPosX(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Position Y
-        paramUI.positionYProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.positionYProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setPosY(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Sensitivity
-        paramUI.sensitivityProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.sensitivityProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setSensitivity(newValue.doubleValue() / 100);
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Min Frequency
-        paramUI.minFrequencyProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.minFrequencyProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setMinFreq(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Min Frequency
-        paramUI.maxFrequencyProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.maxFrequencyProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setMaxFreq(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Color
-        paramUI.colorProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.colorProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarColor(Color.web(newValue));
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow
-        paramUI.colorShadowProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.colorShadowProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColor(Color.web(newValue));
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Radius
-        paramUI.colorShadowRadiusProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.colorShadowRadiusProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorRadius(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Spread
-        paramUI.colorShadowSpreadProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.colorShadowSpreadProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorSpread(newValue.doubleValue() / 100);
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Offset X
-        paramUI.colorShadowOffsetXProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.colorShadowOffsetXProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorOffsetX(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Offset Y
-        paramUI.colorShadowOffsetYProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.colorShadowOffsetYProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorOffsetY(newValue.intValue());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //  └ Background
         //   └ Color
-        paramUI.backgroundColorProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.backgroundColorProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundColor(Color.web(newValue));
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Image
-        paramUI.backgroundImageProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.backgroundImageProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImage(newValue);
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Image Position X
-        paramUI.backgroundImagePositionXProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.backgroundImagePositionXProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImagePosX(newValue.intValue());
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //   └ Image Position Y
-        paramUI.backgroundImagePositionYProperty.addListener((obs, oldValue, newValue) -> {
+        paramUI.backgroundImagePositionYProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImagePosY(newValue.intValue());
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         //  └ Image
-        paramUI.imageFormatProperty.addListener(event -> {
+        paramUI.imageFormatProperty().addListener(event -> {
             visualizePane.setImageFormat(paramUI.getImageFormat());
             preview();
             titleProperty.setValue(TITLE + " - *" + projectName);
         });
         // └ Timeline UI
         //  └ Volume
-        timelineUI.volumeProperty.addListener((obs, oldValue, newValue) -> audioFile.setVolume(newValue.doubleValue() / 100));
+        timelineUI.volumeProperty().addListener((obs, oldValue, newValue) -> audioFile.setVolume(newValue.doubleValue() / 100));
+        //  └ Play Status
+        timelineUI.playStatusProperty().addListener((obs, oldValue, newValue) -> {
+            switch (newValue) {
+                case PLAY:
+                    visualizePane.play();
+                    break;
+                case RESUME:
+                    visualizePane.playFrom(timelineUI.getCurrentDuration());
+                    break;
+                case PAUSE:
+                    visualizePane.pause();
+                    break;
+                case STOP:
+                    visualizePane.stop();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Doesn't support this play mode.");
+            }
+        });
 
     }
 
@@ -375,16 +387,14 @@ public class AudioVisualizeUI extends Pane {
             visualizePane.setAudioFile(audioFile);
             paramUI.setChannels(audioFile.getChannels());
 
-            audioFile.setVolume(timelineUI.volumeProperty.doubleValue() / 100);
+            audioFile.setVolume(timelineUI.volumeProperty().doubleValue() / 100);
 
             timelineUI.setFilename(filename.substring(0, filename.length() - 4)); // 去除 .wav / .mp3
             timelineUI.setTotalDuration(audioFile.getDuration());
+            timelineUI.setCurrentDuration(0);
 
             //paramUI.setFrameRate(audioFile.getFrameRate());
 
-            //audioFile.setVolume(paneFile.getVolume() / 100.0);
-            //setTime(labelTime, 0, (int)audioFile.getDuration());
-            //sliderTime.setMax(audioFile.getDuration());
             //EventLog.eventLog.songChange(songOld, songNew);
         } catch (javax.sound.sampled.UnsupportedAudioFileException | java.io.IOException e) {
             //EventLog.eventLog.warning("The file is Unsupported or Non-existent.");
@@ -476,7 +486,7 @@ public class AudioVisualizeUI extends Pane {
         visualizePane.timeProperty.addListener((obs, oldValue, newValue) -> {
             double duration = newValue.doubleValue();
 
-            timelineUI.setCurrentVolume(duration);
+            timelineUI.setCurrentDuration(duration);
         });
     }
 
@@ -492,6 +502,8 @@ public class AudioVisualizeUI extends Pane {
             stop();
         visualizePane.clearAnimation();
         visualizePane.animate();
+
+        timelineUI.initPlayer();
     }
 
     public void export() {

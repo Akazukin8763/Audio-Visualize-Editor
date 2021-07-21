@@ -104,6 +104,11 @@ public class WavFile extends AudioFile{
     }
 
     @Override
+    public void pause() {
+        mediaPlayer.pause();
+    }
+
+    @Override
     public void stop() {
         mediaPlayer.stop();
     }
