@@ -1,6 +1,7 @@
 package com.visualize.gui;
 
 import com.visualize.file.*;
+import com.visualize.object.*;
 
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
@@ -14,6 +15,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.Control;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
 
 import javafx.collections.FXCollections;
 
@@ -249,8 +251,10 @@ public class FileUI extends ScrollPane {
                     protected void updateItem(String item, boolean empty) {
                         super.updateItem(item, empty);
 
-                        if (item != null && !empty)
+                        if (item != null && !empty) {
                             setText(item);
+                            setTooltip(new Tooltip(item.strip()));
+                        }
                         else
                             setText(null);
                     }

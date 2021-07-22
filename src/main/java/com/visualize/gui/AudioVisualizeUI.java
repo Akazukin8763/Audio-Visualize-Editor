@@ -2,10 +2,14 @@ package com.visualize.gui;
 
 import com.visualize.file.*;
 import com.visualize.view.*;
+import com.visualize.object.*;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+
+import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Label;
 
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
@@ -17,9 +21,6 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
 
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.SimpleStringProperty;
-
 public class AudioVisualizeUI extends Pane {
 
     private final ProjectSL project = new ProjectSL();
@@ -27,7 +28,6 @@ public class AudioVisualizeUI extends Pane {
     private String projectPath = null;
 
     private static final String TITLE = "Ɐudio Ʌisualizer Ǝditor";
-    public final StringProperty titleProperty = new SimpleStringProperty(null);
 
     private final double width;
     private final double height;
@@ -54,7 +54,6 @@ public class AudioVisualizeUI extends Pane {
         this.width = width;
         this.height = height;
         this.setPrefSize(width, height);
-        titleProperty.setValue(TITLE);
 
         projectChooser = new FileChooser();
         projectChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Project", "*.xml"));
@@ -63,7 +62,7 @@ public class AudioVisualizeUI extends Pane {
 
         menuUI = new MenuUI(width, height * .03);
         fileUI = new FileUI(width * .12, height * .65);
-        paramUI = new ParamUI(width * .20, height * .94, rangeWidth, rangeHeight);
+        paramUI = new ParamUI(width * .20, height * .97, rangeWidth, rangeHeight);
         timelineUI = new TimelineUI(width * .80, height * .03);
         menuUI.setMenuEnable(false);
         paramUI.setEnable(false);
@@ -90,11 +89,18 @@ public class AudioVisualizeUI extends Pane {
         // |          |                                         |   Param   |
         // |          |                                         |           |
         // |----------|-----------------------------------------|           |
+        // |                      TimeLine                      |           |
+        // |----------------------------------------------------|           |
         // |                                                    |           |
         // |----------------------------------------------------|-----------|
 
+        BorderPane idk = new BorderPane();
+        idk.setCenter(new Label("不知道放莎曉"));
+        idk.setStyle("-fx-background-color: #2B2B2B; -fx-border-color: #444444; -fx-border-width: 0 2 0 0;");
+        idk.setPrefSize(width * .80, height * .29);
+
         HBox hBox1 = new HBox(fileUI, fitPane);
-        VBox vBox1 = new VBox(hBox1, timelineUI);
+        VBox vBox1 = new VBox(hBox1, timelineUI, idk);
         HBox hBox2 = new HBox(vBox1, paramUI);
         VBox vBox2 = new VBox(menuUI, hBox2);
         getChildren().add(vBox2);
@@ -118,14 +124,17 @@ public class AudioVisualizeUI extends Pane {
 
                 menuUI.setMenuEnable(true, false); // 不啟用 Save, 只啟用 Save as
                 paramUI.setEnable(true);
-                timelineUI.setEnable(true);
-                titleProperty.setValue(TITLE + " - *" + projectName);
+                //timelineUI.setEnable(true);
+                menuUI.setTitle(TITLE + " - " + projectName);
             }
         });
         menuUI.fileOpenClickProperty.addListener(event -> {
             try {
                 projectPath = projectChooser.showOpenDialog(null).getAbsolutePath();
                 ProjectFormat format = project.load(projectPath);
+
+                if (format.getProjectName().equals(projectName))
+                    return;
 
                 this.projectName = format.getProjectName();
                 this.rangeWidth = format.getWidth();
@@ -135,8 +144,8 @@ public class AudioVisualizeUI extends Pane {
 
                 menuUI.setMenuEnable(true); // 全啟用
                 paramUI.setEnable(true);
-                timelineUI.setEnable(true);
-                titleProperty.setValue(TITLE + " - " + projectName);
+                //timelineUI.setEnable(true);
+                menuUI.setTitle(TITLE + " - " + projectName);
             } catch (NullPointerException ignored) {
                 // 不做任何事
             } catch (IOException e) {
@@ -154,7 +163,7 @@ public class AudioVisualizeUI extends Pane {
                                 paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY(),
                                 paramUI.getImageFormat()),
                         projectPath);
-                titleProperty.setValue(TITLE + " - " + projectName);
+                menuUI.setTitle(TITLE + " - " + projectName);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -176,7 +185,7 @@ public class AudioVisualizeUI extends Pane {
                                 paramUI.getImageFormat()),
                         projectPath);
                 menuUI.setMenuEnable(true); // Save as 完啟用 Save
-                titleProperty.setValue(TITLE + " - " + projectName);
+                menuUI.setTitle(TITLE + " - " + projectName);
             } catch (NullPointerException ignored) {
                 // 不做任何事
             } catch (IOException e) {
@@ -201,148 +210,148 @@ public class AudioVisualizeUI extends Pane {
         paramUI.equalizerTypeProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setView(newValue);
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Side
         paramUI.equalizerSideProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setSide(newValue);
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Direction
         paramUI.equalizerDirectionProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setDirect(newValue);
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Stereo
         paramUI.equalizerStereoProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setStereo(newValue);
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Bar Number
         paramUI.barNumberProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarNum(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Size
         paramUI.sizeProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarSize(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Rotation
         paramUI.rotationProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setRotation(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Gap
         paramUI.gapProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarGap(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Radius
         paramUI.radiusProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setRadius(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Position X
         paramUI.positionXProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setPosX(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Position Y
         paramUI.positionYProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setPosY(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Sensitivity
         paramUI.sensitivityProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setSensitivity(newValue.doubleValue() / 100);
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Min Frequency
         paramUI.minFrequencyProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setMinFreq(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Min Frequency
         paramUI.maxFrequencyProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setMaxFreq(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color
         paramUI.colorProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarColor(Color.web(newValue));
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow
         paramUI.colorShadowProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColor(Color.web(newValue));
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Radius
         paramUI.colorShadowRadiusProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorRadius(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Spread
         paramUI.colorShadowSpreadProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorSpread(newValue.doubleValue() / 100);
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Offset X
         paramUI.colorShadowOffsetXProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorOffsetX(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Offset Y
         paramUI.colorShadowOffsetYProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorOffsetY(newValue.intValue());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //  └ Background
         //   └ Color
         paramUI.backgroundColorProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundColor(Color.web(newValue));
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Image
         paramUI.backgroundImageProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImage(newValue);
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Image Position X
         paramUI.backgroundImagePositionXProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImagePosX(newValue.intValue());
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Image Position Y
         paramUI.backgroundImagePositionYProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImagePosY(newValue.intValue());
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //  └ Image
         paramUI.imageFormatProperty().addListener(event -> {
             visualizePane.setImageFormat(paramUI.getImageFormat());
             preview();
-            titleProperty.setValue(TITLE + " - *" + projectName);
+            menuUI.setTitle(TITLE + " - *" + projectName);
         });
         // └ Timeline UI
         //  └ Volume
@@ -402,6 +411,9 @@ public class AudioVisualizeUI extends Pane {
     }
 
     public void setProject (ProjectFormat format) {
+        if (visualizePane.isRunning())
+            visualizePane.stop();
+
         // 編輯視窗
         visualizeFormat = new VisualizeFormat(
                 format.getBarNum(), format.getSize(), format.getGap(), format.getRadius(),
@@ -495,6 +507,8 @@ public class AudioVisualizeUI extends Pane {
             stop();
         visualizePane.clearAnimation();
         visualizePane.preview();
+
+        timelineUI.setEnable(false);
     }
 
     public void animate() {
@@ -504,6 +518,7 @@ public class AudioVisualizeUI extends Pane {
         visualizePane.animate();
 
         timelineUI.initPlayer();
+        timelineUI.setEnable(true);
     }
 
     public void export() {

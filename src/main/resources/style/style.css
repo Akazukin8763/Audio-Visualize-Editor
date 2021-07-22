@@ -11,8 +11,6 @@
 }
 .menu-bar {
     -fx-background-color: #2F3136;
-    -fx-border-color: #444444;
-    -fx-border-width: 0 0 2 0;
 }
 .menu-bar > .container > .menu-button > .label {
     -fx-text-fill: white;

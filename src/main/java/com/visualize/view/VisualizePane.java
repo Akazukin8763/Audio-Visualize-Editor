@@ -272,7 +272,7 @@ public class VisualizePane extends Pane {
     public void play() {
         if (timeline != null) {
             timeline.play();
-            audioFile.play();
+            //audioFile.play();
         }
         else
             throw new NullPointerException("There is no animation in this panel.");

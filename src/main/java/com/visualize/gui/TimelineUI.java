@@ -59,7 +59,7 @@ public class TimelineUI extends Pane {
         this.width = width;
         this.height = height;
         this.setPrefSize(width, height);
-        this.setStyle("-fx-background-color: #333333; -fx-border-color: #444444; -fx-border-width: 2 2 0 0;");
+        this.setStyle("-fx-background-color: #333333; -fx-border-color: #444444; -fx-border-width: 2 2 2 0;");
 
         groupTimeline = new HBox();
         groupTimeline.setAlignment(Pos.CENTER_LEFT);

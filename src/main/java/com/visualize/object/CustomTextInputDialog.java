@@ -1,4 +1,4 @@
-package com.visualize.gui;
+package com.visualize.object;
 
 import com.visualize.file.*;
 

@@ -1,25 +1,33 @@
 package com.visualize.gui;
 
-import javafx.scene.layout.BorderPane;
+import com.visualize.file.*;
 
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.application.Platform;
+
+import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.HBox;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 
-import javafx.application.Platform;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+import javafx.geometry.Pos;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
-public class MenuUI extends BorderPane {
+import java.io.File;
+
+public class MenuUI extends Pane {
 
     private final double width;
     private final double height;
+
+    private final Label labelTitle;
 
     private final MenuItem fileNew;
     private final MenuItem fileOpen;
@@ -52,6 +60,7 @@ public class MenuUI extends BorderPane {
     public MenuUI (double width, double height) {
         this.width = width;
         this.height = height;
+        this.setStyle("-fx-background-color: #2F3136; -fx-border-color: #444444; -fx-border-width: 0 0 2 0;");
 
         // File
         Menu menuFile = new Menu("File");
@@ -85,9 +94,29 @@ public class MenuUI extends BorderPane {
 
         // Menu Bar
         MenuBar menuBar = new MenuBar(menuFile, menuEdit, menuRun);
-        menuBar.setPrefSize(width, height);
+        menuBar.setPrefSize(width * .2 - height, height);
 
-        setTop(menuBar);
+        // Icon
+        ImageView icon = new ImageView(new Image(new File(DefaultPath.ICON_PATH).toURI().toString()));
+        icon.setFitWidth(height);
+        icon.setFitHeight(height);
+
+        labelTitle = new Label("Ɐudio Ʌisualizer Ǝditor");
+        labelTitle.setAlignment(Pos.CENTER);
+        labelTitle.setPrefWidth(width * .6);
+        labelTitle.setStyle("-fx-text-fill: #777777");
+
+        // Window Button
+        Button buttonExit = new Button();
+        buttonExit.setGraphic(new ImageView(new Image(new File(DefaultPath.CANCEL_ICON_PATH).toURI().toString())));
+        buttonExit.setStyle("-fx-background-color: transparent;");
+        HBox groupButton = new HBox(buttonExit);
+        groupButton.setAlignment(Pos.CENTER_RIGHT);
+        groupButton.setPrefWidth(width * .2);
+
+        HBox titleBar = new HBox(icon, menuBar, labelTitle, groupButton);
+        titleBar.setAlignment(Pos.CENTER);
+        getChildren().add(titleBar);
 
         // Event
         // └ File
@@ -112,6 +141,15 @@ public class MenuUI extends BorderPane {
         runPreview.setOnAction(event -> previewClickProperty.setValue(!previewClickProperty.getValue()));
         runAnimate.setAccelerator(new KeyCodeCombination(KeyCode.F11)); // F11
         runAnimate.setOnAction(event -> animateClickProperty.setValue(!animateClickProperty.getValue()));
+        // └ Window
+        //  └ Close
+        buttonExit.setOnAction(event -> Platform.exit());
+        buttonExit.hoverProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue)
+                buttonExit.setStyle("-fx-background-color: #E81123;");
+            else
+                buttonExit.setStyle("-fx-background-color: transparent;");
+        });
 
     }
 
@@ -130,11 +168,15 @@ public class MenuUI extends BorderPane {
         fileExport.setDisable(disable);
         //fileExit.setDisable(disable);
 
-        editUndo.setDisable(disable);
-        editRedo.setDisable(disable);
+        editUndo.setDisable(true); // 暫時
+        editRedo.setDisable(true);
 
         runPreview.setDisable(disable);
         runAnimate.setDisable(disable);
+    }
+
+    public void setTitle(String title) {
+        labelTitle.setText(title);
     }
 
 }
