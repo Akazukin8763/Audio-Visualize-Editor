@@ -6,6 +6,8 @@ module com.visualize.main {
     requires java.desktop;
 
     //--add-opens=javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls
+    //--add-opens=javafx.controls/com.sun.javafx.scene.control.inputmap=org.controlsfx.controls
+    //--add-opens=javafx.graphics/com.sun.javafx.scene.traversal=org.controlsfx.controls
     requires org.controlsfx.controls;
 
     requires mp3spi;

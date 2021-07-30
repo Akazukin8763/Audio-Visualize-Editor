@@ -1,9 +1,11 @@
 package com.visualize.gui.command;
 
-public interface Command<T> {
+public abstract class Command<T> {
 
-    void execute(T t);
+    T oldValue;
+    T newValue;
 
-    Class<T> getStateClass();
+    void execute() {};
+    void unExecute() {};
 
 }

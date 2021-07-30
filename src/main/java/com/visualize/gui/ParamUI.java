@@ -3,6 +3,7 @@ package com.visualize.gui;
 import com.visualize.file.*;
 import com.visualize.view.*;
 import com.visualize.object.*;
+import com.visualize.gui.command.*;
 
 import javafx.stage.FileChooser;
 
@@ -21,6 +22,8 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Button;
 import org.controlsfx.control.RangeSlider;
 
+import javafx.scene.input.MouseEvent;
+
 import javafx.scene.text.Font;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,7 +32,6 @@ import javafx.scene.paint.Color;
 import javafx.collections.FXCollections;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.IntegerProperty;
@@ -39,8 +41,6 @@ import javafx.beans.property.SimpleObjectProperty;
 
 import java.io.File;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class ParamUI extends ScrollPane {
 
@@ -58,6 +58,7 @@ public class ParamUI extends ScrollPane {
     private final CustomImageListView images;
 
     private final FileChooser fileChooser;
+    private final CommandManager commandManager;
 
     private static final double WIDTH_OFFSET_LEFT = .35;
     private static final double WIDTH_OFFSET_MIDDLE = .48;
@@ -177,6 +178,7 @@ public class ParamUI extends ScrollPane {
 
         this.fileChooser = new FileChooser();
         this.fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image", "*.jpg", "*.png")); // 只抓 jpg, png
+        this.commandManager = new CommandManager();
 
         // Title
         Label labelEqualizerTitle = new Label("Equalizer");
@@ -468,13 +470,7 @@ public class ParamUI extends ScrollPane {
         // Event
         // └ this
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
-        //this.setFitToWidth(true);
-        //this.addEventFilter(ScrollEvent.SCROLL, Event::consume);
-        /*this.addEventFilter(ScrollEvent.SCROLL, event -> {
-            System.out.println(event.getDeltaX() + " " + event.getDeltaY());
-            if (event.getDeltaX() != 0)
-                event.consume();
-        });*/
+        this.hvalueProperty().addListener((obs, oldValue, newValue) -> this.setHvalue(0)); // 清除圖層改變時造成的偏移
         this.setOnMouseEntered(event -> this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED));
         this.setOnMouseExited(event -> this.setVbarPolicy(ScrollBarPolicy.NEVER));
         // └ Equalizer
@@ -537,6 +533,19 @@ public class ParamUI extends ScrollPane {
             textFieldBarNum.textProperty().setValue(String.format("%d", value));
             barNumberProperty.setValue(value); // Property
         });
+        VisualizeFormat visualizeFormat = new VisualizeFormat();
+        sliderBarNum.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) {
+                visualizeFormat.setBarNum((int) sliderBarNum.getValue());
+            }
+            else {
+                if (visualizeFormat.getBarNum() != (int) sliderBarNum.getValue())
+                    commandManager.execute(new BarNumCommand(visualizeFormat.getBarNum(), (int) sliderBarNum.getValue()));
+            }
+        });
+        sliderBarNum.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderBarNum.setValueChanging(true));
+        sliderBarNum.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderBarNum.setValueChanging(false));
+        textFieldBarNum.focusedProperty().addListener((obs, oldValue, newValue) -> sliderBarNum.setValueChanging(newValue));
         //   └ Size
         sliderSize.valueProperty().addListener((obs, oldValue, newValue) -> textFieldSize.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldSize.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -826,6 +835,22 @@ public class ParamUI extends ScrollPane {
 
     public void setAdvancedEnable(boolean enable) {
         checkBoxAdvance.setSelected(enable);
+    }
+
+    public void undo() {
+        try {
+            commandManager.undo();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+    }
+
+    public void redo() {
+        try {
+            commandManager.redo();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
     }
 
     // UI Get & Set

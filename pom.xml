@@ -74,6 +74,13 @@
                 <version>3.8.0</version>
                 <configuration>
                     <release>11</release>
+                    <!--
+                    <compilerArgs>
+                        <arg>- -add-exports=javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls</arg>
+                        <arg>- -add-exports=javafx.controls/com.sun.javafx.scene.control.inputmap=org.controlsfx.controls</arg>
+                        <arg>- -add-exports=javafx.graphics/com.sun.javafx.scene.traversal=org.controlsfx.controls</arg>
+                    </compilerArgs>
+                    -->
                 </configuration>
             </plugin>
             <plugin>
@@ -82,6 +89,16 @@
                 <version>0.0.3</version>
                 <configuration>
                     <mainClass>com.visualize.App</mainClass>
+                    <!--
+                    <options>
+                        <option>- -add-opens</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.behavior=org.controlsfx.controls</option>
+                        <option>- -add-opens</option>
+                        <option>javafx.controls/com.sun.javafx.scene.control.inputmap=org.controlsfx.controls</option>
+                        <option>- -add-opens</option>
+                        <option>javafx.graphics/com.sun.javafx.scene.traversal=org.controlsfx.controls</option>
+                    </options>
+                    -->
                 </configuration>
             </plugin>
         </plugins>

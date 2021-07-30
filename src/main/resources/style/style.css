@@ -15,6 +15,15 @@
 .menu-bar > .container > .menu-button > .label {
     -fx-text-fill: white;
 }
+.menu-bar > .container > .menu-button:hover {
+    -fx-background-color: transparent;
+}
+.menu-bar > .container > .menu-button:showing {
+    -fx-background-color: #4B6EAF;
+}
+.menu-item:hover, .menu-item:focused {
+    -fx-background-color: #4B6EAF;
+}
 
 /* ScrollPane */
 .scroll-pane {

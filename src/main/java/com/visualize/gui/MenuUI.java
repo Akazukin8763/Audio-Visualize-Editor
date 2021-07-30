@@ -168,8 +168,8 @@ public class MenuUI extends Pane {
         fileExport.setDisable(disable);
         //fileExit.setDisable(disable);
 
-        editUndo.setDisable(true); // 暫時
-        editRedo.setDisable(true);
+        editUndo.setDisable(disable);
+        editRedo.setDisable(disable);
 
         runPreview.setDisable(disable);
         runAnimate.setDisable(disable);

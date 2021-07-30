@@ -115,7 +115,7 @@ public class FileUI extends ScrollPane {
             String tag = textInputDialog.showAndReturn().trim();
 
             if (!tag.equals(""))
-                System.out.println("Create List: " + createList(tag));
+                createList(tag);
         });
         //  └ 清除所有列表
         fileGroupClear.setOnAction(event -> clearList());
@@ -125,7 +125,7 @@ public class FileUI extends ScrollPane {
             try {
                 List<File> files = fileChooser.showOpenMultipleDialog(null);
                 fileChooser.setInitialDirectory(new File(files.get(0).getParent()));
-                System.out.println("Insert List: " + insertListFile(selectTag, files));
+                insertListFile(selectTag, files);
             } catch (NullPointerException ignored) {
                 // 不做任何事
             }
@@ -137,7 +137,7 @@ public class FileUI extends ScrollPane {
             String newtag = textInputDialog.showAndReturn().trim();
 
             if (!newtag.equals(""))
-                System.out.println("Rename List: " + renameList(selectTag, newtag));
+                renameList(selectTag, newtag);
         });
     }
 

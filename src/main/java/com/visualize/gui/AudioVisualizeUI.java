@@ -195,12 +195,8 @@ public class AudioVisualizeUI extends Pane {
         menuUI.fileImportClickProperty.addListener(event -> System.out.println("Import"));
         menuUI.fileExportClickProperty.addListener(event -> export());
         //  └ Edit
-        menuUI.editUndoClickProperty.addListener(event -> {
-            System.out.println("Undo");
-        });
-        menuUI.editRedoClickProperty.addListener(event -> {
-            System.out.println("Redo");
-        });
+        menuUI.editUndoClickProperty.addListener(event -> paramUI.undo());
+        menuUI.editRedoClickProperty.addListener(event -> paramUI.redo());
         //  └ Run
         menuUI.previewClickProperty.addListener(event -> preview());
         menuUI.animateClickProperty.addListener(event -> animate());
