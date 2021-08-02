@@ -2,21 +2,22 @@ package com.visualize.gui.command;
 
 import com.visualize.gui.ParamUI;
 
-public class BarNumCommand extends Command<Integer> {
+// 造成無限指令
+public class AdvanceCommand extends Command<Boolean> {
 
-    public BarNumCommand(Integer oldValue, Integer newValue) {
+    public AdvanceCommand(Boolean oldValue, Boolean newValue) {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
     @Override
     public void execute() {
-        ParamUI.paramUI.setBarNum(newValue);
+        ParamUI.paramUI.setAdvancedEnable(newValue);
     }
 
     @Override
     public void unExecute() {
-        ParamUI.paramUI.setBarNum(oldValue);
+        ParamUI.paramUI.setAdvancedEnable(oldValue);
     }
 
 }

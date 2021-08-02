@@ -38,8 +38,8 @@ public class CustomImageListView {
     private final IntegerProperty rangeWidthProperty = new SimpleIntegerProperty();
     private final IntegerProperty rangeHeightProperty = new SimpleIntegerProperty();
 
-    public final BooleanProperty orderChangedProperty = new SimpleBooleanProperty(false);
-    public final BooleanProperty imageFormatProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty orderChangedProperty = new SimpleBooleanProperty(false);
+    private final BooleanProperty imageFormatProperty = new SimpleBooleanProperty(false);
 
     // Constructor
     public CustomImageListView(double width, double height, int rangeWidth, int rangeHeight) {
@@ -327,4 +327,12 @@ public class CustomImageListView {
         return result;
     }
 
+    // Property
+    public BooleanProperty orderChangedProperty() {
+        return orderChangedProperty;
+    }
+
+    public BooleanProperty imageFormatProperty() {
+        return imageFormatProperty;
+    }
 }

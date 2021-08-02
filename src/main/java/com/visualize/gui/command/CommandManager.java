@@ -23,6 +23,11 @@ public class CommandManager implements Undoable, Redoable{
         redoStack.clear();
     }
 
+    public void clearHistory() {
+        undoStack.clear();
+        redoStack.clear();
+    }
+
     @Override
     public void undo() {
         if (canUndo()) {

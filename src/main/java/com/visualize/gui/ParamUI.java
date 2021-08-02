@@ -22,6 +22,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Button;
 import org.controlsfx.control.RangeSlider;
 
+import javafx.event.Event;
 import javafx.scene.input.MouseEvent;
 
 import javafx.scene.text.Font;
@@ -43,6 +44,8 @@ import java.io.File;
 import java.util.List;
 
 public class ParamUI extends ScrollPane {
+
+    public static ParamUI paramUI;
 
     private final double width;
     private final double height;
@@ -139,14 +142,14 @@ public class ParamUI extends ScrollPane {
     private final IntegerProperty minFrequencyProperty = new SimpleIntegerProperty();
     private final IntegerProperty maxFrequencyProperty = new SimpleIntegerProperty();
 
-    private final StringProperty colorProperty = new SimpleStringProperty(null);
-    private final StringProperty colorShadowProperty = new SimpleStringProperty(null);
+    private final ObjectProperty<Color> colorProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<Color> colorShadowProperty = new SimpleObjectProperty<>();
     private final IntegerProperty colorShadowRadiusProperty = new SimpleIntegerProperty();
     private final IntegerProperty colorShadowSpreadProperty = new SimpleIntegerProperty();
     private final IntegerProperty colorShadowOffsetXProperty = new SimpleIntegerProperty();
     private final IntegerProperty colorShadowOffsetYProperty = new SimpleIntegerProperty();
 
-    private final StringProperty backgroundColorProperty = new SimpleStringProperty(null);
+    private final ObjectProperty<Color> backgroundColorProperty = new SimpleObjectProperty<>();
     private final StringProperty backgroundImageProperty = new SimpleStringProperty(null);
     private final IntegerProperty backgroundImagePositionXProperty = new SimpleIntegerProperty();
     private final IntegerProperty backgroundImagePositionYProperty = new SimpleIntegerProperty();
@@ -164,7 +167,7 @@ public class ParamUI extends ScrollPane {
         this.rangeWidthProperty.setValue(rangeWidth);
         this.rangeHeightProperty.setValue(rangeHeight);
         this.images = new CustomImageListView(width, height, rangeWidth, rangeHeight);
-        this.imageFormatProperty = images.imageFormatProperty;
+        this.imageFormatProperty = images.imageFormatProperty();
 
         paramPane = new GridPane();
         paramPane.setPrefWidth(width);
@@ -467,6 +470,14 @@ public class ParamUI extends ScrollPane {
         HBox groupImageControl = new HBox(labelImage, labelImageNull1, buttonImageImport, labelImageNull2, buttonImageClear);
         paramPane.add(groupImageControl, 0, 12, 2, 1);
 
+        ProjectFormat commandFormat = new ProjectFormat(
+                null, rangeWidth, rangeHeight, isAdvancedEnable(),
+                getView(), getSide(), getDirect(), getStereo(), null,
+                getBarNum(), getSize(), getGap(), getRadius(), getPosX(), getPosY(), getRotation(),
+                getColor(), getColorShadow(), getColorShadowRadius(), getColorShadowSpread(), getColorShadowOffsetX(), getColorShadowOffsetY(),
+                getSensitivity(), getMinFreq(), getMaxFreq(),
+                getBackgroundColor(), getBackgroundImage(), getBackgroundImagePosX(), getBackgroundImagePosY(),
+                getImageFormat());
         // Event
         // └ this
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
@@ -485,20 +496,48 @@ public class ParamUI extends ScrollPane {
             for (int index: GROUP_EQUALIZER_INDEX[type.value()])
                 groupEqualizer.add(groupEqualizerParam[index], 0, groupRow++, 2, 1);
         });
+        choiceBoxEqualizerType.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setView(choiceBoxEqualizerType.getValue());
+            else // 更改後
+                if (commandFormat.getView() != choiceBoxEqualizerType.getValue())
+                    commandManager.execute(new EqualizerTypeCommand(commandFormat.getView(), choiceBoxEqualizerType.getValue()));
+        });
         //   └ Equalizer Side
         choiceBoxEqualizerSide.setOnAction(event -> {
-            VisualizeMode.Side type = choiceBoxEqualizerSide.getValue();
-            equalizerSideProperty.setValue(type); // Property
+            VisualizeMode.Side side = choiceBoxEqualizerSide.getValue();
+            equalizerSideProperty.setValue(side); // Property
+        });
+        choiceBoxEqualizerSide.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setSide(choiceBoxEqualizerSide.getValue());
+            else // 更改後
+                if (commandFormat.getSide() != choiceBoxEqualizerSide.getValue())
+                    commandManager.execute(new EqualizerSideCommand(commandFormat.getSide(), choiceBoxEqualizerSide.getValue()));
         });
         //   └ Equalizer Direction
         choiceBoxEqualizerDirection.setOnAction(event -> {
-            VisualizeMode.Direct type = choiceBoxEqualizerDirection.getValue();
-            equalizerDirectionProperty.setValue(type); // Property
+            VisualizeMode.Direct direct = choiceBoxEqualizerDirection.getValue();
+            equalizerDirectionProperty.setValue(direct); // Property
+        });
+        choiceBoxEqualizerDirection.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setDirect(choiceBoxEqualizerDirection.getValue());
+            else // 更改後
+                if (commandFormat.getDirect() != choiceBoxEqualizerDirection.getValue())
+                    commandManager.execute(new EqualizerDirectCommand(commandFormat.getDirect(), choiceBoxEqualizerDirection.getValue()));
         });
         //   └ Equalizer Stereo
         choiceBoxEqualizerStereo.valueProperty().addListener((obs, oldValue, newValue) -> {
-            VisualizeMode.Stereo type = (newValue == null ? oldValue : newValue);
-            equalizerStereoProperty.setValue(type); // Property
+            VisualizeMode.Stereo stereo = (newValue == null ? oldValue : newValue);
+            equalizerStereoProperty.setValue(stereo); // Property
+        });
+        choiceBoxEqualizerStereo.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setStereo(choiceBoxEqualizerStereo.getValue());
+            else // 更改後
+                if (commandFormat.getStereo() != choiceBoxEqualizerStereo.getValue())
+                    commandManager.execute(new EqualizerStereoCommand(commandFormat.getStereo(), choiceBoxEqualizerStereo.getValue()));
         });
         //  └ Check Box
         //   └ Advance
@@ -511,17 +550,19 @@ public class ParamUI extends ScrollPane {
                 groupAdvance.add(labelEqualizerStereo, 0, groupRow);
                 groupAdvance.add(choiceBoxEqualizerStereo, 1, groupRow);
 
-                colorShadowProperty.setValue(colorPickerColorShadow.getValue().toString());
+                colorShadowProperty.setValue(colorPickerColorShadow.getValue());
                 sensitivityProperty.setValue(sliderSensitivity.getValue());
                 minFrequencyProperty.setValue(rangeSliderFreq.getLowValue());
                 maxFrequencyProperty.setValue(rangeSliderFreq.getHighValue());
+                //commandManager.execute(new AdvanceCommand(false, true));
             }
             else { // 保留內部資料，重製音波資料，因為處於未啟用狀態
                 // 預設值
-                colorShadowProperty.setValue(Color.rgb(0, 0, 0, 0).toString());
+                colorShadowProperty.setValue(Color.rgb(0, 0, 0, 0));
                 sensitivityProperty.setValue(50);
                 minFrequencyProperty.setValue(0);
                 maxFrequencyProperty.setValue(24000);
+                //commandManager.execute(new AdvanceCommand(true, false));
             }
         });
         //  └ Slider
@@ -533,15 +574,12 @@ public class ParamUI extends ScrollPane {
             textFieldBarNum.textProperty().setValue(String.format("%d", value));
             barNumberProperty.setValue(value); // Property
         });
-        VisualizeFormat visualizeFormat = new VisualizeFormat();
         sliderBarNum.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue) {
-                visualizeFormat.setBarNum((int) sliderBarNum.getValue());
-            }
-            else {
-                if (visualizeFormat.getBarNum() != (int) sliderBarNum.getValue())
-                    commandManager.execute(new BarNumCommand(visualizeFormat.getBarNum(), (int) sliderBarNum.getValue()));
-            }
+            if (newValue) // 更改前
+                commandFormat.setBarNum((int) sliderBarNum.getValue());
+            else // 更改後
+                if (commandFormat.getBarNum() != (int) sliderBarNum.getValue())
+                    commandManager.execute(new BarNumCommand(commandFormat.getBarNum(), (int) sliderBarNum.getValue()));
         });
         sliderBarNum.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderBarNum.setValueChanging(true));
         sliderBarNum.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderBarNum.setValueChanging(false));
@@ -554,6 +592,16 @@ public class ParamUI extends ScrollPane {
             textFieldSize.textProperty().setValue(String.format("%d", value));
             sizeProperty.setValue(value); // Property
         });
+        sliderSize.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setSize((int) sliderSize.getValue());
+            else // 更改後
+                if (commandFormat.getSize() != (int) sliderSize.getValue())
+                    commandManager.execute(new SizeCommand(commandFormat.getSize(), (int) sliderSize.getValue()));
+        });
+        sliderSize.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderSize.setValueChanging(true));
+        sliderSize.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderSize.setValueChanging(false));
+        textFieldSize.focusedProperty().addListener((obs, oldValue, newValue) -> sliderSize.setValueChanging(newValue));
         //   └ Rotation
         sliderRotation.valueProperty().addListener((obs, oldValue, newValue) -> textFieldRotation.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldRotation.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -562,6 +610,16 @@ public class ParamUI extends ScrollPane {
             textFieldRotation.textProperty().setValue(String.format("%d", value));
             rotationProperty.setValue(value); // Property
         });
+        sliderRotation.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setRotation(sliderRotation.getValue());
+            else // 更改後
+                if (commandFormat.getRotation() != sliderRotation.getValue())
+                    commandManager.execute(new RotationCommand(commandFormat.getRotation(), sliderRotation.getValue()));
+        });
+        sliderRotation.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderRotation.setValueChanging(true));
+        sliderRotation.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderRotation.setValueChanging(false));
+        textFieldRotation.focusedProperty().addListener((obs, oldValue, newValue) -> sliderRotation.setValueChanging(newValue));
         //   └ Gap
         sliderGap.valueProperty().addListener((obs, oldValue, newValue) -> textFieldGap.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldGap.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -570,6 +628,16 @@ public class ParamUI extends ScrollPane {
             textFieldGap.textProperty().setValue(String.format("%d", value));
             gapProperty.setValue(value); // Property
         });
+        sliderGap.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setGap((int) sliderGap.getValue());
+            else // 更改後
+                if (commandFormat.getGap() != (int) sliderGap.getValue())
+                    commandManager.execute(new GapCommand(commandFormat.getGap(), (int) sliderGap.getValue()));
+        });
+        sliderGap.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderGap.setValueChanging(true));
+        sliderGap.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderGap.setValueChanging(false));
+        textFieldGap.focusedProperty().addListener((obs, oldValue, newValue) -> sliderGap.setValueChanging(newValue));
         //   └ Radius
         sliderRadius.valueProperty().addListener((obs, oldValue, newValue) -> textFieldRadius.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldRadius.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -578,6 +646,16 @@ public class ParamUI extends ScrollPane {
             textFieldRadius.textProperty().setValue(String.format("%d", value));
             radiusProperty.setValue(value); // Property
         });
+        sliderRadius.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setRadius((int) sliderRadius.getValue());
+            else // 更改後
+                if (commandFormat.getRadius() != (int) sliderRadius.getValue())
+                    commandManager.execute(new RadiusCommand(commandFormat.getRadius(), (int) sliderRadius.getValue()));
+        });
+        sliderRadius.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderRadius.setValueChanging(true));
+        sliderRadius.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderRadius.setValueChanging(false));
+        textFieldRadius.focusedProperty().addListener((obs, oldValue, newValue) -> sliderRadius.setValueChanging(newValue));
         //   └ Position X
         sliderPosX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldPosX.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldPosX.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -586,6 +664,16 @@ public class ParamUI extends ScrollPane {
             textFieldPosX.textProperty().setValue(String.format("%d", value));
             positionXProperty.setValue(value); // Property
         });
+        sliderPosX.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setPosX(sliderPosX.getValue());
+            else // 更改後
+                if (commandFormat.getPosX() != sliderPosX.getValue())
+                    commandManager.execute(new PosXCommand(commandFormat.getPosX(), sliderPosX.getValue()));
+        });
+        sliderPosX.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderPosX.setValueChanging(true));
+        sliderPosX.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderPosX.setValueChanging(false));
+        textFieldPosX.focusedProperty().addListener((obs, oldValue, newValue) -> sliderPosX.setValueChanging(newValue));
         //   └ Position Y
         sliderPosY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldPosY.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldPosY.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -594,6 +682,16 @@ public class ParamUI extends ScrollPane {
             textFieldPosY.textProperty().setValue(String.format("%d", value));
             positionYProperty.setValue(value); // Property
         });
+        sliderPosY.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setPosY(sliderPosY.getValue());
+            else // 更改後
+                if (commandFormat.getPosY() != sliderPosY.getValue())
+                    commandManager.execute(new PosYCommand(commandFormat.getPosY(), sliderPosY.getValue()));
+        });
+        sliderPosY.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderPosY.setValueChanging(true));
+        sliderPosY.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderPosY.setValueChanging(false));
+        textFieldPosY.focusedProperty().addListener((obs, oldValue, newValue) -> sliderPosY.setValueChanging(newValue));
         //   └ Sensitivity
         sliderSensitivity.valueProperty().addListener((obs, oldValue, newValue) -> textFieldSensitivity.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldSensitivity.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -602,6 +700,16 @@ public class ParamUI extends ScrollPane {
             textFieldSensitivity.textProperty().setValue(String.format("%d", value));
             sensitivityProperty.setValue(value); // Property
         });
+        sliderSensitivity.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setSensitivity(sliderSensitivity.getValue());
+            else // 更改後
+                if (commandFormat.getSensitivity() != sliderSensitivity.getValue())
+                    commandManager.execute(new SensitivityCommand(commandFormat.getSensitivity(), sliderSensitivity.getValue()));
+        });
+        sliderSensitivity.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderSensitivity.setValueChanging(true));
+        sliderSensitivity.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderSensitivity.setValueChanging(false));
+        textFieldSensitivity.focusedProperty().addListener((obs, oldValue, newValue) -> sliderSensitivity.setValueChanging(newValue));
         //   └ Frequency
         rangeSliderFreq.lowValueProperty().addListener((obs, oldValue, newValue) -> textFieldMinFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
         rangeSliderFreq.highValueProperty().addListener((obs, oldValue, newValue) -> textFieldMaxFreq.textProperty().setValue(String.format("%d", newValue.intValue())));
@@ -617,6 +725,30 @@ public class ParamUI extends ScrollPane {
             textFieldMaxFreq.textProperty().setValue(String.format("%d", value));
             maxFrequencyProperty.setValue(value); // Property
         });
+        rangeSliderFreq.lowValueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setMinFreq(rangeSliderFreq.getLowValue());
+            else // 更改後
+                if (commandFormat.getMinFreq() != rangeSliderFreq.getLowValue())
+                    commandManager.execute(new MinFreqCommand(commandFormat.getMinFreq(), rangeSliderFreq.getLowValue()));
+        });
+        rangeSliderFreq.highValueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setMaxFreq(rangeSliderFreq.getHighValue());
+            else // 更改後
+                if (commandFormat.getMaxFreq() != rangeSliderFreq.getHighValue())
+                    commandManager.execute(new MaxFreqCommand(commandFormat.getMaxFreq(), rangeSliderFreq.getHighValue()));
+        });
+        rangeSliderFreq.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            rangeSliderFreq.setLowValueChanging(true);
+            rangeSliderFreq.setHighValueChanging(true);
+        });
+        rangeSliderFreq.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> {
+            rangeSliderFreq.setLowValueChanging(false);
+            rangeSliderFreq.setHighValueChanging(false);
+        });
+        textFieldMinFreq.focusedProperty().addListener((obs, oldValue, newValue) -> rangeSliderFreq.setLowValueChanging(newValue));
+        textFieldMaxFreq.focusedProperty().addListener((obs, oldValue, newValue) -> rangeSliderFreq.setHighValueChanging(newValue));
         //   └ Color Shadow Radius
         sliderColorShadowRadius.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowRadius.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowRadius.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -625,6 +757,16 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowRadius.textProperty().setValue(String.format("%d", value));
             colorShadowRadiusProperty.setValue(value); // Property
         });
+        sliderColorShadowRadius.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setColorShadowRadius((int) sliderColorShadowRadius.getValue());
+            else // 更改後
+                if (commandFormat.getColorShadowRadius() != (int) sliderColorShadowRadius.getValue())
+                    commandManager.execute(new ColorShadowRadiusCommand(commandFormat.getColorShadowRadius(), (int) sliderColorShadowRadius.getValue()));
+        });
+        sliderColorShadowRadius.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderColorShadowRadius.setValueChanging(true));
+        sliderColorShadowRadius.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderColorShadowRadius.setValueChanging(false));
+        textFieldColorShadowRadius.focusedProperty().addListener((obs, oldValue, newValue) -> sliderColorShadowRadius.setValueChanging(newValue));
         //   └ Color Shadow Spread
         sliderColorShadowSpread.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowSpread.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowSpread.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -633,6 +775,16 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowSpread.textProperty().setValue(String.format("%d", value));
             colorShadowSpreadProperty.setValue(value); // Property
         });
+        sliderColorShadowSpread.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setColorShadowSpread(sliderColorShadowSpread.getValue());
+            else // 更改後
+                if (commandFormat.getColorShadowSpread() != sliderColorShadowSpread.getValue())
+                    commandManager.execute(new ColorShadowSpreadCommand(commandFormat.getColorShadowSpread(), sliderColorShadowSpread.getValue()));
+        });
+        sliderColorShadowSpread.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderColorShadowSpread.setValueChanging(true));
+        sliderColorShadowSpread.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderColorShadowSpread.setValueChanging(false));
+        textFieldColorShadowSpread.focusedProperty().addListener((obs, oldValue, newValue) -> sliderColorShadowSpread.setValueChanging(newValue));
         //   └ Color Shadow Offset X
         sliderColorShadowOffsetX.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowOffsetX.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -641,6 +793,16 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowOffsetX.textProperty().setValue(String.format("%d", value));
             colorShadowOffsetXProperty.setValue(value); // Property
         });
+        sliderColorShadowOffsetX.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setColorShadowOffsetX(sliderColorShadowOffsetX.getValue());
+            else // 更改後
+                if (commandFormat.getColorShadowOffsetX() != sliderColorShadowOffsetX.getValue())
+                    commandManager.execute(new ColorShadowOffsetXCommand(commandFormat.getColorShadowOffsetX(), sliderColorShadowOffsetX.getValue()));
+        });
+        sliderColorShadowOffsetX.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderColorShadowOffsetX.setValueChanging(true));
+        sliderColorShadowOffsetX.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderColorShadowOffsetX.setValueChanging(false));
+        textFieldColorShadowOffsetX.focusedProperty().addListener((obs, oldValue, newValue) -> sliderColorShadowOffsetX.setValueChanging(newValue));
         //   └ Color Shadow Offset Y
         sliderColorShadowOffsetY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldColorShadowOffsetY.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -649,11 +811,35 @@ public class ParamUI extends ScrollPane {
             textFieldColorShadowOffsetY.textProperty().setValue(String.format("%d", value));
             colorShadowOffsetYProperty.setValue(value); // Property
         });
+        sliderColorShadowOffsetY.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setColorShadowOffsetY(sliderColorShadowOffsetY.getValue());
+            else // 更改後
+                if (commandFormat.getColorShadowOffsetY() != sliderColorShadowOffsetY.getValue())
+                    commandManager.execute(new ColorShadowOffsetYCommand(commandFormat.getColorShadowOffsetY(), sliderColorShadowOffsetY.getValue()));
+        });
+        sliderColorShadowOffsetY.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderColorShadowOffsetY.setValueChanging(true));
+        sliderColorShadowOffsetY.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderColorShadowOffsetY.setValueChanging(false));
+        textFieldColorShadowOffsetY.focusedProperty().addListener((obs, oldValue, newValue) -> sliderColorShadowOffsetY.setValueChanging(newValue));
         //  └ Color Picker
         //   └ Color
-        colorPickerColor.valueProperty().addListener((obs, oldValue, newValue) -> colorProperty.setValue(newValue.toString()));
+        colorPickerColor.valueProperty().addListener((obs, oldValue, newValue) -> colorProperty.setValue(newValue));
+        colorPickerColor.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setColor(colorPickerColor.getValue());
+            else // 更改後
+                if (commandFormat.getColor() != colorPickerColor.getValue())
+                    commandManager.execute(new ColorCommand(commandFormat.getColor(), colorPickerColor.getValue()));
+        });
         //   └ Color Shadow
-        colorPickerColorShadow.valueProperty().addListener((obs, oldValue, newValue) -> colorShadowProperty.setValue(newValue.toString()));
+        colorPickerColorShadow.valueProperty().addListener((obs, oldValue, newValue) -> colorShadowProperty.setValue(newValue));
+        colorPickerColorShadow.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setColorShadow(colorPickerColorShadow.getValue());
+            else // 更改後
+                if (commandFormat.getColorShadow() != colorPickerColorShadow.getValue())
+                    commandManager.execute(new ColorShadowCommand(commandFormat.getColorShadow(), colorPickerColorShadow.getValue()));
+        });
         // └ Background
         //  └ Button
         //   └ Background Image
@@ -687,6 +873,16 @@ public class ParamUI extends ScrollPane {
             textFieldBackgroundImagePosX.textProperty().setValue(String.format("%d", value));
             backgroundImagePositionXProperty.setValue(value); // Property
         });
+        sliderBackgroundImagePosX.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setBackgroundImagePosX((int) sliderBackgroundImagePosX.getValue());
+            else // 更改後
+                if (commandFormat.getBackgroundImagePosX() != (int) sliderBackgroundImagePosX.getValue())
+                    commandManager.execute(new BackgroundImagePosXCommand(commandFormat.getBackgroundImagePosX(), (int) sliderBackgroundImagePosX.getValue()));
+        });
+        sliderBackgroundImagePosX.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderBackgroundImagePosX.setValueChanging(true));
+        sliderBackgroundImagePosX.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderBackgroundImagePosX.setValueChanging(false));
+        textFieldBackgroundImagePosX.focusedProperty().addListener((obs, oldValue, newValue) -> sliderBackgroundImagePosX.setValueChanging(newValue));
         //   └ Position Y
         sliderBackgroundImagePosY.valueProperty().addListener((obs, oldValue, newValue) -> textFieldBackgroundImagePosY.textProperty().setValue(String.format("%d", newValue.intValue())));
         textFieldBackgroundImagePosY.textProperty().addListener((obs, oldValue, newValue) -> {
@@ -695,9 +891,26 @@ public class ParamUI extends ScrollPane {
             textFieldBackgroundImagePosY.textProperty().setValue(String.format("%d", value));
             backgroundImagePositionYProperty.setValue(value); // Property
         });
+        sliderBackgroundImagePosY.valueChangingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setBackgroundImagePosY((int) sliderBackgroundImagePosY.getValue());
+            else // 更改後
+                if (commandFormat.getBackgroundImagePosY() != (int) sliderBackgroundImagePosY.getValue())
+                    commandManager.execute(new BackgroundImagePosYCommand(commandFormat.getBackgroundImagePosY(), (int) sliderBackgroundImagePosY.getValue()));
+        });
+        sliderBackgroundImagePosY.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> sliderBackgroundImagePosY.setValueChanging(true));
+        sliderBackgroundImagePosY.addEventFilter(MouseEvent.MOUSE_RELEASED, event -> sliderBackgroundImagePosY.setValueChanging(false));
+        textFieldBackgroundImagePosY.focusedProperty().addListener((obs, oldValue, newValue) -> sliderBackgroundImagePosY.setValueChanging(newValue));
         //  └ Color Picker
         //   └ Background Color
-        colorPickerBackgroundColor.valueProperty().addListener((obs, oldValue, newValue) -> backgroundColorProperty.setValue(newValue.toString()));
+        colorPickerBackgroundColor.valueProperty().addListener((obs, oldValue, newValue) -> backgroundColorProperty.setValue(newValue));
+        colorPickerBackgroundColor.showingProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue) // 更改前
+                commandFormat.setBackgroundColor(colorPickerBackgroundColor.getValue());
+            else // 更改後
+                if (commandFormat.getBackgroundColor() != colorPickerBackgroundColor.getValue())
+                    commandManager.execute(new BackgroundColorCommand(commandFormat.getBackgroundColor(), colorPickerBackgroundColor.getValue()));
+        });
         // └ Image
         //  └ Button
         //   └ Image
@@ -725,7 +938,7 @@ public class ParamUI extends ScrollPane {
             images.clear();
             groupImage.getChildren().clear();
         });
-        images.orderChangedProperty.addListener(event -> {
+        images.orderChangedProperty().addListener(event -> {
             groupImage.getChildren().clear(); // 清空所有可能選單
 
             int groupRow = 0;
@@ -1135,11 +1348,11 @@ public class ParamUI extends ScrollPane {
         return maxFrequencyProperty;
     }
 
-    public StringProperty colorProperty() {
+    public ObjectProperty<Color> colorProperty() {
         return colorProperty;
     }
 
-    public StringProperty colorShadowProperty() {
+    public ObjectProperty<Color> colorShadowProperty() {
         return colorShadowProperty;
     }
 
@@ -1159,7 +1372,7 @@ public class ParamUI extends ScrollPane {
         return colorShadowOffsetYProperty;
     }
 
-    public StringProperty backgroundColorProperty() {
+    public ObjectProperty<Color> backgroundColorProperty() {
         return backgroundColorProperty;
     }
 

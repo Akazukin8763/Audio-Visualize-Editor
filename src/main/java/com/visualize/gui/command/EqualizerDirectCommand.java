@@ -4,21 +4,21 @@ import com.visualize.gui.ParamUI;
 
 import com.visualize.view.*;
 
-public class EqualizerTypeCommand extends Command<VisualizeMode.View> {
+public class EqualizerDirectCommand extends Command<VisualizeMode.Direct> {
 
-    public EqualizerTypeCommand(VisualizeMode.View oldValue, VisualizeMode.View newValue) {
+    public EqualizerDirectCommand(VisualizeMode.Direct oldValue, VisualizeMode.Direct newValue) {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
     @Override
     public void execute() {
-        ParamUI.paramUI.setView(newValue);
+        ParamUI.paramUI.setDirect(newValue);
     }
 
     @Override
     public void unExecute() {
-        ParamUI.paramUI.setView(oldValue);
+        ParamUI.paramUI.setDirect(oldValue);
     }
 
 }

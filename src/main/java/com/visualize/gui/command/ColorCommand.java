@@ -2,21 +2,23 @@ package com.visualize.gui.command;
 
 import com.visualize.gui.ParamUI;
 
-public class BarNumCommand extends Command<Integer> {
+import javafx.scene.paint.Color;
 
-    public BarNumCommand(Integer oldValue, Integer newValue) {
+public class ColorCommand extends Command<Color> {
+
+    public ColorCommand(Color oldValue, Color newValue) {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
     @Override
     public void execute() {
-        ParamUI.paramUI.setBarNum(newValue);
+        ParamUI.paramUI.setColor(newValue);
     }
 
     @Override
     public void unExecute() {
-        ParamUI.paramUI.setBarNum(oldValue);
+        ParamUI.paramUI.setColor(oldValue);
     }
 
 }

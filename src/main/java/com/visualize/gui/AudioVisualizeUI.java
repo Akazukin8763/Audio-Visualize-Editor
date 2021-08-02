@@ -16,6 +16,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.event.Event;
 
 import javafx.scene.paint.Color;
+
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -36,7 +37,7 @@ public class AudioVisualizeUI extends Pane {
 
     private final MenuUI menuUI;
     private final FileUI fileUI;
-    private final ParamUI paramUI;
+    //private final ParamUI paramUI;
     private final TimelineUI timelineUI;
 
     private AudioFile audioFile;
@@ -62,10 +63,10 @@ public class AudioVisualizeUI extends Pane {
 
         menuUI = new MenuUI(width, height * .03);
         fileUI = new FileUI(width * .12, height * .65);
-        paramUI = new ParamUI(width * .20, height * .97, rangeWidth, rangeHeight);
+        ParamUI.paramUI = new ParamUI(width * .20, height * .97, rangeWidth, rangeHeight);
         timelineUI = new TimelineUI(width * .80, height * .03);
         menuUI.setMenuEnable(false);
-        paramUI.setEnable(false);
+        ParamUI.paramUI.setEnable(false);
         timelineUI.setEnable(false);
 
         audioFile = new WavFile(DefaultPath.DEFAULT_MUSIC_PATH);
@@ -101,7 +102,7 @@ public class AudioVisualizeUI extends Pane {
 
         HBox hBox1 = new HBox(fileUI, fitPane);
         VBox vBox1 = new VBox(hBox1, timelineUI, idk);
-        HBox hBox2 = new HBox(vBox1, paramUI);
+        HBox hBox2 = new HBox(vBox1, ParamUI.paramUI);
         VBox vBox2 = new VBox(menuUI, hBox2);
         getChildren().add(vBox2);
 
@@ -123,7 +124,7 @@ public class AudioVisualizeUI extends Pane {
                 setProject(format);
 
                 menuUI.setMenuEnable(true, false); // 不啟用 Save, 只啟用 Save as
-                paramUI.setEnable(true);
+                ParamUI.paramUI.setEnable(true);
                 //timelineUI.setEnable(true);
                 menuUI.setTitle(TITLE + " - " + projectName);
             }
@@ -143,7 +144,7 @@ public class AudioVisualizeUI extends Pane {
                 setProject(format);
 
                 menuUI.setMenuEnable(true); // 全啟用
-                paramUI.setEnable(true);
+                ParamUI.paramUI.setEnable(true);
                 //timelineUI.setEnable(true);
                 menuUI.setTitle(TITLE + " - " + projectName);
             } catch (NullPointerException ignored) {
@@ -155,13 +156,13 @@ public class AudioVisualizeUI extends Pane {
         menuUI.fileSaveClickProperty.addListener(event -> {
             try {
                 project.save(new ProjectFormat(
-                                projectName, rangeWidth, rangeHeight, paramUI.isAdvancedEnable(),
-                                paramUI.getView(), paramUI.getSide(), paramUI.getDirect(), paramUI.getStereo(), audioFile.getAbsolutePath(),
-                                paramUI.getBarNum(), paramUI.getSize(), paramUI.getGap(), paramUI.getRadius(), paramUI.getPosX(), paramUI.getPosY(), paramUI.getRotation(),
-                                paramUI.getColor(), paramUI.getColorShadow(), paramUI.getColorShadowRadius(), paramUI.getColorShadowSpread(), paramUI.getColorShadowOffsetX(), paramUI.getColorShadowOffsetY(),
-                                paramUI.getSensitivity(), paramUI.getMinFreq(), paramUI.getMaxFreq(),
-                                paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY(),
-                                paramUI.getImageFormat()),
+                                projectName, rangeWidth, rangeHeight, ParamUI.paramUI.isAdvancedEnable(),
+                                ParamUI.paramUI.getView(), ParamUI.paramUI.getSide(), ParamUI.paramUI.getDirect(), ParamUI.paramUI.getStereo(), audioFile.getAbsolutePath(),
+                                ParamUI.paramUI.getBarNum(), ParamUI.paramUI.getSize(), ParamUI.paramUI.getGap(), ParamUI.paramUI.getRadius(), ParamUI.paramUI.getPosX(), ParamUI.paramUI.getPosY(), ParamUI.paramUI.getRotation(),
+                                ParamUI.paramUI.getColor(), ParamUI.paramUI.getColorShadow(), ParamUI.paramUI.getColorShadowRadius(), ParamUI.paramUI.getColorShadowSpread(), ParamUI.paramUI.getColorShadowOffsetX(), ParamUI.paramUI.getColorShadowOffsetY(),
+                                ParamUI.paramUI.getSensitivity(), ParamUI.paramUI.getMinFreq(), ParamUI.paramUI.getMaxFreq(),
+                                ParamUI.paramUI.getBackgroundColor(), ParamUI.paramUI.getBackgroundImage(), ParamUI.paramUI.getBackgroundImagePosX(), ParamUI.paramUI.getBackgroundImagePosY(),
+                                ParamUI.paramUI.getImageFormat()),
                         projectPath);
                 menuUI.setTitle(TITLE + " - " + projectName);
             } catch (IOException e) {
@@ -176,13 +177,13 @@ public class AudioVisualizeUI extends Pane {
                 projectName = projectName.substring(0, projectName.length() - 4); // 去除 .xml
 
                 project.save(new ProjectFormat(
-                                projectName, rangeWidth, rangeHeight, paramUI.isAdvancedEnable(),
-                                paramUI.getView(), paramUI.getSide(), paramUI.getDirect(), paramUI.getStereo(), audioFile.getAbsolutePath(),
-                                paramUI.getBarNum(), paramUI.getSize(), paramUI.getGap(), paramUI.getRadius(), paramUI.getPosX(), paramUI.getPosY(), paramUI.getRotation(),
-                                paramUI.getColor(), paramUI.getColorShadow(), paramUI.getColorShadowRadius(), paramUI.getColorShadowSpread(), paramUI.getColorShadowOffsetX(), paramUI.getColorShadowOffsetY(),
-                                paramUI.getSensitivity(), paramUI.getMinFreq(), paramUI.getMaxFreq(),
-                                paramUI.getBackgroundColor(), paramUI.getBackgroundImage(), paramUI.getBackgroundImagePosX(), paramUI.getBackgroundImagePosY(),
-                                paramUI.getImageFormat()),
+                                projectName, rangeWidth, rangeHeight, ParamUI.paramUI.isAdvancedEnable(),
+                                ParamUI.paramUI.getView(), ParamUI.paramUI.getSide(), ParamUI.paramUI.getDirect(), ParamUI.paramUI.getStereo(), audioFile.getAbsolutePath(),
+                                ParamUI.paramUI.getBarNum(), ParamUI.paramUI.getSize(), ParamUI.paramUI.getGap(), ParamUI.paramUI.getRadius(), ParamUI.paramUI.getPosX(), ParamUI.paramUI.getPosY(), ParamUI.paramUI.getRotation(),
+                                ParamUI.paramUI.getColor(), ParamUI.paramUI.getColorShadow(), ParamUI.paramUI.getColorShadowRadius(), ParamUI.paramUI.getColorShadowSpread(), ParamUI.paramUI.getColorShadowOffsetX(), ParamUI.paramUI.getColorShadowOffsetY(),
+                                ParamUI.paramUI.getSensitivity(), ParamUI.paramUI.getMinFreq(), ParamUI.paramUI.getMaxFreq(),
+                                ParamUI.paramUI.getBackgroundColor(), ParamUI.paramUI.getBackgroundImage(), ParamUI.paramUI.getBackgroundImagePosX(), ParamUI.paramUI.getBackgroundImagePosY(),
+                                ParamUI.paramUI.getImageFormat()),
                         projectPath);
                 menuUI.setMenuEnable(true); // Save as 完啟用 Save
                 menuUI.setTitle(TITLE + " - " + projectName);
@@ -195,157 +196,157 @@ public class AudioVisualizeUI extends Pane {
         menuUI.fileImportClickProperty.addListener(event -> System.out.println("Import"));
         menuUI.fileExportClickProperty.addListener(event -> export());
         //  └ Edit
-        menuUI.editUndoClickProperty.addListener(event -> paramUI.undo());
-        menuUI.editRedoClickProperty.addListener(event -> paramUI.redo());
+        menuUI.editUndoClickProperty.addListener(event -> ParamUI.paramUI.undo());
+        menuUI.editRedoClickProperty.addListener(event -> ParamUI.paramUI.redo());
         //  └ Run
         menuUI.previewClickProperty.addListener(event -> preview());
         menuUI.animateClickProperty.addListener(event -> animate());
         // └ Param UI
         //  └ Equalizer
         //   └ Equalizer Type
-        paramUI.equalizerTypeProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.equalizerTypeProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setView(newValue);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Side
-        paramUI.equalizerSideProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.equalizerSideProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setSide(newValue);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Direction
-        paramUI.equalizerDirectionProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.equalizerDirectionProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setDirect(newValue);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Equalizer Stereo
-        paramUI.equalizerStereoProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.equalizerStereoProperty().addListener((obs, oldValue, newValue) -> {
             visualizePane.setStereo(newValue);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Bar Number
-        paramUI.barNumberProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.barNumberProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarNum(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Size
-        paramUI.sizeProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.sizeProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarSize(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Rotation
-        paramUI.rotationProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.rotationProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setRotation(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Gap
-        paramUI.gapProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.gapProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setBarGap(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Radius
-        paramUI.radiusProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.radiusProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setRadius(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Position X
-        paramUI.positionXProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.positionXProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setPosX(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Position Y
-        paramUI.positionYProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.positionYProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setPosY(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Sensitivity
-        paramUI.sensitivityProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.sensitivityProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setSensitivity(newValue.doubleValue() / 100);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Min Frequency
-        paramUI.minFrequencyProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.minFrequencyProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setMinFreq(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Min Frequency
-        paramUI.maxFrequencyProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.maxFrequencyProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setMaxFreq(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color
-        paramUI.colorProperty().addListener((obs, oldValue, newValue) -> {
-            visualizeFormat.setBarColor(Color.web(newValue));
+        ParamUI.paramUI.colorProperty().addListener((obs, oldValue, newValue) -> {
+            visualizeFormat.setBarColor(newValue);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow
-        paramUI.colorShadowProperty().addListener((obs, oldValue, newValue) -> {
-            visualizeFormat.setDropShadowColor(Color.web(newValue));
+        ParamUI.paramUI.colorShadowProperty().addListener((obs, oldValue, newValue) -> {
+            visualizeFormat.setDropShadowColor(newValue);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Radius
-        paramUI.colorShadowRadiusProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.colorShadowRadiusProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorRadius(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Spread
-        paramUI.colorShadowSpreadProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.colorShadowSpreadProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorSpread(newValue.doubleValue() / 100);
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Offset X
-        paramUI.colorShadowOffsetXProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.colorShadowOffsetXProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorOffsetX(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Color Shadow Offset Y
-        paramUI.colorShadowOffsetYProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.colorShadowOffsetYProperty().addListener((obs, oldValue, newValue) -> {
             visualizeFormat.setDropShadowColorOffsetY(newValue.intValue());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //  └ Background
         //   └ Color
-        paramUI.backgroundColorProperty().addListener((obs, oldValue, newValue) -> {
-            backgroundFormat.setBackgroundColor(Color.web(newValue));
+        ParamUI.paramUI.backgroundColorProperty().addListener((obs, oldValue, newValue) -> {
+            backgroundFormat.setBackgroundColor(newValue);
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Image
-        paramUI.backgroundImageProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.backgroundImageProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImage(newValue);
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Image Position X
-        paramUI.backgroundImagePositionXProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.backgroundImagePositionXProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImagePosX(newValue.intValue());
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //   └ Image Position Y
-        paramUI.backgroundImagePositionYProperty().addListener((obs, oldValue, newValue) -> {
+        ParamUI.paramUI.backgroundImagePositionYProperty().addListener((obs, oldValue, newValue) -> {
             backgroundFormat.setBackgroundImagePosY(newValue.intValue());
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
         //  └ Image
-        paramUI.imageFormatProperty().addListener(event -> {
-            visualizePane.setImageFormat(paramUI.getImageFormat());
+        ParamUI.paramUI.imageFormatProperty().addListener(event -> {
+            visualizePane.setImageFormat(ParamUI.paramUI.getImageFormat());
             preview();
             menuUI.setTitle(TITLE + " - *" + projectName);
         });
@@ -390,7 +391,7 @@ public class AudioVisualizeUI extends Pane {
             String filename = new File(filepath).getName();
 
             visualizePane.setAudioFile(audioFile);
-            paramUI.setChannels(audioFile.getChannels());
+            ParamUI.paramUI.setChannels(audioFile.getChannels());
 
             audioFile.setVolume(timelineUI.volumeProperty().doubleValue() / 100);
 
@@ -398,7 +399,7 @@ public class AudioVisualizeUI extends Pane {
             timelineUI.setTotalDuration(audioFile.getDuration());
             timelineUI.setCurrentDuration(0);
 
-            //paramUI.setFrameRate(audioFile.getFrameRate());
+            //ParamUI.paramUI.setFrameRate(audioFile.getFrameRate());
 
             //EventLog.eventLog.songChange(songOld, songNew);
         } catch (javax.sound.sampled.UnsupportedAudioFileException | java.io.IOException e) {
@@ -449,45 +450,45 @@ public class AudioVisualizeUI extends Pane {
         fitPane.setContent(visualizePane);
 
         // 參數視窗
-        paramUI.setRangeWidth(format.getWidth());
-        paramUI.setRangeHeight(format.getHeight());
+        ParamUI.paramUI.setRangeWidth(format.getWidth());
+        ParamUI.paramUI.setRangeHeight(format.getHeight());
 
-        paramUI.setAdvancedEnable(format.isAdvanced());
+        ParamUI.paramUI.setAdvancedEnable(format.isAdvanced());
 
-        paramUI.setView(format.getView());
-        paramUI.setSide(format.getSide());
-        paramUI.setDirect(format.getDirect());
-        paramUI.setStereo(format.getStereo());
+        ParamUI.paramUI.setView(format.getView());
+        ParamUI.paramUI.setSide(format.getSide());
+        ParamUI.paramUI.setDirect(format.getDirect());
+        ParamUI.paramUI.setStereo(format.getStereo());
 
         // └ Music
         changeAudio(format.getFilepath());
 
         // └ Equalizer
-        paramUI.setBarNum(format.getBarNum());
-        paramUI.setSize(format.getSize());
-        paramUI.setGap(format.getGap());
-        paramUI.setRadius(format.getRadius());
-        paramUI.setPosX(format.getPosX());
-        paramUI.setPosY(format.getPosY());
-        paramUI.setRotation(format.getRotation());
-        paramUI.setColor(format.getColor());
-        paramUI.setColorShadow(format.getColorShadow());
-        paramUI.setColorShadowRadius(format.getColorShadowRadius());
-        paramUI.setColorShadowSpread(format.getColorShadowSpread());
-        paramUI.setColorShadowOffsetX(format.getColorShadowOffsetX());
-        paramUI.setColorShadowOffsetY(format.getColorShadowOffsetY());
-        paramUI.setSensitivity(format.getSensitivity());
-        paramUI.setMinFreq(format.getMinFreq());
-        paramUI.setMaxFreq(format.getMaxFreq());
+        ParamUI.paramUI.setBarNum(format.getBarNum());
+        ParamUI.paramUI.setSize(format.getSize());
+        ParamUI.paramUI.setGap(format.getGap());
+        ParamUI.paramUI.setRadius(format.getRadius());
+        ParamUI.paramUI.setPosX(format.getPosX());
+        ParamUI.paramUI.setPosY(format.getPosY());
+        ParamUI.paramUI.setRotation(format.getRotation());
+        ParamUI.paramUI.setColor(format.getColor());
+        ParamUI.paramUI.setColorShadow(format.getColorShadow());
+        ParamUI.paramUI.setColorShadowRadius(format.getColorShadowRadius());
+        ParamUI.paramUI.setColorShadowSpread(format.getColorShadowSpread());
+        ParamUI.paramUI.setColorShadowOffsetX(format.getColorShadowOffsetX());
+        ParamUI.paramUI.setColorShadowOffsetY(format.getColorShadowOffsetY());
+        ParamUI.paramUI.setSensitivity(format.getSensitivity());
+        ParamUI.paramUI.setMinFreq(format.getMinFreq());
+        ParamUI.paramUI.setMaxFreq(format.getMaxFreq());
 
         // └ Background
-        paramUI.setBackgroundColor(format.getBackgroundColor());
-        paramUI.setBackgroundImage(format.getBackgroundImage());
-        paramUI.setBackgroundImagePosX(format.getBackgroundImagePosX());
-        paramUI.setBackgroundImagePosY(format.getBackgroundImagePosY());
+        ParamUI.paramUI.setBackgroundColor(format.getBackgroundColor());
+        ParamUI.paramUI.setBackgroundImage(format.getBackgroundImage());
+        ParamUI.paramUI.setBackgroundImagePosX(format.getBackgroundImagePosX());
+        ParamUI.paramUI.setBackgroundImagePosY(format.getBackgroundImagePosY());
 
         // └ Image
-        paramUI.setImageFormat(format.getImageFormat());
+        ParamUI.paramUI.setImageFormat(format.getImageFormat());
 
         // Event
         // └ VisualizePane

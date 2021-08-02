@@ -2,21 +2,21 @@ package com.visualize.gui.command;
 
 import com.visualize.gui.ParamUI;
 
-public class BarNumCommand extends Command<Integer> {
+public class MinFreqCommand extends Command<Double> {
 
-    public BarNumCommand(Integer oldValue, Integer newValue) {
+    public MinFreqCommand(Double oldValue, Double newValue) {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
     @Override
     public void execute() {
-        ParamUI.paramUI.setBarNum(newValue);
+        ParamUI.paramUI.setMinFreq(newValue);
     }
 
     @Override
     public void unExecute() {
-        ParamUI.paramUI.setBarNum(oldValue);
+        ParamUI.paramUI.setMinFreq(oldValue);
     }
 
 }

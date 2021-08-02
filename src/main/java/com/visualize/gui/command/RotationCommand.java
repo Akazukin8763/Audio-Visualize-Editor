@@ -2,21 +2,21 @@ package com.visualize.gui.command;
 
 import com.visualize.gui.ParamUI;
 
-public class BarNumCommand extends Command<Integer> {
+public class RotationCommand extends Command<Double> {
 
-    public BarNumCommand(Integer oldValue, Integer newValue) {
+    public RotationCommand(Double oldValue, Double newValue) {
         this.oldValue = oldValue;
         this.newValue = newValue;
     }
 
     @Override
     public void execute() {
-        ParamUI.paramUI.setBarNum(newValue);
+        ParamUI.paramUI.setRotation(newValue);
     }
 
     @Override
     public void unExecute() {
-        ParamUI.paramUI.setBarNum(oldValue);
+        ParamUI.paramUI.setRotation(oldValue);
     }
 
 }
